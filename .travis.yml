@@ -48,7 +48,7 @@ script:
 
 jobs:
   include:
-    - stage: deploy
+  - stage: deploy
 
     env:
       - DB=mysqli MOODLE_BRANCH=MOODLE_33_STABLE
