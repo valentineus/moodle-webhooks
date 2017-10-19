@@ -1,4 +1,8 @@
 # Moodle WebHook's
+[![GitHub Release](https://img.shields.io/github/release/valentineus/moodle-webhooks.svg)](https://github.com/valentineus/moodle-webhooks/releases)
+[![Build Status](https://travis-ci.org/valentineus/moodle-webhooks.svg?branch=master)](https://travis-ci.org/valentineus/moodle-webhooks)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/376ab669f2d3436884015554f686a915)](https://www.codacy.com/app/valentineus/moodle-webhooks)
+[![Gitter Badge](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/valentineus/auth-link)
 
 Webhooks allow applications to subscribe to Moodle events.
 
