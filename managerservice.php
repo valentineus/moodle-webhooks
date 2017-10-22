@@ -34,7 +34,7 @@ $PAGE->set_context($context);
 
 /* Delete the service */
 if ($deleteservice && confirm_sesskey()) {
-    $DB->delete_records("local_webhooks_service", array("id" => $deleterssid));
+    $DB->delete_records("local_webhooks_service", array("id" => $deleteservice));
     redirect($PAGE->url, new lang_string("servicedeleted", "local_webhooks"));
 }
 
