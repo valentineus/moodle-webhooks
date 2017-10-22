@@ -28,5 +28,6 @@ $string["linkmanagerservice"] = "Service management manager";
 $string["local_webhooksdescription"] = "";
 $string["managementmanager"] = "Service Management Manager";
 $string["managementmanageradd"] = "Add a service";
+$string["managementmanagerdescription"] = "";
 $string["pluginname"] = "Moodle WebHooks";
 $string["servicedeleted"] = "Service has been removed";

@@ -40,6 +40,13 @@ if ($hassiteconfig) {
         false
     ));
 
+    /* Title Manager */
+    $settings->add(new admin_setting_heading(
+        "defaultsettings",
+        new lang_string("linkmanagerservice", "local_webhooks"),
+        new lang_string("managementmanagerdescription", "local_webhooks")
+    ));
+
     /* Link to the service manager */
     $linktext = new lang_string("linkmanagerservice", "local_webhooks");
     $link = "<a href=\"" . $CFG->wwwroot . "/local/webhooks/managerservice.php\">" . $linktext . "</a>";

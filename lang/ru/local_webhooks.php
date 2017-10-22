@@ -28,5 +28,6 @@ $string["linkmanagerservice"] = "Менеджер управления служ�
 $string["local_webhooksdescription"] = "";
 $string["managementmanager"] = "Менеджер управления службами";
 $string["managementmanageradd"] = "Добавить службу";
+$string["managementmanagerdescription"] = "";
 $string["pluginname"] = "Moodle WebHooks";
 $string["servicedeleted"] = "Служба была удалена";
