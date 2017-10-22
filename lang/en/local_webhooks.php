@@ -15,16 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'local_webhooks', language 'en'.
+ * Strings for component "local_webhooks", language "en".
  *
  * @package   local_webhooks
  * @copyright 2017 "Valentin Popov" <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['local_webhooksdescription'] = '';
-$string['pluginname'] = 'WebHook\'s';
-$string['enabled'] = 'Enabled';
-$string['enabled_help'] = 'Enable event tracking.';
-$string['url'] = 'URL';
-$string['url_help'] = 'Web address of the remote service.';
+$string["enableservice"] = "Enabled";
+$string["enableservice_help"] = "Enable the Event Tracking service.";
+$string["linkmanagerservice"] = "Service management manager";
+$string["local_webhooksdescription"] = "";
+$string["pluginname"] = "Moodle WebHooks";
