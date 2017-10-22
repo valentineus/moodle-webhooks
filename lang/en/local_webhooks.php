@@ -26,4 +26,7 @@ $string["enableservice"] = "Enabled";
 $string["enableservice_help"] = "Enable the Event Tracking service.";
 $string["linkmanagerservice"] = "Service management manager";
 $string["local_webhooksdescription"] = "";
+$string["managementmanager"] = "Service Management Manager";
+$string["managementmanageradd"] = "Add a service";
 $string["pluginname"] = "Moodle WebHooks";
+$string["servicedeleted"] = "Service has been removed";

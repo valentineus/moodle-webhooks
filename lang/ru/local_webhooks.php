@@ -26,4 +26,7 @@ $string["enableservice"] = "Включить";
 $string["enableservice_help"] = "Включение службы отслеживания событий.";
 $string["linkmanagerservice"] = "Менеджер управления службами";
 $string["local_webhooksdescription"] = "";
+$string["managementmanager"] = "Менеджер управления службами";
+$string["managementmanageradd"] = "Добавить службу";
 $string["pluginname"] = "Moodle WebHooks";
+$string["servicedeleted"] = "Служба была удалена";
