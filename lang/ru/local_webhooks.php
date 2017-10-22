@@ -22,6 +22,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string["editserviceadds"] = "Создание службы";
+$string["editserviceedits"] = "Редактирование службы";
 $string["enableservice"] = "Включить";
 $string["enableservice_help"] = "Включение службы отслеживания событий.";
 $string["linkmanagerservice"] = "Менеджер управления службами";

@@ -22,6 +22,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string["editserviceadds"] = "Create a service";
+$string["editserviceedits"] = "Edit the service";
 $string["enableservice"] = "Enabled";
 $string["enableservice_help"] = "Enable the Event Tracking service.";
 $string["linkmanagerservice"] = "Service management manager";
