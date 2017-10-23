@@ -23,16 +23,19 @@
  */
 
 require_once(__DIR__ . "/../../config.php");
-require_once(__DIR__ . "/classes/form.php");
+require_once(__DIR__ . "/classes/forms.php");
 
 $idservice = optional_param("idservice", 0, PARAM_INT);
 
 require_login();
 
-$managerservice = new moodle_url("/local/webhooks/managerservice.php");
-$baseurl = new moodle_url("/local/webhooks/editservice.php");
-$PAGE->set_url($baseurl);
+/* Link generation */
+$urlparameters = array("idservice" => $idservice);
+$managerservice = new moodle_url("/local/webhooks/managerservice.php", $urlparameters);
+$baseurl = new moodle_url("/local/webhooks/editservice.php", $urlparameters);
+$PAGE->set_url($baseurl, $urlparameters);
 
+/* Configure the context of the page */
 $context = context_system::instance();
 $PAGE->set_context($context);
 
@@ -40,21 +43,41 @@ $PAGE->set_context($context);
 $titlepage = new lang_string("editserviceadds", "local_webhooks");
 $servicerecord = new stdClass;
 
-if (boolval($idservice)) {
+/* Create an editing form */
+$mform = new \local_webhooks\service_edit_form($PAGE->url);
+
+/* Cancel processing */
+if ($mform->is_cancelled()) {
+    redirect($managerservice);
+}
+
+/* Getting the data */
+if ($idediting = boolval($idservice)) {
+    $servicerecord = $DB->get_record("local_webhooks_service", array("id" => $idservice), "*", MUST_EXIST);
     $titlepage = new lang_string("editserviceedits", "local_webhooks");
-    $servicerecord = $DB->get_record(
-        "local_webhooks_service",
-        array("id" => $idservice),
-        "*", MUST_EXIST);
+    $mform->set_data($servicerecord);
+}
+
+/* Processing of received data */
+if ($data = $mform->get_data()) {
+    if (empty($data->enable)) {
+        $data->enable = 0;
+    }
+
+    if ($idediting) {
+        $data->id = $idservice;
+        $DB->update_record("local_webhooks_service", $data);
+    } else {
+        $DB->insert_record("local_webhooks_service", $data);
+    }
+
+    redirect($managerservice);
 }
 
 /* Page template */
 $PAGE->set_pagelayout("admin");
 $PAGE->set_title($titlepage);
 $PAGE->set_heading($titlepage);
-
-/* Create an editing form */
-$mform = new \local_webhooks\service_edit_form();
 
 /* The page title */
 $PAGE->navbar->add(new lang_string("local"));
