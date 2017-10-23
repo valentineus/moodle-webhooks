@@ -24,6 +24,10 @@
 
 $string["editserviceadds"] = "Создание службы";
 $string["editserviceedits"] = "Редактирование службы";
+$string["editserviceenable"] = "Активировать службу";
+$string["editserviceheader"] = "Служба";
+$string["editservicetitle"] = "Название службы";
+$string["editserviceurl"] = "URL-адрес службы";
 $string["enableservice"] = "Включить";
 $string["enableservice_help"] = "Включение службы отслеживания событий.";
 $string["linkmanagerservice"] = "Менеджер управления службами";

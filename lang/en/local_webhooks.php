@@ -24,6 +24,10 @@
 
 $string["editserviceadds"] = "Create a service";
 $string["editserviceedits"] = "Edit the service";
+$string["editserviceenable"] = "Activate the service";
+$string["editserviceheader"] = "Service";
+$string["editservicetitle"] = "Name of the service";
+$string["editserviceurl"] = "URL of the service";
 $string["enableservice"] = "Enabled";
 $string["enableservice_help"] = "Enable the Event Tracking service.";
 $string["linkmanagerservice"] = "Service management manager";
