@@ -26,29 +26,20 @@ defined("MOODLE_INTERNAL") || die();
 
 $settings = null;
 if ($hassiteconfig) {
-    $settings = new admin_settingpage(
-        "local_webhooks",
-        new lang_string("pluginname", "local_webhooks")
-    );
+    $settings = new admin_settingpage("local_webhooks",
+        new lang_string("pluginname", "local_webhooks"));
 
     $ADMIN->add("localplugins", $settings);
 
     $settings->add(new admin_setting_configcheckbox(
         "local_webhooks/enabled",
-        new lang_string("enableservice", "local_webhooks"),
-        new lang_string("enableservice_help", "local_webhooks"),
-        false
-    ));
-
-    /* Title Manager */
-    $settings->add(new admin_setting_heading(
-        "defaultsettings",
-        new lang_string("linkmanagerservice", "local_webhooks"),
-        new lang_string("managementmanagerdescription", "local_webhooks")
-    ));
+        new lang_string("enable", "moodle"),
+        new lang_string("enablews", "webservice"),
+        false));
 
     /* Link to the service manager */
-    $linktext = new lang_string("linkmanagerservice", "local_webhooks");
-    $link = "<a href=\"" . $CFG->wwwroot . "/local/webhooks/managerservice.php\">" . $linktext . "</a>";
-    $settings->add(new admin_setting_heading("local_webhooks_addheading", "", $link));
+    $linktext = new lang_string("managerservice", "local_webhooks");
+    $linkurl = new moodle_url("/local/webhooks/managerservice.php");
+    $settings->add(new admin_setting_heading("local_webhooks_managerservice", null,
+        html_writer::link($linkurl, $linktext)));
 }
