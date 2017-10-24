@@ -23,42 +23,83 @@
  */
 
 require_once(__DIR__ . "/../../config.php");
+require_once($CFG->libdir . "/tablelib.php");
+
 $deleteservice = optional_param("deleteservice", 0, PARAM_INT);
 
 require_login();
-$baseurl = new moodle_url("/local/webhooks/managerservice.php");
+
+/* Link generation */
+$managerservice = "/local/webhooks/managerservice.php";
+$editservice = "/local/webhooks/editservice.php";
+$baseurl = new moodle_url($managerservice);
 $PAGE->set_url($baseurl);
 
+/* Configure the context of the page */
 $context = context_system::instance();
 $PAGE->set_context($context);
 
 /* Delete the service */
 if ($deleteservice && confirm_sesskey()) {
     $DB->delete_records("local_webhooks_service", array("id" => $deleteservice));
-    redirect($PAGE->url, new lang_string("servicedeleted", "local_webhooks"));
+    redirect($PAGE->url, new lang_string("deleted", "moodle"));
 }
 
 /* Retrieving a list of services */
 $select = null;
-$callbacks = $DB->get_records_select("local_webhooks_service", $select, null, $DB->sql_order_by_text("title"));
+$callbacks = $DB->get_records_select("local_webhooks_service", $select, null, $DB->sql_order_by_text("id"));
 
 /* Page template */
-$titlepage = new lang_string("managementmanager", "local_webhooks");
+$titlepage = new lang_string("managerservice", "local_webhooks");
 $PAGE->set_pagelayout("standard");
 $PAGE->set_title($titlepage);
 $PAGE->set_heading($titlepage);
 
 /* The page title */
-$PAGE->navbar->add(new lang_string("local"));
+$PAGE->navbar->add(new lang_string("local", "moodle"));
 $PAGE->navbar->add(new lang_string("pluginname", "local_webhooks"));
 $PAGE->navbar->add($titlepage, $baseurl);
 echo $OUTPUT->header();
 
-/* @todo: Place the formation table */
+/* Table declaration */
+$table = new flexible_table("callbacks-table");
+
+/* Customize the table */
+$table->define_columns(array("title", "url", "actions"));
+$table->define_headers(array(
+    new lang_string("name", "moodle"),
+    new lang_string("url", "moodle"),
+    new lang_string("actions", "moodle")));
+$table->define_baseurl($baseurl);
+$table->setup();
+
+foreach ($callbacks as $callback) {
+    /* Filling of information columns */
+    $titlecallback = html_writer::div($callback->title, "title");
+    $urlcallback = html_writer::div($callback->url, "url");
+
+    /* Link for editing */
+    $editlink = new moodle_url($editservice,
+        array("idservice" => $callback->id));
+    $edititem = $OUTPUT->action_icon($editlink,
+        new pix_icon("t/edit", get_string("edit")));
+
+    /* Link to remove */
+    $deletelink = new moodle_url($managerservice,
+        array("deleteservice" => $callback->id, "sesskey" => sesskey()));
+    $deleteitem = $OUTPUT->action_icon($deletelink,
+        new pix_icon("t/delete", get_string("delete")));
+
+    /* Adding data to the table */
+    $table->add_data(array($titlecallback, $urlcallback, $edititem . $deleteitem));
+}
+
+/* Display the table */
+$table->print_html();
 
 /* Add service button */
 $addurl = new moodle_url("/local/webhooks/editservice.php");
-$addurltext = new lang_string("managementmanageradd", "local_webhooks");
-echo "<div class=\"actionbuttons\">" . $OUTPUT->single_button($addurl, $addurltext, "get") . "</div>";
+echo $OUTPUT->single_button($addurl,
+    new lang_string("addaservice", "webservice"), "get");
 
 echo $OUTPUT->footer();
