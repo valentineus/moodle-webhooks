@@ -40,7 +40,7 @@ $context = context_system::instance();
 $PAGE->set_context($context);
 
 /* Preparing a template for data */
-$titlepage = new lang_string("editserviceadds", "local_webhooks");
+$titlepage = new lang_string("externalservice", "webservice");
 $servicerecord = new stdClass;
 
 /* Create an editing form */
@@ -54,7 +54,6 @@ if ($mform->is_cancelled()) {
 /* Getting the data */
 if ($idediting = boolval($idservice)) {
     $servicerecord = $DB->get_record("local_webhooks_service", array("id" => $idservice), "*", MUST_EXIST);
-    $titlepage = new lang_string("editserviceedits", "local_webhooks");
     $mform->set_data($servicerecord);
 }
 
@@ -76,13 +75,13 @@ if ($data = $mform->get_data()) {
 
 /* Page template */
 $PAGE->set_pagelayout("admin");
-$PAGE->set_title($titlepage);
 $PAGE->set_heading($titlepage);
+$PAGE->set_title($titlepage);
 
 /* The page title */
-$PAGE->navbar->add(new lang_string("local"));
+$PAGE->navbar->add(new lang_string("local", "moodle"));
 $PAGE->navbar->add(new lang_string("pluginname", "local_webhooks"));
-$PAGE->navbar->add(new lang_string("managementmanager", "local_webhooks"), $managerservice);
+$PAGE->navbar->add(new lang_string("managerservice", "local_webhooks"), $managerservice);
 $PAGE->navbar->add($titlepage);
 echo $OUTPUT->header();
 
