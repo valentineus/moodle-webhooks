@@ -22,18 +22,5 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string["editserviceadds"] = "Create a service";
-$string["editserviceedits"] = "Edit the service";
-$string["editserviceenable"] = "Activate the service";
-$string["editserviceheader"] = "Service";
-$string["editservicetitle"] = "Name of the service";
-$string["editserviceurl"] = "URL of the service";
-$string["enableservice"] = "Enabled";
-$string["enableservice_help"] = "Enable the Event Tracking service.";
-$string["linkmanagerservice"] = "Service management manager";
-$string["local_webhooksdescription"] = "";
-$string["managementmanager"] = "Service Management Manager";
-$string["managementmanageradd"] = "Add a service";
-$string["managementmanagerdescription"] = "";
-$string["pluginname"] = "Moodle WebHooks";
-$string["servicedeleted"] = "Service has been removed";
+$string["managerservice"] = "Service management manager";
+$string["pluginname"] = "WebHooks";

@@ -22,18 +22,5 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string["editserviceadds"] = "Создание службы";
-$string["editserviceedits"] = "Редактирование службы";
-$string["editserviceenable"] = "Активировать службу";
-$string["editserviceheader"] = "Служба";
-$string["editservicetitle"] = "Название службы";
-$string["editserviceurl"] = "URL-адрес службы";
-$string["enableservice"] = "Включить";
-$string["enableservice_help"] = "Включение службы отслеживания событий.";
-$string["linkmanagerservice"] = "Менеджер управления службами";
-$string["local_webhooksdescription"] = "";
-$string["managementmanager"] = "Менеджер управления службами";
-$string["managementmanageradd"] = "Добавить службу";
-$string["managementmanagerdescription"] = "";
-$string["pluginname"] = "Moodle WebHooks";
-$string["servicedeleted"] = "Служба была удалена";
+$string["managerservice"] = "Менеджер управления службами";
+$string["pluginname"] = "WebHooks";
