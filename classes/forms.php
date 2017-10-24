@@ -52,25 +52,25 @@ class service_edit_form extends moodleform {
 
         /* Form heading */
         $mform->addElement("header", "editserviceheader",
-            new lang_string("editserviceheader", "local_webhooks"));
+            new lang_string("service", "webservice"));
 
         /* Name of the service */
         $mform->addElement("text", "title",
-            new lang_string("editservicetitle", "local_webhooks"),
+            new lang_string("name", "moodle"),
             array("size" => 60));
         $mform->setType("title", PARAM_NOTAGS);
         $mform->addRule("title", null, "required");
 
         /* Callback address */
         $mform->addElement("text", "url",
-            new lang_string("editserviceurl", "local_webhooks"),
+            new lang_string("url", "moodle"),
             array("size" => 60));
         $mform->setType("url", PARAM_URL);
         $mform->addRule("url", null, "required");
 
         /* Enabling the service */
         $mform->addElement("checkbox", "enable",
-            new lang_string("editserviceenable", "local_webhooks"));
+            new lang_string("enable", "moodle"));
         $mform->setType("enable", PARAM_BOOL);
         $mform->setDefault("enable", 1);
         $mform->setAdvanced("enable");
