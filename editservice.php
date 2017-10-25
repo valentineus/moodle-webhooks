@@ -79,7 +79,7 @@ $PAGE->set_heading($titlepage);
 $PAGE->set_title($titlepage);
 
 /* The page title */
-$PAGE->navbar->add(new lang_string("local", "moodle"));
+$PAGE->navbar->add(new lang_string("localplugins", "moodle"));
 $PAGE->navbar->add(new lang_string("pluginname", "local_webhooks"));
 $PAGE->navbar->add(new lang_string("managerservice", "local_webhooks"), $managerservice);
 $PAGE->navbar->add($titlepage);

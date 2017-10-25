@@ -56,7 +56,7 @@ $PAGE->set_title($titlepage);
 $PAGE->set_heading($titlepage);
 
 /* The page title */
-$PAGE->navbar->add(new lang_string("local", "moodle"));
+$PAGE->navbar->add(new lang_string("localplugins", "moodle"));
 $PAGE->navbar->add(new lang_string("pluginname", "local_webhooks"));
 $PAGE->navbar->add($titlepage, $baseurl);
 echo $OUTPUT->header();
