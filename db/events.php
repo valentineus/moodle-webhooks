@@ -22,15 +22,14 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+defined("MOODLE_INTERNAL") || die();
 
-$config = get_config('local_webhooks');
 $observers = array(
     array(
-        'eventname' => '*',
-        'callback' => '\local_webhooks\events::handler',
-        'includefile' => null,
-        'priority' => 200,
-        'internal' => true
+        "eventname" => "*",
+        "callback" => "\local_webhooks\\events::handler",
+        "includefile" => null,
+        "priority" => 200,
+        "internal" => true
     )
 );
