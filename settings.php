@@ -32,7 +32,7 @@ if ($hassiteconfig) {
     $ADMIN->add("localplugins", $settings);
 
     $settings->add(new admin_setting_configcheckbox(
-        "local_webhooks/enabled",
+        "local_webhooks/enable",
         new lang_string("enable", "moodle"),
         new lang_string("enablews", "webservice"),
         false));
