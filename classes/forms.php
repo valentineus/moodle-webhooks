@@ -27,6 +27,7 @@ namespace local_webhooks;
 defined("MOODLE_INTERNAL") || die();
 
 require_once($CFG->libdir . "/formslib.php");
+
 use lang_string;
 use moodleform;
 
