@@ -22,9 +22,9 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-$plugin->release   = '0.0.0 (Build: 2017101900)';
-$plugin->version   = 2017101900;
+defined("MOODLE_INTERNAL") || die();
+$plugin->release   = "0.2.0 (Build: 2017102500)";
+$plugin->version   = 2017102500;
 $plugin->requires  = 2016112900;
-$plugin->component = 'local_webhooks';
+$plugin->component = "local_webhooks";
 $plugin->maturity  = MATURITY_ALPHA;
