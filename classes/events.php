@@ -24,19 +24,68 @@
 
 namespace local_webhooks;
 
-defined('MOODLE_INTERNAL') || die();
+defined("MOODLE_INTERNAL") || die();
 
+/**
+ * Defines how to work with events.
+ *
+ * @copyright 2017 "Valentin Popov" <info@valentineus.link>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class events {
+    /**
+     * External handler.
+     *
+     * @param object $event
+     */
     public static function handler($event) {
-        $enabled = boolval(get_config('local_webhooks', 'enabled'));
-        $url = get_config('local_webhooks', 'url');
+        $config = get_config("local_webhooks");
 
-        if ($enabled && !empty($url)) {
+        if (boolval($config->enable)) {
             $data = $event->get_data();
-            $json = json_encode($data);
-
-            $curl = new curl();
-            $curl::request($url, $json);
+            self::transmitter($data);
         }
+    }
+
+    /**
+     * Transmitter, processing event and services.
+     *
+     * @param array $data
+     */
+    private static function transmitter($data) {
+        global $DB;
+
+        $callbacks = $DB->get_recordset("local_webhooks_service");
+
+        if ($callbacks->valid()) {
+            foreach ($callbacks as $callback) {
+                self::send($data, $callback);
+            }
+        }
+
+        $callbacks->close();
+    }
+
+    /**
+     * Sending data to the node.
+     *
+     * @param array $data
+     * @param object $callback
+     */
+    private static function send($data, $callback) {
+        if ($callback->enable) {
+            $curl = new curl();
+            $package = self::packup($data);
+            $curl::request($callback->url, $package);
+        }
+    }
+
+    /**
+     * Packs the data for transmission.
+     *
+     * @param array $data
+     */
+    private static function packup($data) {
+        return json_encode($data);
     }
 }

@@ -22,15 +22,24 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+defined("MOODLE_INTERNAL") || die();
 
+$settings = null;
 if ($hassiteconfig) {
-    $settings = new admin_settingpage('local_webhooks', get_string('pluginname', 'local_webhooks'));
-    $ADMIN->add('localplugins', $settings);
+    $settings = new admin_settingpage("local_webhooks",
+        new lang_string("pluginname", "local_webhooks"));
 
-    $settings->add(new admin_setting_configcheckbox('local_webhooks/enabled', get_string('enabled', 'local_webhooks'),
-                        get_string('enabled_help', 'local_webhooks'), false));
+    $ADMIN->add("localplugins", $settings);
 
-    $settings->add(new admin_setting_configtext('local_webhooks/url', get_string('url', 'local_webhooks'),
-                        get_string('url_help', 'local_webhooks'), 'http://example.com/endpoint', PARAM_URL, 40));
+    $settings->add(new admin_setting_configcheckbox(
+        "local_webhooks/enabled",
+        new lang_string("enable", "moodle"),
+        new lang_string("enablews", "webservice"),
+        false));
+
+    /* Link to the service manager */
+    $linktext = new lang_string("managerservice", "local_webhooks");
+    $linkurl = new moodle_url("/local/webhooks/managerservice.php");
+    $settings->add(new admin_setting_heading("local_webhooks_managerservice", null,
+        html_writer::link($linkurl, $linktext)));
 }
