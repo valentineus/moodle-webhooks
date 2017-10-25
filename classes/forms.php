@@ -28,6 +28,7 @@ defined("MOODLE_INTERNAL") || die();
 
 require_once($CFG->libdir . "/formslib.php");
 
+use report_eventlist_list_generator;
 use lang_string;
 use moodleform;
 
@@ -75,6 +76,21 @@ class service_edit_form extends moodleform {
         $mform->setType("enable", PARAM_BOOL);
         $mform->setDefault("enable", 1);
         $mform->setAdvanced("enable");
+
+        /* Form heading */
+        $mform->addElement("header", "editserviceheaderevent",
+            new lang_string("edulevel", "moodle"));
+
+        /* List of events */
+        $eventlist = report_eventlist_list_generator::get_all_events_list(true);
+        foreach ($eventlist as $event) {
+            $eventname = $event["eventname"];
+            $mform->addElement("advcheckbox", "events[$eventname]",
+                $eventname, $event["component"],
+                array("group" => "events"));
+            $mform->setType($eventname, PARAM_BOOL);
+        }
+        $this->add_checkbox_controller("events", null, null, 1);
 
         /* Control Panel */
         $this->add_action_buttons(true);
