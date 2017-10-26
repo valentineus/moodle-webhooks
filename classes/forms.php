@@ -93,6 +93,13 @@ class service_edit_form extends moodleform {
             array("size" => 60));
         $mform->setType("token", PARAM_NOTAGS);
 
+        /* Content type */
+        $mform->addElement("select", "type", "Content type",
+            array(
+                "json" => "application/json",
+                "x-www-form-urlencoded" => "application/x-www-form-urlencoded"));
+        $mform->setAdvanced("type");
+
         /* Form heading */
         $mform->addElement("header", "editserviceheaderevent",
             new lang_string("edulevel", "moodle"));
