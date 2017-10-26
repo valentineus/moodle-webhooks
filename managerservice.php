@@ -51,7 +51,7 @@ $callbacks = $DB->get_records_select("local_webhooks_service", $select, null, $D
 
 /* Page template */
 $titlepage = new lang_string("managerservice", "local_webhooks");
-$PAGE->set_pagelayout("standard");
+$PAGE->set_pagelayout("admin");
 $PAGE->set_title($titlepage);
 $PAGE->set_heading($titlepage);
 
