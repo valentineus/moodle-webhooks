@@ -15,16 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The event handler.
- *
- * @package   local_webhooks
- * @copyright 2017 "Valentin Popov" <info@valentineus.link>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+* The event handler.
+*
+* @package   local_webhooks
+* @copyright 2017 "Valentin Popov" <info@valentineus.link>
+* @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+*/
 
 namespace local_webhooks;
 
 defined("MOODLE_INTERNAL") || die();
+
+require_once($CFG->libdir . "/filelib.php");
+
+use curl;
 
 /**
  * Defines how to work with events.
@@ -96,17 +100,12 @@ class events {
      * @param object $callback
      */
     private static function send($data, $callback) {
-        $curl = new curl();
-        $package = self::packup($data);
-        $curl::request($callback, $package);
-    }
+        $package = json_encode($data);
 
-    /**
-     * Packs the data for transmission.
-     *
-     * @param array $data
-     */
-    private static function packup($data) {
-        return json_encode($data);
+        $curl = new curl();
+        $curl->setHeader(array("Content-Type: application/$callback->type"));
+        $curl->post($callback->url, $package);
+
+        return $curl->getResponse();
     }
 }
