@@ -82,8 +82,7 @@ class events {
                 $events = unserialize(gzuncompress(base64_decode($callback->events)));
             }
 
-            if (boolval($events[$data["eventname"]])) {
-                /* Adding to the data token */
+            if (!empty($events[$data["eventname"]])) {
                 if (boolval($callback->token)) {
                     $data["token"] = $callback->token;
                 }
