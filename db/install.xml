@@ -7,6 +7,7 @@
                 <FIELD NAME="enable" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
                 <FIELD NAME="title" TYPE="text" NOTNULL="true" SEQUENCE="false" />
                 <FIELD NAME="url" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" />
+                <FIELD NAME="type" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" />
                 <FIELD NAME="token" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" />
                 <FIELD NAME="events" TYPE="text" NOTNULL="true" SEQUENCE="false" />
             </FIELDS>
