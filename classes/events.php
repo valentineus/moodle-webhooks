@@ -98,7 +98,7 @@ class events {
     private static function send($data, $callback) {
         $curl = new curl();
         $package = self::packup($data);
-        $curl::request($callback->url, $package);
+        $curl::request($callback, $package);
     }
 
     /**

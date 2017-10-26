@@ -33,14 +33,14 @@ class curl {
         }
     }
 
-    public static function request($url, $data) {
-        $ch = curl_init($url);
+    public static function request($callback, $data) {
+        $ch = curl_init($callback->url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER,
             array(
-                "Content-Type: application/json",
+                "Content-Type: application/" . $callback->type,
                 "Content-Length: " . strlen($data))
             );
 
