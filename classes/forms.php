@@ -47,6 +47,16 @@ class service_edit_form extends moodleform {
     }
 
     /**
+     * Unpacks data for display.
+     *
+     * @param object $record
+     */
+    public function set_data($record) {
+        $record->events = unserialize(gzuncompress(base64_decode($record->events)));
+        return parent::set_data($record);
+    }
+
+    /**
      * Defines the standard structure of the form.
      */
     protected function definition() {
@@ -83,14 +93,18 @@ class service_edit_form extends moodleform {
 
         /* List of events */
         $eventlist = report_eventlist_list_generator::get_all_events_list(true);
+        $events = array();
+
+        /* Formation of the list of elements */
         foreach ($eventlist as $event) {
-            $eventname = $event["eventname"];
-            $mform->addElement("advcheckbox", "events[$eventname]",
-                $eventname, $event["component"],
-                array("group" => "events"));
-            $mform->setType($eventname, PARAM_BOOL);
+            $events[$event["component"]][] =&
+                $mform->createElement("advcheckbox", $event["eventname"], $event["eventname"]);
         }
-        $this->add_checkbox_controller("events", null, null, 1);
+
+        /* Displays groups of items */
+        foreach ($events as $key => $event) {
+            $mform->addGroup($event, "events", $key, "<br />", true);
+        }
 
         /* Control Panel */
         $this->add_action_buttons(true);
