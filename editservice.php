@@ -23,7 +23,10 @@
  */
 
 require_once(__DIR__ . "/../../config.php");
+require_once($CFG->libdir . "/adminlib.php");
 require_once(__DIR__ . "/classes/forms.php");
+
+admin_externalpage_setup("managelocalplugins");
 
 $serviceid = optional_param("serviceid", 0, PARAM_INT);
 
@@ -79,8 +82,7 @@ $PAGE->set_heading($titlepage);
 $PAGE->set_title($titlepage);
 
 /* The page title */
-$PAGE->navbar->add(new lang_string("localplugins", "moodle"));
-$PAGE->navbar->add(new lang_string("pluginname", "local_webhooks"));
+$PAGE->navbar->add(new lang_string("pluginname", "local_webhooks"), new moodle_url("/admin/settings.php", array("section" => "local_webhooks")));
 $PAGE->navbar->add(new lang_string("managerservice", "local_webhooks"), $managerservice);
 $PAGE->navbar->add($titlepage);
 echo $OUTPUT->header();
