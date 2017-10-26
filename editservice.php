@@ -25,12 +25,12 @@
 require_once(__DIR__ . "/../../config.php");
 require_once(__DIR__ . "/classes/forms.php");
 
-$idservice = optional_param("idservice", 0, PARAM_INT);
+$serviceid = optional_param("serviceid", 0, PARAM_INT);
 
 require_login();
 
 /* Link generation */
-$urlparameters = array("idservice" => $idservice);
+$urlparameters = array("serviceid" => $serviceid);
 $managerservice = new moodle_url("/local/webhooks/managerservice.php", $urlparameters);
 $baseurl = new moodle_url("/local/webhooks/editservice.php", $urlparameters);
 $PAGE->set_url($baseurl, $urlparameters);
@@ -52,26 +52,25 @@ if ($mform->is_cancelled()) {
 }
 
 /* Getting the data */
-if ($idediting = boolval($idservice)) {
-    $servicerecord = $DB->get_record("local_webhooks_service", array("id" => $idservice), "*", MUST_EXIST);
+if ($idediting = boolval($serviceid)) {
+    $servicerecord = $DB->get_record("local_webhooks_service", array("id" => $serviceid), "*", MUST_EXIST);
     $mform->set_data($servicerecord);
 }
 
 /* Processing of received data */
 if ($data = $mform->get_data()) {
-    /* Packing of data */
     if (!empty($data->events)) {
         $data->events = base64_encode(gzcompress(serialize($data->events), 9));
     }
 
-    if ($idediting) {
-        $data->id = $idservice;
+    if (boolval($idediting)) {
+        $data->id = $serviceid;
         $DB->update_record("local_webhooks_service", $data);
+        redirect($managerservice, new lang_string("eventwebserviceserviceupdated", "webservice"));
     } else {
         $DB->insert_record("local_webhooks_service", $data);
+        redirect($managerservice, new lang_string("eventwebserviceservicecreated", "webservice"));
     }
-
-    redirect($managerservice);
 }
 
 /* Page template */
