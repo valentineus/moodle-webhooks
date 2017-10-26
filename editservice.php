@@ -63,6 +63,9 @@ if ($data = $mform->get_data()) {
         $data->enable = 0;
     }
 
+    /* Packing of data */
+    $data->events = base64_encode(gzcompress(serialize($data->events), 9));
+
     if ($idediting) {
         $data->id = $idservice;
         $DB->update_record("local_webhooks_service", $data);
