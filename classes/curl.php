@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Create a class for sending data.
+ * Method of sending data.
  *
  * @package   local_webhooks
  * @copyright 2017 "Valentin Popov" <info@valentineus.link>
@@ -26,13 +26,28 @@ namespace local_webhooks;
 
 defined("MOODLE_INTERNAL") || die();
 
+/**
+ * Wrapper over cURL.
+ *
+ * @copyright 2017 "Valentin Popov" <info@valentineus.link>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class curl {
+    /**
+     * The class constructor.
+     */
     public function __construct() {
         if (!function_exists("curl_init")) {
             print_error("nocurl", "mnet");
         }
     }
 
+    /**
+     * Easy data sending.
+     *
+     * @param object $callback
+     * @param string $data
+     */
     public static function request($callback, $data) {
         $ch = curl_init($callback->url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
@@ -40,9 +55,10 @@ class curl {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER,
             array(
-                "Content-Type: application/" . $callback->type,
-                "Content-Length: " . strlen($data))
-            );
+                "Content-Type: application/$callback->type",
+                "Content-Length: " . mb_strlen($data, "UTF-8")
+            )
+        );
 
         $result = curl_exec($ch);
         curl_close($ch);
