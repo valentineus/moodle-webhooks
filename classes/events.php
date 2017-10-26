@@ -59,11 +59,27 @@ class events {
 
         if ($callbacks->valid()) {
             foreach ($callbacks as $callback) {
-                self::send($data, $callback);
+                self::handler_callback($data, $callback);
             }
         }
 
         $callbacks->close();
+    }
+
+    /**
+     * Processes each callback.
+     *
+     * @param array $data
+     * @param object $callback
+     */
+    private static function handler_callback($data, $callback) {
+        if ($callback->enable) {
+            $events = unserialize(gzuncompress(base64_decode($callback->events)));
+
+            if (boolval($events[$data["eventname"]])) {
+                self::send($data, $callback);
+            }
+        }
     }
 
     /**
@@ -73,11 +89,9 @@ class events {
      * @param object $callback
      */
     private static function send($data, $callback) {
-        if ($callback->enable) {
-            $curl = new curl();
-            $package = self::packup($data);
-            $curl::request($callback->url, $package);
-        }
+        $curl = new curl();
+        $package = self::packup($data);
+        $curl::request($callback->url, $package);
     }
 
     /**
