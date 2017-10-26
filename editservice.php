@@ -64,7 +64,9 @@ if ($data = $mform->get_data()) {
     }
 
     /* Packing of data */
-    $data->events = base64_encode(gzcompress(serialize($data->events), 9));
+    if (!empty($data->events)) {
+        $data->events = base64_encode(gzcompress(serialize($data->events), 9));
+    }
 
     if ($idediting) {
         $data->id = $idservice;
