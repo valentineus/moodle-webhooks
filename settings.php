@@ -33,7 +33,7 @@ if ($hassiteconfig) {
     $settings->add(new admin_setting_configcheckbox("local_webhooks/enable", new lang_string("enable", "moodle"), new lang_string("enablews", "webservice"), false));
 
     /* Link to the service manager */
-    $linktext = new lang_string("managerservice", "local_webhooks");
+    $linktext = new lang_string("externalservices", "webservice");
     $linkurl = new moodle_url("/local/webhooks/managerservice.php");
     $settings->add(new admin_setting_heading("local_webhooks_managerservice", null, html_writer::link($linkurl, $linktext)));
 }

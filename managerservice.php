@@ -64,7 +64,7 @@ if (boolval($hideshowid) && confirm_sesskey()) {
 }
 
 /* Page template */
-$titlepage = new lang_string("managerservice", "local_webhooks");
+$titlepage = new lang_string("externalservices", "webservice");
 $PAGE->set_pagelayout("admin");
 $PAGE->set_title($titlepage);
 $PAGE->set_heading($titlepage);

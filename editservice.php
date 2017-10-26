@@ -83,7 +83,7 @@ $PAGE->set_title($titlepage);
 
 /* The page title */
 $PAGE->navbar->add(new lang_string("pluginname", "local_webhooks"), new moodle_url("/admin/settings.php", array("section" => "local_webhooks")));
-$PAGE->navbar->add(new lang_string("managerservice", "local_webhooks"), $managerservice);
+$PAGE->navbar->add(new lang_string("externalservices", "webservice"), $managerservice);
 $PAGE->navbar->add($titlepage);
 echo $OUTPUT->header();
 
