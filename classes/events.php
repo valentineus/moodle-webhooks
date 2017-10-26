@@ -59,7 +59,7 @@ class events {
 
         if ($callbacks->valid()) {
             foreach ($callbacks as $callback) {
-                self::handlerCallback($data, $callback);
+                self::handler_callback($data, $callback);
             }
         }
 
@@ -72,7 +72,7 @@ class events {
      * @param array $data
      * @param object $callback
      */
-    private static function handlerCallback($data, $callback) {
+    private static function handler_callback($data, $callback) {
         if ($callback->enable) {
             $events = unserialize(gzuncompress(base64_decode($callback->events)));
 
