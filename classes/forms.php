@@ -87,6 +87,12 @@ class service_edit_form extends moodleform {
         $mform->setDefault("enable", 1);
         $mform->setAdvanced("enable");
 
+        /* Token */
+        $mform->addElement("text", "token",
+            new lang_string("token", "webservice"),
+            array("size" => 60));
+        $mform->setType("token", PARAM_NOTAGS);
+
         /* Form heading */
         $mform->addElement("header", "editserviceheaderevent",
             new lang_string("edulevel", "moodle"));
