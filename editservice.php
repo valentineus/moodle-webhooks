@@ -59,10 +59,6 @@ if ($idediting = boolval($idservice)) {
 
 /* Processing of received data */
 if ($data = $mform->get_data()) {
-    if (empty($data->enable)) {
-        $data->enable = 0;
-    }
-
     /* Packing of data */
     if (!empty($data->events)) {
         $data->events = base64_encode(gzcompress(serialize($data->events), 9));

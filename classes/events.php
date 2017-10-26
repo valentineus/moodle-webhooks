@@ -74,7 +74,9 @@ class events {
      */
     private static function handler_callback($data, $callback) {
         if ($callback->enable) {
-            $events = unserialize(gzuncompress(base64_decode($callback->events)));
+            if (!empty($callback->events)) {
+                $events = unserialize(gzuncompress(base64_decode($callback->events)));
+            }
 
             if (boolval($events[$data["eventname"]])) {
                 /* Adding to the data token */

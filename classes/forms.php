@@ -81,7 +81,7 @@ class service_edit_form extends moodleform {
         $mform->addRule("url", null, "required");
 
         /* Enabling the service */
-        $mform->addElement("checkbox", "enable",
+        $mform->addElement("advcheckbox", "enable",
             new lang_string("enable", "moodle"));
         $mform->setType("enable", PARAM_BOOL);
         $mform->setDefault("enable", 1);
