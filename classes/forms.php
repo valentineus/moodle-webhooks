@@ -52,7 +52,10 @@ class service_edit_form extends moodleform {
      * @param object $record
      */
     public function set_data($record) {
-        $record->events = unserialize(gzuncompress(base64_decode($record->events)));
+        if (!empty($record->events)) {
+            $record->events = unserialize(gzuncompress(base64_decode($record->events)));
+        }
+
         return parent::set_data($record);
     }
 
