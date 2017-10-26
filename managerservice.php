@@ -43,7 +43,7 @@ $PAGE->set_context($context);
 /* Delete the service */
 if (boolval($deleteid) && confirm_sesskey()) {
     $DB->delete_records("local_webhooks_service", array("id" => $deleteid));
-    redirect($PAGE->url, new lang_string("deleted", "moodle"));
+    redirect($PAGE->url, new lang_string("eventwebserviceservicedeleted", "webservice"));
 }
 
 /* Retrieving a list of services */
@@ -56,7 +56,7 @@ if (boolval($hideshowid) && confirm_sesskey()) {
     if (!empty($callback)) {
         $callback->enable = !boolval($callback->enable);
         $DB->update_record("local_webhooks_service", $callback);
-        redirect($PAGE->url, new lang_string("updatinga", "moodle", $callback->title));
+        redirect($PAGE->url, new lang_string("eventwebserviceserviceupdated", "webservice"));
     }
 }
 
@@ -99,7 +99,7 @@ foreach ($callbacks as $callback) {
     $hideshowitem = $OUTPUT->action_icon($hideshowlink, new pix_icon($hideshowicon, $hideshowstring));
 
     /* Link for editing */
-    $editlink = new moodle_url($editservice, array("idservice" => $callback->id));
+    $editlink = new moodle_url($editservice, array("serviceid" => $callback->id));
     $edititem = $OUTPUT->action_icon($editlink, new pix_icon("t/edit", new lang_string("edit", "moodle")));
 
     /* Link to remove */
