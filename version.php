@@ -23,6 +23,7 @@
  */
 
 defined("MOODLE_INTERNAL") || die();
+
 $plugin->release   = "1.0.0 (Build: 2017102700)";
 $plugin->version   = 2017102700;
 $plugin->requires  = 2016112900;
