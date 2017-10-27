@@ -36,13 +36,13 @@ use curl;
  * @copyright 2017 "Valentin Popov" <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class events {
+class handler {
     /**
      * External handler.
      *
      * @param object $event
      */
-    public static function handler($event) {
+    public static function events($event) {
         $enable = get_config("local_webhooks", "enable");
 
         if (boolval($enable)) {
