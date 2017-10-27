@@ -28,8 +28,6 @@ defined("MOODLE_INTERNAL") || die();
 
 require_once($CFG->libdir . "/filelib.php");
 
-use curl;
-
 /**
  * Defines how to work with events.
  *
@@ -100,9 +98,29 @@ class handler {
      * @param object $callback
      */
     private static function send($data, $callback) {
-        $curl = new curl();
+        $curl = new \curl();
         $curl->setHeader(array("Content-Type: application/$callback->type"));
         $curl->post($callback->url, json_encode($data));
-        return $curl->getResponse();
+        $response = $curl->getResponse();
+        self::logger($callback, $response);
+        return $response;
+    }
+
+    /**
+     * Event logging.
+     *
+     * @param array $response
+     * @param object $callback
+     */
+    private static function logger($callback, $response) {
+        $event = \local_webhooks\event\response_get::create(array(
+            "context" => \context_system::instance(0),
+            "objectid" => $callback->id,
+            "other" => array(
+                "status" => $response["HTTP/1.1"]
+            )
+        ));
+
+        $event->trigger();
     }
 }
