@@ -35,8 +35,6 @@ defined("MOODLE_INTERNAL") || die();
 class response_get extends \core\event\base {
     /**
      * Init method.
-     *
-     * @return void
      */
     protected function init() {
         $this->data["crud"] = "u";
@@ -46,8 +44,6 @@ class response_get extends \core\event\base {
 
     /**
      * Return localised event name.
-     *
-     * @return string
      */
     public static function get_name() {
         return new \lang_string("answer", "moodle");
@@ -55,18 +51,13 @@ class response_get extends \core\event\base {
 
     /**
      * Returns description of what happened.
-     *
-     * @return string
      */
     public function get_description() {
-        $status = $this->other["status"];
-        return "The servers answer is \"$status\".";
+        return $this->other["status"];
     }
 
     /**
      * Get URL related to the action.
-     *
-     * @return \moodle_url
      */
     public function get_url() {
         return new \moodle_url("/local/webhooks/editservice.php", array("serviceid" => $this->objectid));
