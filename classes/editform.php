@@ -47,7 +47,7 @@ class service_edit_form extends moodleform {
     }
 
     /**
-     * Unpacks data for display.
+     * Preparing data before displaying.
      *
      * @param object $record
      */
@@ -64,17 +64,18 @@ class service_edit_form extends moodleform {
      */
     protected function definition() {
         $mform =& $this->_form;
+        $size = array("size" => 60);
 
         /* Form heading */
         $mform->addElement("header", "editserviceheader", new lang_string("service", "webservice"));
 
         /* Name of the service */
-        $mform->addElement("text", "title", new lang_string("name", "moodle"), array("size" => 60));
+        $mform->addElement("text", "title", new lang_string("name", "moodle"), $size);
         $mform->addRule("title", null, "required");
         $mform->setType("title", PARAM_NOTAGS);
 
         /* Callback address */
-        $mform->addElement("text", "url", new lang_string("url", "moodle"), array("size" => 60));
+        $mform->addElement("text", "url", new lang_string("url", "moodle"), $size);
         $mform->addRule("url", null, "required");
         $mform->setType("url", PARAM_URL);
 
@@ -85,11 +86,12 @@ class service_edit_form extends moodleform {
         $mform->setAdvanced("enable");
 
         /* Token */
-        $mform->addElement("text", "token", new lang_string("token", "webservice"), array("size" => 60));
+        $mform->addElement("text", "token", new lang_string("token", "webservice"), $size);
         $mform->setType("token", PARAM_NOTAGS);
 
         /* Content type */
-        $mform->addElement("select", "type", "Content type", array("json" => "application/json", "x-www-form-urlencoded" => "application/x-www-form-urlencoded"));
+        $contenttype = array("json" => "application/json", "x-www-form-urlencoded" => "application/x-www-form-urlencoded");
+        $mform->addElement("select", "type", "Content type", $contenttype);
         $mform->setAdvanced("type");
 
         /* Form heading */
