@@ -77,13 +77,14 @@ class events {
      * @param object $callback
      */
     private static function handler_callback($data, $callback) {
-        if ($callback->enable) {
+        if (boolval($callback->enable)) {
+            $events = array();
             if (!empty($callback->events)) {
                 $events = unserialize(gzuncompress(base64_decode($callback->events)));
             }
 
             if (!empty($events[$data["eventname"]])) {
-                if (boolval($callback->token)) {
+                if (!empty($callback->token)) {
                     $data["token"] = $callback->token;
                 }
 

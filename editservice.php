@@ -66,7 +66,7 @@ if ($data = $mform->get_data()) {
         $data->events = base64_encode(gzcompress(serialize($data->events), 9));
     }
 
-    if (boolval($idediting)) {
+    if ($idediting) {
         $data->id = $serviceid;
         $DB->update_record("local_webhooks_service", $data);
         redirect($managerservice, new lang_string("eventwebserviceserviceupdated", "webservice"));
