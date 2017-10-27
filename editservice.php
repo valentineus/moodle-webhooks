@@ -55,7 +55,7 @@ if ($mform->is_cancelled()) {
 }
 
 /* Getting the data */
-if ($idediting = boolval($serviceid)) {
+if ($editing = boolval($serviceid)) {
     $servicerecord = $DB->get_record("local_webhooks_service", array("id" => $serviceid), "*", MUST_EXIST);
     $mform->set_data($servicerecord);
 }
@@ -66,7 +66,7 @@ if ($data = $mform->get_data()) {
         $data->events = base64_encode(gzcompress(serialize($data->events), 9));
     }
 
-    if ($idediting) {
+    if ($editing) {
         $data->id = $serviceid;
         $DB->update_record("local_webhooks_service", $data);
         redirect($managerservice, new lang_string("eventwebserviceserviceupdated", "webservice"));
