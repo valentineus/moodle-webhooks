@@ -113,11 +113,17 @@ class handler {
      * @param object $callback
      */
     private static function logger($callback, $response) {
-        $event = \local_webhooks\event\response_get::create(array(
-            "context" => \context_system::instance(0),
-            "objectid" => $callback->id,
-            "other" => array(
-                "status" => $response["HTTP/1.1"]
+        $status = "Error sending request";
+        if (!empty($response["HTTP/1.1"])) {
+            $status = $response["HTTP/1.1"];
+        }
+
+        $event = \local_webhooks\event\response_get::create(
+            array(
+                "context" => \context_system::instance(0),
+                "objectid" => $callback->id,
+                "other" => array(
+                "status" => $status
             )
         ));
 
