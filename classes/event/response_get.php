@@ -50,7 +50,7 @@ class response_get extends \core\event\base {
      * @return string
      */
     public static function get_name() {
-        return new \lang_string("backuplogdetailed", "moodle");
+        return new \lang_string("answer", "moodle");
     }
 
     /**
