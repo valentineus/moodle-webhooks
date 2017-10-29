@@ -90,7 +90,7 @@ class service_edit_form extends moodleform {
         $mform->setType("token", PARAM_NOTAGS);
 
         /* Additional information */
-        $mform->addElement("text", "other", new lang_string("courserequestsupport", "moodle"), $size);
+        $mform->addElement("text", "other", new lang_string("sourceext", "plugin"), $size);
         $mform->setType("other", PARAM_NOTAGS);
         $mform->setAdvanced("other");
 
