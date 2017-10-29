@@ -86,6 +86,10 @@ class handler {
                     $data["token"] = $callback->token;
                 }
 
+                if (!empty($callback->other)) {
+                    $data["extra"] = $callback->other;
+                }
+
                 self::send($data, $callback);
             }
         }
