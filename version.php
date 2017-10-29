@@ -24,8 +24,8 @@
 
 defined("MOODLE_INTERNAL") || die();
 
-$plugin->release   = "1.1.0 (Build: 2017102900)";
-$plugin->version   = 2017102900;
+$plugin->release   = "1.1.1 (Build: 2017102910)";
+$plugin->version   = 2017102910;
 $plugin->requires  = 2016112900;
 $plugin->component = "local_webhooks";
 $plugin->maturity  = MATURITY_STABLE;
