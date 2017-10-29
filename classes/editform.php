@@ -89,6 +89,11 @@ class service_edit_form extends moodleform {
         $mform->addElement("text", "token", new lang_string("token", "webservice"), $size);
         $mform->setType("token", PARAM_NOTAGS);
 
+        /* Additional information */
+        $mform->addElement("text", "other", new lang_string("courserequestsupport", "moodle"), $size);
+        $mform->setType("other", PARAM_NOTAGS);
+        $mform->setAdvanced("other");
+
         /* Content type */
         $contenttype = array("json" => "application/json", "x-www-form-urlencoded" => "application/x-www-form-urlencoded");
         $mform->addElement("select", "type", "Content type", $contenttype);
