@@ -26,7 +26,7 @@ require_once(__DIR__ . "/../../config.php");
 require_once($CFG->libdir . "/tablelib.php");
 require_once($CFG->libdir . "/adminlib.php");
 
-admin_externalpage_setup("managelocalplugins");
+admin_externalpage_setup("pluginsoverview");
 
 $hideshowid = optional_param("hideshowid", 0, PARAM_INT);
 $deleteid = optional_param("deleteid", 0, PARAM_INT);
@@ -70,7 +70,6 @@ $PAGE->set_title($titlepage);
 $PAGE->set_heading($titlepage);
 
 /* The page title */
-$PAGE->navbar->add(new lang_string("pluginname", "local_webhooks"), new moodle_url("/admin/settings.php", array("section" => "local_webhooks")));
 $PAGE->navbar->add($titlepage, $baseurl);
 echo $OUTPUT->header();
 
