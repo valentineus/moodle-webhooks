@@ -41,12 +41,8 @@ class handler {
      * @param object $event
      */
     public static function events($event) {
-        $enable = get_config("local_webhooks", "enable");
-
-        if (boolval($enable)) {
-            $data = $event->get_data();
-            self::transmitter($data);
-        }
+        $data = $event->get_data();
+        self::transmitter($data);
     }
 
     /**
