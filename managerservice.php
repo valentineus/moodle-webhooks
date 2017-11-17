@@ -57,8 +57,8 @@ $callbacks = $DB->get_records_select("local_webhooks_service", null, null, $DB->
 
 /* Upload settings as a file */
 if (boolval($backupservices)) {
-    $filecontent = serialize($callbacks);
-    $filename = "webhooks_" . date("U") . ".backup";
+    $filecontent = base64_encode(gzcompress(serialize($callbacks), 9));
+    $filename    = "webhooks_" . date("U") . ".backup";
     send_file($filecontent, $filename, 0, 0, true, true);
 }
 
