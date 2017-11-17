@@ -28,8 +28,9 @@ require_once($CFG->libdir . "/adminlib.php");
 
 admin_externalpage_setup("pluginsoverview");
 
-$hideshowid = optional_param("hideshowid", 0, PARAM_INT);
+$backupservices = optional_param("backup", 0, PARAM_BOOL);
 $deleteid = optional_param("deleteid", 0, PARAM_INT);
+$hideshowid = optional_param("hideshowid", 0, PARAM_INT);
 
 require_login();
 
@@ -51,6 +52,13 @@ if (boolval($deleteid) && confirm_sesskey()) {
 
 /* Retrieving a list of services */
 $callbacks = $DB->get_records_select("local_webhooks_service", null, null, $DB->sql_order_by_text("id"));
+
+/* Upload settings as a file */
+if (boolval($backupservices)) {
+    $filecontent = serialize($callbacks);
+    $filename = "webhooks_" . date("U") . ".backup";
+    send_file($filecontent, $filename, 0, 0, true, true);
+}
 
 /* Switching the status of the service */
 if (boolval($hideshowid) && confirm_sesskey()) {
@@ -115,7 +123,11 @@ foreach ($callbacks as $callback) {
 $table->print_html();
 
 /* Add service button */
-$addurl = new moodle_url("/local/webhooks/editservice.php");
+$addurl = new moodle_url($editservice);
 echo $OUTPUT->single_button($addurl, new lang_string("addaservice", "webservice"), "get");
+
+/* Button to get a backup */
+$backupurl = new moodle_url($managerservice, array("backup" => true));
+echo $OUTPUT->single_button($backupurl, new lang_string("backup", "moodle"), "get");
 
 echo $OUTPUT->footer();
