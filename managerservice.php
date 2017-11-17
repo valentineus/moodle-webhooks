@@ -34,9 +34,11 @@ $hideshowid = optional_param("hideshowid", 0, PARAM_INT);
 
 require_login();
 
-/* Link generation */
+$editservice    = "/local/webhooks/editservice.php";
 $managerservice = "/local/webhooks/managerservice.php";
-$editservice = "/local/webhooks/editservice.php";
+$restorebackup  = "/local/webhooks/restorebackup.php";
+
+/* Link generation */
 $baseurl = new moodle_url($managerservice);
 $PAGE->set_url($baseurl);
 
@@ -129,5 +131,9 @@ echo $OUTPUT->single_button($addurl, new lang_string("addaservice", "webservice"
 /* Button to get a backup */
 $backupurl = new moodle_url($managerservice, array("backup" => true));
 echo $OUTPUT->single_button($backupurl, new lang_string("backup", "moodle"), "get");
+
+/* Button for restoring settings */
+$restorebackupurl = new moodle_url($restorebackup, array("sesskey" => sesskey()));
+echo $OUTPUT->single_button($restorebackupurl, new lang_string("restore", "moodle"), "get");
 
 echo $OUTPUT->footer();
