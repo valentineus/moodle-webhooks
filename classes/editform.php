@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the form of editing the service.
+ * Defines forms.
  *
  * @package   local_webhooks
  * @copyright 2017 "Valentin Popov" <info@valentineus.link>
@@ -118,5 +118,37 @@ class service_edit_form extends moodleform {
 
         /* Control Panel */
         $this->add_action_buttons(true);
+    }
+}
+
+/**
+ * Description of the form of restoration.
+ *
+ * @copyright 2017 "Valentin Popov" <info@valentineus.link>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class service_backup_form extends moodleform {
+    /**
+     * @param string $baseurl
+     */
+    public function __construct($baseurl) {
+        parent::__construct($baseurl);
+    }
+
+    /**
+     * Defines the standard structure of the form.
+     */
+    protected function definition() {
+        $mform =& $this->_form;
+
+        /* Form heading */
+        $mform->addElement("header", "editserviceheader", new lang_string("restore", "moodle"));
+
+        /* Download the file */
+        $mform->addElement("filepicker", "backupfile", new lang_string("file", "moodle"));
+        $mform->addRule("backupfile", null, "required");
+
+        /* Control Panel */
+        $this->add_action_buttons(true, new lang_string("restore", "moodle"));
     }
 }
