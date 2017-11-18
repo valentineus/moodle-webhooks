@@ -71,6 +71,8 @@ class handler {
      * @param object $callback
      */
     private static function handler_callback($data, $callback) {
+        global $CFG;
+
         if (boolval($callback->enable)) {
             $events = array();
             if (!empty($callback->events)) {
@@ -78,6 +80,9 @@ class handler {
             }
 
             if (!empty($events[$data["eventname"]])) {
+                $urlparse = parse_url($CFG->wwwroot);
+                $data["host"] = $urlparse['host'];
+
                 if (!empty($callback->token)) {
                     $data["token"] = $callback->token;
                 }
