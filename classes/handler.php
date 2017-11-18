@@ -120,12 +120,13 @@ class handler {
 
         $event = \local_webhooks\event\response_get::create(
             array(
-                "context" => \context_system::instance(0),
+                "context"  => \context_system::instance(0),
                 "objectid" => $callback->id,
-                "other" => array(
-                "status" => $status
+                "other"    => array(
+                    "status" => $status
+                )
             )
-        ));
+        );
 
         $event->trigger();
     }

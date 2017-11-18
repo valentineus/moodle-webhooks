@@ -26,7 +26,7 @@ defined("MOODLE_INTERNAL") || die();
 
 if ($hassiteconfig) {
     $ADMIN->add("server", new admin_externalpage("local_webhooks",
-        new lang_string("externalservices", "webservice"),
+        new lang_string("pluginname", "local_webhooks"),
         new moodle_url("/local/webhooks/managerservice.php")
     ));
 }

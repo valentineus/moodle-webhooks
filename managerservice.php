@@ -27,13 +27,14 @@ require_once($CFG->libdir . "/tablelib.php");
 require_once($CFG->libdir . "/adminlib.php");
 
 admin_externalpage_setup("pluginsoverview");
-
-$backupservices = optional_param("backup", 0, PARAM_BOOL);
-$deleteid = optional_param("deleteid", 0, PARAM_INT);
-$hideshowid = optional_param("hideshowid", 0, PARAM_INT);
-
 require_login();
 
+/* Optional parameters */
+$backupservices = optional_param("getbackup", 0, PARAM_BOOL);
+$deleteid       = optional_param("deleteid", 0, PARAM_INT);
+$hideshowid     = optional_param("hideshowid", 0, PARAM_INT);
+
+/* Used references */
 $editservice    = "/local/webhooks/editservice.php";
 $managerservice = "/local/webhooks/managerservice.php";
 $restorebackup  = "/local/webhooks/restorebackup.php";
@@ -74,7 +75,7 @@ if (boolval($hideshowid) && confirm_sesskey()) {
 }
 
 /* Page template */
-$titlepage = new lang_string("externalservices", "webservice");
+$titlepage = new lang_string("pluginname", "local_webhooks");
 $PAGE->set_pagelayout("admin");
 $PAGE->set_title($titlepage);
 $PAGE->set_heading($titlepage);
@@ -95,13 +96,13 @@ $table->setup();
 foreach ($callbacks as $callback) {
     /* Filling of information columns */
     $titlecallback = html_writer::div($callback->title, "title");
-    $urlcallback = html_writer::div($callback->url, "url");
+    $urlcallback   = html_writer::div($callback->url, "url");
 
     /* Defining service status */
-    $hideshowicon = "t/show";
+    $hideshowicon   = "t/show";
     $hideshowstring = new lang_string("enable", "moodle");
     if (boolval($callback->enable)) {
-        $hideshowicon = "t/hide";
+        $hideshowicon   = "t/hide";
         $hideshowstring = new lang_string("disable", "moodle");
     }
 
@@ -125,11 +126,11 @@ foreach ($callbacks as $callback) {
 $table->print_html();
 
 /* Add service button */
-$addurl = new moodle_url($editservice);
-echo $OUTPUT->single_button($addurl, new lang_string("addaservice", "webservice"), "get");
+$addserviceurl = new moodle_url($editservice);
+echo $OUTPUT->single_button($addserviceurl, new lang_string("addaservice", "webservice"), "get");
 
 /* Button to get a backup */
-$backupurl = new moodle_url($managerservice, array("backup" => true));
+$backupurl = new moodle_url($managerservice, array("getbackup" => true));
 echo $OUTPUT->single_button($backupurl, new lang_string("backup", "moodle"), "get");
 
 /* Button for restoring settings */

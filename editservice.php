@@ -27,15 +27,15 @@ require_once(__DIR__ . "/classes/editform.php");
 require_once($CFG->libdir . "/adminlib.php");
 
 admin_externalpage_setup("pluginsoverview");
-
-$serviceid = optional_param("serviceid", 0, PARAM_INT);
-
 require_login();
 
+/* Optional parameters */
+$serviceid = optional_param("serviceid", 0, PARAM_INT);
+
 /* Link generation */
-$urlparameters = array("serviceid" => $serviceid);
+$urlparameters  = array("serviceid" => $serviceid);
 $managerservice = new moodle_url("/local/webhooks/managerservice.php", $urlparameters);
-$baseurl = new moodle_url("/local/webhooks/editservice.php", $urlparameters);
+$baseurl        = new moodle_url("/local/webhooks/editservice.php", $urlparameters);
 $PAGE->set_url($baseurl, $urlparameters);
 
 /* Configure the context of the page */
@@ -43,7 +43,7 @@ $context = context_system::instance();
 $PAGE->set_context($context);
 
 /* Preparing a template for data */
-$titlepage = new lang_string("externalservice", "webservice");
+$titlepage     = new lang_string("externalservice", "webservice");
 $servicerecord = new stdClass;
 
 /* Create an editing form */
@@ -62,9 +62,12 @@ if ($editing = boolval($serviceid)) {
 
 /* Processing of received data */
 if ($data = $mform->get_data()) {
-    if (!empty($data->events)) {
-        $data->events = base64_encode(gzcompress(serialize($data->events), 9));
+    if (empty($data->events)) {
+        $data->events = array();
     }
+
+    /* Pack the list of events */
+    $data->events = base64_encode(gzcompress(serialize($data->events), 9));
 
     if ($editing) {
         $data->id = $serviceid;
@@ -82,7 +85,7 @@ $PAGE->set_heading($titlepage);
 $PAGE->set_title($titlepage);
 
 /* The page title */
-$PAGE->navbar->add(new lang_string("externalservices", "webservice"), $managerservice);
+$PAGE->navbar->add(new lang_string("pluginname", "local_webhooks"), $managerservice);
 $PAGE->navbar->add($titlepage);
 echo $OUTPUT->header();
 

@@ -31,7 +31,7 @@ require_login();
 
 /* Link generation */
 $managerservice = new moodle_url("/local/webhooks/managerservice.php");
-$baseurl = new moodle_url("/local/webhooks/restorebackup.php");
+$baseurl        = new moodle_url("/local/webhooks/restorebackup.php");
 $PAGE->set_url($baseurl);
 
 /* Configure the context of the page */
@@ -49,7 +49,7 @@ if ($mform->is_cancelled()) {
 /* Processing the received file */
 $data = $mform->get_data();
 if (boolval($data) && confirm_sesskey()) {
-    $content = $mform->get_file_content("backupfile");
+    $content   = $mform->get_file_content("backupfile");
     $callbacks = unserialize(gzuncompress(base64_decode($content)));
 
     $DB->delete_records("local_webhooks_service");
@@ -67,7 +67,7 @@ $PAGE->set_heading($titlepage);
 $PAGE->set_title($titlepage);
 
 /* The page title */
-$PAGE->navbar->add(new lang_string("externalservices", "webservice"), $managerservice);
+$PAGE->navbar->add(new lang_string("pluginname", "local_webhooks"), $managerservice);
 $PAGE->navbar->add($titlepage);
 echo $OUTPUT->header();
 

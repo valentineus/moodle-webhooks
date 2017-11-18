@@ -28,9 +28,9 @@ defined("MOODLE_INTERNAL") || die();
 
 require_once($CFG->libdir . "/formslib.php");
 
-use report_eventlist_list_generator;
 use lang_string;
 use moodleform;
+use report_eventlist_list_generator;
 
 /**
  * Description editing form definition.
@@ -64,7 +64,7 @@ class service_edit_form extends moodleform {
      */
     protected function definition() {
         $mform =& $this->_form;
-        $size = array("size" => 60);
+        $size  = array("size" => 60);
 
         /* Form heading */
         $mform->addElement("header", "editserviceheader", new lang_string("service", "webservice"));
@@ -104,7 +104,7 @@ class service_edit_form extends moodleform {
 
         /* List of events */
         $eventlist = report_eventlist_list_generator::get_all_events_list(true);
-        $events = array();
+        $events    = array();
 
         /* Formation of the list of elements */
         foreach ($eventlist as $event) {

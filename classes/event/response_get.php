@@ -37,9 +37,9 @@ class response_get extends \core\event\base {
      * Init method.
      */
     protected function init() {
-        $this->data["crud"] = "u";
+        $this->data["crud"]        = "r";
+        $this->data["edulevel"]    = self::LEVEL_OTHER;
         $this->data["objecttable"] = "local_webhooks_service";
-        $this->data["edulevel"] = self::LEVEL_OTHER;
     }
 
     /**
