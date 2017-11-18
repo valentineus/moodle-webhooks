@@ -123,7 +123,7 @@ class handler {
             $status = $response["HTTP/1.1"];
         }
 
-        $event = \local_webhooks\event\response_get::create(
+        $event = \local_webhooks\event\response_answer::create(
             array(
                 "context"  => \context_system::instance(0),
                 "objectid" => $callback->id,

@@ -32,7 +32,7 @@ defined("MOODLE_INTERNAL") || die();
  * @copyright 2017 "Valentin Popov" <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class response_get extends \core\event\base {
+class response_answer extends \core\event\base {
     /**
      * Init method.
      */
