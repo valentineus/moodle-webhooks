@@ -71,9 +71,19 @@ if ($data = $mform->get_data()) {
     if ($editing) {
         $data->id = $serviceid;
         $DB->update_record("local_webhooks_service", $data);
+
+        /* Run the event */
+        $event = \local_webhooks\event\service_updated::create(array("context" => $context, "objectid" => $data->id));
+        $event->trigger();
+
         redirect($managerservice, new lang_string("eventwebserviceserviceupdated", "webservice"));
     } else {
-        $DB->insert_record("local_webhooks_service", $data);
+        $servicenewid = $DB->insert_record("local_webhooks_service", $data);
+
+        /* Run the event */
+        $event = \local_webhooks\event\service_added::create(array("context" => $context, "objectid" => $servicenewid));
+        $event->trigger();
+
         redirect($managerservice, new lang_string("eventwebserviceservicecreated", "webservice"));
     }
 }

@@ -49,6 +49,11 @@ $PAGE->set_context($context);
 /* Delete the service */
 if (boolval($deleteid) && confirm_sesskey()) {
     $DB->delete_records("local_webhooks_service", array("id" => $deleteid));
+
+    /* Run the event */
+    $event = \local_webhooks\event\service_deleted::create(array("context" => $context, "objectid" => $deleteid));
+    $event->trigger();
+
     redirect($PAGE->url, new lang_string("eventwebserviceservicedeleted", "webservice"));
 }
 
@@ -59,6 +64,11 @@ $callbacks = $DB->get_records_select("local_webhooks_service", null, null, $DB->
 if (boolval($backupservices)) {
     $filecontent = base64_encode(gzcompress(serialize($callbacks), 9));
     $filename    = "webhooks_" . date("U") . ".backup";
+
+    /* Run the event */
+    $event = \local_webhooks\event\backup_performed::create(array("context" => $context, "objectid" => 0));
+    $event->trigger();
+
     send_file($filecontent, $filename, 0, 0, true, true);
 }
 
@@ -69,6 +79,11 @@ if (boolval($hideshowid) && confirm_sesskey()) {
     if (!empty($callback)) {
         $callback->enable = !boolval($callback->enable);
         $DB->update_record("local_webhooks_service", $callback);
+
+        /* Run the event */
+        $event = \local_webhooks\event\service_updated::create(array("context" => $context, "objectid" => $hideshowid));
+        $event->trigger();
+
         redirect($PAGE->url, new lang_string("eventwebserviceserviceupdated", "webservice"));
     }
 }

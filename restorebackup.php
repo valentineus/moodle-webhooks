@@ -56,6 +56,10 @@ if (boolval($data) && confirm_sesskey()) {
         $DB->insert_record("local_webhooks_service", $callback);
     }
 
+    /* Run the event */
+    $event = \local_webhooks\event\backup_restored::create(array("context" => $context, "objectid" => 0));
+    $event->trigger();
+
     redirect($managerservice, new lang_string("restorefinished", "moodle"));
 }
 
