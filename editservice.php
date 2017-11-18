@@ -26,8 +26,7 @@ require_once(__DIR__ . "/../../config.php");
 require_once(__DIR__ . "/classes/editform.php");
 require_once($CFG->libdir . "/adminlib.php");
 
-admin_externalpage_setup("pluginsoverview");
-require_login();
+admin_externalpage_setup("local_webhooks");
 
 /* Optional parameters */
 $serviceid = optional_param("serviceid", 0, PARAM_INT);
@@ -85,7 +84,6 @@ $PAGE->set_heading($titlepage);
 $PAGE->set_title($titlepage);
 
 /* The page title */
-$PAGE->navbar->add(new lang_string("pluginname", "local_webhooks"), $managerservice);
 $PAGE->navbar->add($titlepage);
 echo $OUTPUT->header();
 

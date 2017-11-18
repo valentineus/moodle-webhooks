@@ -26,8 +26,7 @@ require_once(__DIR__ . "/../../config.php");
 require_once($CFG->libdir . "/tablelib.php");
 require_once($CFG->libdir . "/adminlib.php");
 
-admin_externalpage_setup("pluginsoverview");
-require_login();
+admin_externalpage_setup("local_webhooks");
 
 /* Optional parameters */
 $backupservices = optional_param("getbackup", 0, PARAM_BOOL);
@@ -81,7 +80,6 @@ $PAGE->set_title($titlepage);
 $PAGE->set_heading($titlepage);
 
 /* The page title */
-$PAGE->navbar->add($titlepage, $baseurl);
 echo $OUTPUT->header();
 
 /* Table declaration */
