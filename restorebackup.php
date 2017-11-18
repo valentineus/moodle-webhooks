@@ -27,7 +27,6 @@ require_once(__DIR__ . "/classes/editform.php");
 require_once($CFG->libdir . "/adminlib.php");
 
 admin_externalpage_setup("pluginsoverview");
-
 require_login();
 
 /* Link generation */
@@ -45,6 +44,20 @@ $mform = new \local_webhooks\service_backup_form($PAGE->url);
 /* Cancel processing */
 if ($mform->is_cancelled()) {
     redirect($managerservice);
+}
+
+/* Processing the received file */
+$data = $mform->get_data();
+if (boolval($data) && confirm_sesskey()) {
+    $content = $mform->get_file_content("backupfile");
+    $callbacks = unserialize(gzuncompress(base64_decode($content)));
+
+    $DB->delete_records("local_webhooks_service");
+    foreach ($callbacks as $callback) {
+        $DB->insert_record("local_webhooks_service", $callback);
+    }
+
+    redirect($managerservice, new lang_string("restorefinished", "moodle"));
 }
 
 /* Page template */
