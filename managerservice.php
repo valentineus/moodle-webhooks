@@ -26,28 +26,23 @@ require_once(__DIR__ . "/../../config.php");
 require_once($CFG->libdir . "/tablelib.php");
 require_once($CFG->libdir . "/adminlib.php");
 
-admin_externalpage_setup("local_webhooks");
-
 /* Optional parameters */
 $backupservices = optional_param("getbackup", 0, PARAM_BOOL);
 $deleteid       = optional_param("deleteid", 0, PARAM_INT);
 $hideshowid     = optional_param("hideshowid", 0, PARAM_INT);
 
-/* Used references */
+/* Link generation */
 $editservice    = "/local/webhooks/editservice.php";
 $managerservice = "/local/webhooks/managerservice.php";
 $restorebackup  = "/local/webhooks/restorebackup.php";
-
-/* Link generation */
-$baseurl = new moodle_url($managerservice);
-$PAGE->set_url($baseurl);
+$baseurl        = new moodle_url($managerservice);
 
 /* Configure the context of the page */
+admin_externalpage_setup("local_webhooks", "", null, $baseurl, array());
 $context = context_system::instance();
-$PAGE->set_context($context);
 
 /* Delete the service */
-if (boolval($deleteid) && confirm_sesskey()) {
+if (boolval($deleteid)) {
     $DB->delete_records("local_webhooks_service", array("id" => $deleteid));
 
     /* Run the event */
@@ -73,7 +68,7 @@ if (boolval($backupservices)) {
 }
 
 /* Switching the status of the service */
-if (boolval($hideshowid) && confirm_sesskey()) {
+if (boolval($hideshowid)) {
     $callback = $callbacks[$hideshowid];
 
     if (!empty($callback)) {
@@ -88,13 +83,10 @@ if (boolval($hideshowid) && confirm_sesskey()) {
     }
 }
 
-/* Page template */
-$titlepage = new lang_string("pluginname", "local_webhooks");
-$PAGE->set_pagelayout("admin");
-$PAGE->set_title($titlepage);
-$PAGE->set_heading($titlepage);
-
 /* The page title */
+$titlepage = new lang_string("pluginname", "local_webhooks");
+$PAGE->set_heading($titlepage);
+$PAGE->set_title($titlepage);
 echo $OUTPUT->header();
 
 /* Table declaration */
@@ -120,7 +112,7 @@ foreach ($callbacks as $callback) {
     }
 
     /* Link to enable / disable the service */
-    $hideshowlink = new moodle_url($managerservice, array("hideshowid" => $callback->id, "sesskey" => sesskey()));
+    $hideshowlink = new moodle_url($managerservice, array("hideshowid" => $callback->id));
     $hideshowitem = $OUTPUT->action_icon($hideshowlink, new pix_icon($hideshowicon, $hideshowstring));
 
     /* Link for editing */
@@ -128,7 +120,7 @@ foreach ($callbacks as $callback) {
     $edititem = $OUTPUT->action_icon($editlink, new pix_icon("t/edit", new lang_string("edit", "moodle")));
 
     /* Link to remove */
-    $deletelink = new moodle_url($managerservice, array("deleteid" => $callback->id, "sesskey" => sesskey()));
+    $deletelink = new moodle_url($managerservice, array("deleteid" => $callback->id));
     $deleteitem = $OUTPUT->action_icon($deletelink, new pix_icon("t/delete", new lang_string("delete", "moodle")));
 
     /* Adding data to the table */
@@ -147,7 +139,7 @@ $backupurl = new moodle_url($managerservice, array("getbackup" => true));
 echo $OUTPUT->single_button($backupurl, new lang_string("backup", "moodle"), "get");
 
 /* Button for restoring settings */
-$restorebackupurl = new moodle_url($restorebackup, array("sesskey" => sesskey()));
+$restorebackupurl = new moodle_url($restorebackup);
 echo $OUTPUT->single_button($restorebackupurl, new lang_string("restore", "moodle"), "get");
 
 echo $OUTPUT->footer();

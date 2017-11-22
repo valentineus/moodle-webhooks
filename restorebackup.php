@@ -26,16 +26,13 @@ require_once(__DIR__ . "/../../config.php");
 require_once(__DIR__ . "/classes/editform.php");
 require_once($CFG->libdir . "/adminlib.php");
 
-admin_externalpage_setup("local_webhooks");
-
 /* Link generation */
 $managerservice = new moodle_url("/local/webhooks/managerservice.php");
 $baseurl        = new moodle_url("/local/webhooks/restorebackup.php");
-$PAGE->set_url($baseurl);
 
 /* Configure the context of the page */
+admin_externalpage_setup("local_webhooks", "", null, $baseurl, array());
 $context = context_system::instance();
-$PAGE->set_context($context);
 
 /* Create an editing form */
 $mform = new \local_webhooks\service_backup_form($PAGE->url);
@@ -46,8 +43,7 @@ if ($mform->is_cancelled()) {
 }
 
 /* Processing the received file */
-$data = $mform->get_data();
-if (boolval($data) && confirm_sesskey()) {
+if ($data = $mform->get_data() && confirm_sesskey()) {
     $content   = $mform->get_file_content("backupfile");
     $callbacks = unserialize(gzuncompress(base64_decode($content)));
 
@@ -63,14 +59,11 @@ if (boolval($data) && confirm_sesskey()) {
     redirect($managerservice, new lang_string("restorefinished", "moodle"));
 }
 
-/* Page template */
+/* The page title */
 $titlepage = new lang_string("backup", "moodle");
-$PAGE->set_pagelayout("admin");
+$PAGE->navbar->add($titlepage);
 $PAGE->set_heading($titlepage);
 $PAGE->set_title($titlepage);
-
-/* The page title */
-$PAGE->navbar->add($titlepage);
 echo $OUTPUT->header();
 
 /* Displays the form */

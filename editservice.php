@@ -26,8 +26,6 @@ require_once(__DIR__ . "/../../config.php");
 require_once(__DIR__ . "/classes/editform.php");
 require_once($CFG->libdir . "/adminlib.php");
 
-admin_externalpage_setup("local_webhooks");
-
 /* Optional parameters */
 $serviceid = optional_param("serviceid", 0, PARAM_INT);
 
@@ -35,15 +33,10 @@ $serviceid = optional_param("serviceid", 0, PARAM_INT);
 $urlparameters  = array("serviceid" => $serviceid);
 $managerservice = new moodle_url("/local/webhooks/managerservice.php", $urlparameters);
 $baseurl        = new moodle_url("/local/webhooks/editservice.php", $urlparameters);
-$PAGE->set_url($baseurl, $urlparameters);
 
 /* Configure the context of the page */
+admin_externalpage_setup("local_webhooks", "", null, $baseurl, array());
 $context = context_system::instance();
-$PAGE->set_context($context);
-
-/* Preparing a template for data */
-$titlepage     = new lang_string("externalservice", "webservice");
-$servicerecord = new stdClass;
 
 /* Create an editing form */
 $mform = new \local_webhooks\service_edit_form($PAGE->url);
@@ -54,6 +47,7 @@ if ($mform->is_cancelled()) {
 }
 
 /* Getting the data */
+$servicerecord = new stdClass();
 if ($editing = boolval($serviceid)) {
     $servicerecord = $DB->get_record("local_webhooks_service", array("id" => $serviceid), "*", MUST_EXIST);
     $mform->set_data($servicerecord);
@@ -88,13 +82,11 @@ if ($data = $mform->get_data()) {
     }
 }
 
-/* Page template */
-$PAGE->set_pagelayout("admin");
+/* The page title */
+$titlepage = new lang_string("externalservice", "webservice");
+$PAGE->navbar->add($titlepage);
 $PAGE->set_heading($titlepage);
 $PAGE->set_title($titlepage);
-
-/* The page title */
-$PAGE->navbar->add($titlepage);
 echo $OUTPUT->header();
 
 /* Displays the form */
