@@ -26,6 +26,8 @@ namespace local_webhooks;
 
 defined("MOODLE_INTERNAL") || die();
 
+require_once(__DIR__ . "/../lib.php");
+
 require_once($CFG->libdir . "/filelib.php");
 
 /**
@@ -42,16 +44,6 @@ class handler {
      */
     public static function events($event) {
         $data = $event->get_data();
-        self::transmitter($data);
-    }
-
-    /**
-     * Transmitter, processing event and services.
-     *
-     * @param array $data
-     */
-    private static function transmitter($data) {
-        global $DB;
 
         if ($callbacks = local_webhooks_get_list_records()) {
             foreach ($callbacks as $callback) {
@@ -70,17 +62,12 @@ class handler {
         global $CFG;
 
         if (boolval($callback->enable)) {
-            if (!empty($events[$data["eventname"]])) {
-                $urlparse     = parse_url($CFG->wwwroot);
-                $data["host"] = $urlparse['host'];
+            if (!empty($data["eventname"])) {
+                $urlparse = parse_url($CFG->wwwroot);
 
-                if (!empty($callback->token)) {
-                    $data["token"] = $callback->token;
-                }
-
-                if (!empty($callback->other)) {
-                    $data["extra"] = $callback->other;
-                }
+                $data["host"]  = $urlparse['host'];
+                $data["token"] = $callback->token;
+                $data["extra"] = $callback->other;
 
                 self::send($data, $callback);
             }
@@ -95,7 +82,7 @@ class handler {
      */
     private static function send($data, $callback) {
         $curl = new \curl();
-        $curl->setHeader(array("Content-Type: application/$callback->type"));
+        $curl->setHeader(array("Content-Type: application/" . $callback->type));
         $curl->post($callback->url, json_encode($data));
 
         $response = $curl->getResponse();
