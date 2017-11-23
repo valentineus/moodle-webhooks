@@ -53,15 +53,11 @@ class handler {
     private static function transmitter($data) {
         global $DB;
 
-        $callbacks = $DB->get_recordset("local_webhooks_service");
-
-        if ($callbacks->valid()) {
+        if ($callbacks = local_webhooks_get_list_records()) {
             foreach ($callbacks as $callback) {
                 self::handler_callback($data, $callback);
             }
         }
-
-        $callbacks->close();
     }
 
     /**
@@ -74,13 +70,8 @@ class handler {
         global $CFG;
 
         if (boolval($callback->enable)) {
-            $events = array();
-            if (!empty($callback->events)) {
-                $events = unserialize(gzuncompress(base64_decode($callback->events)));
-            }
-
             if (!empty($events[$data["eventname"]])) {
-                $urlparse = parse_url($CFG->wwwroot);
+                $urlparse     = parse_url($CFG->wwwroot);
                 $data["host"] = $urlparse['host'];
 
                 if (!empty($callback->token)) {
@@ -106,33 +97,8 @@ class handler {
         $curl = new \curl();
         $curl->setHeader(array("Content-Type: application/$callback->type"));
         $curl->post($callback->url, json_encode($data));
+
         $response = $curl->getResponse();
-        self::logger($callback, $response);
         return $response;
-    }
-
-    /**
-     * Event logging.
-     *
-     * @param array $response
-     * @param object $callback
-     */
-    private static function logger($callback, $response) {
-        $status = "Error sending request";
-        if (!empty($response["HTTP/1.1"])) {
-            $status = $response["HTTP/1.1"];
-        }
-
-        $event = \local_webhooks\event\response_answer::create(
-            array(
-                "context"  => \context_system::instance(0),
-                "objectid" => $callback->id,
-                "other"    => array(
-                    "status" => $status
-                )
-            )
-        );
-
-        $event->trigger();
     }
 }
