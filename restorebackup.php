@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Restore settings page.
+ * Restore the settings page.
  *
  * @package   local_webhooks
  * @copyright 2017 "Valentin Popov" <info@valentineus.link>
@@ -24,18 +24,20 @@
 
 require_once(__DIR__ . "/../../config.php");
 require_once(__DIR__ . "/classes/editform.php");
+require_once(__DIR__ . "/lib.php");
+
 require_once($CFG->libdir . "/adminlib.php");
 
 /* Link generation */
-$managerservice = new moodle_url("/local/webhooks/managerservice.php");
 $baseurl        = new moodle_url("/local/webhooks/restorebackup.php");
+$managerservice = new moodle_url("/local/webhooks/index.php");
 
 /* Configure the context of the page */
 admin_externalpage_setup("local_webhooks", "", null, $baseurl, array());
 $context = context_system::instance();
 
 /* Create an editing form */
-$mform = new \local_webhooks\service_backup_form($PAGE->url);
+$mform = new service_backup_form($PAGE->url);
 
 /* Cancel processing */
 if ($mform->is_cancelled()) {
@@ -43,18 +45,14 @@ if ($mform->is_cancelled()) {
 }
 
 /* Processing the received file */
-if ($data = $mform->get_data() && confirm_sesskey()) {
+if ($data = $mform->get_data()) {
     $content   = $mform->get_file_content("backupfile");
-    $callbacks = unserialize(gzuncompress(base64_decode($content)));
+    $callbacks = local_webhooks_unarchive_data($content);
 
-    $DB->delete_records("local_webhooks_service");
+    local_webhooks_remove_list_records();
     foreach ($callbacks as $callback) {
-        $DB->insert_record("local_webhooks_service", $callback);
+        local_webhooks_update_record($callback, true);
     }
-
-    /* Run the event */
-    $event = \local_webhooks\event\backup_restored::create(array("context" => $context, "objectid" => 0));
-    $event->trigger();
 
     redirect($managerservice, new lang_string("restorefinished", "moodle"));
 }
