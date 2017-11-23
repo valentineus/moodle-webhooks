@@ -24,6 +24,8 @@
 
 defined("MOODLE_INTERNAL") || die();
 
+require_once(__DIR__ . "/locallib.php");
+
 /**
  * Getting a list of all services.
  *
@@ -81,6 +83,7 @@ function local_webhooks_remove_record($serviceid = 0) {
     global $DB;
 
     $DB->delete_records("local_webhooks_service", array("id" => $serviceid));
+    local_webhooks_events::service_deleted($serviceid);
 }
 
 /**
@@ -101,8 +104,10 @@ function local_webhooks_update_record($data, $insert = true) {
 
     if (boolval($insert)) {
         $result = $DB->insert_record("local_webhooks_service", $data, true, false);
+        local_webhooks_events::service_added($result);
     } else {
         $result = $DB->update_record("local_webhooks_service", $data, false);
+        local_webhooks_events::service_updated($data->id);
     }
 
     return boolval($result);
@@ -116,6 +121,7 @@ function local_webhooks_update_record($data, $insert = true) {
 function local_webhooks_create_backup() {
     $listservices = local_webhooks_get_list_records();
     $listservices = local_webhooks_archiving_data($listservices);
+    local_webhooks_events::backup_performed();
     return $listservices;
 }
 
@@ -132,6 +138,8 @@ function local_webhooks_restore_backup($listservices = "") {
     foreach ($listservices as $servicerecord) {
         local_webhooks_update_record($servicerecord, true);
     }
+
+    local_webhooks_events::backup_restored();
 }
 
 /**
