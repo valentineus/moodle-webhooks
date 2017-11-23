@@ -50,7 +50,7 @@ if (boolval($deleteid)) {
 }
 
 /* Retrieving a list of services */
-$callbacks = local_webhooks_list_records();
+$callbacks = local_webhooks_get_list_records();
 
 /* Upload settings as a file */
 if (boolval($backupservices)) {

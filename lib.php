@@ -25,6 +25,27 @@
 defined("MOODLE_INTERNAL") || die();
 
 /**
+ * Getting a list of all services.
+ *
+ * @param  number $limitfrom
+ * @param  number $limitnum
+ * @return array
+ */
+function local_webhooks_get_list_records($limitfrom = 0, $limitnum = 0) {
+    global $DB;
+
+    $listservices = $DB->get_records("local_webhooks_service", null, "id", "*", $limitfrom, $limitnum);
+
+    foreach ($listservices as $servicerecord) {
+        if (!empty($servicerecord->events)) {
+            $servicerecord->events = local_webhooks_unarchive_data($servicerecord->events);
+        }
+    }
+
+    return $listservices;
+}
+
+/**
  * Getting information about the service.
  *
  * @param  number $serviceid
@@ -43,24 +64,12 @@ function local_webhooks_get_record($serviceid = 0) {
 }
 
 /**
- * Getting a list of all services.
- *
- * @param  number $limitfrom
- * @param  number $limitnum
- * @return array
+ * Clear the database table.
  */
-function local_webhooks_list_records($limitfrom = 0, $limitnum = 0) {
+function local_webhooks_remove_list_records() {
     global $DB;
 
-    $listservices = $DB->get_records("local_webhooks_service", null, "id", "*", $limitfrom, $limitnum);
-
-    foreach ($listservices as $servicerecord) {
-        if (!empty($servicerecord->events)) {
-            $servicerecord->events = local_webhooks_unarchive_data($servicerecord->events);
-        }
-    }
-
-    return $listservices;
+    $DB->delete_records("local_webhooks_service", null);
 }
 
 /**
