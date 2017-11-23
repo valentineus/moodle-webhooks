@@ -34,7 +34,7 @@ $serviceid = optional_param("serviceid", 0, PARAM_INT);
 /* Link generation */
 $urlparameters  = array("serviceid" => $serviceid);
 $baseurl        = new moodle_url("/local/webhooks/editservice.php", $urlparameters);
-$managerservice = new moodle_url("/local/webhooks/index.php", $urlparameters);
+$managerservice = new moodle_url("/local/webhooks/index.php");
 
 /* Configure the context of the page */
 admin_externalpage_setup("local_webhooks", "", null, $baseurl, array());
