@@ -22,15 +22,9 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_webhooks;
-
 defined("MOODLE_INTERNAL") || die();
 
 require_once($CFG->libdir . "/formslib.php");
-
-use lang_string;
-use moodleform;
-use report_eventlist_list_generator;
 
 /**
  * Description editing form definition.
@@ -44,19 +38,6 @@ class service_edit_form extends moodleform {
      */
     public function __construct($baseurl) {
         parent::__construct($baseurl);
-    }
-
-    /**
-     * Preparing data before displaying.
-     *
-     * @param object $record
-     */
-    public function set_data($record) {
-        if (!empty($record->events)) {
-            $record->events = unserialize(gzuncompress(base64_decode($record->events)));
-        }
-
-        return parent::set_data($record);
     }
 
     /**
