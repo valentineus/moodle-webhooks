@@ -33,15 +33,15 @@ $serviceid = optional_param("serviceid", 0, PARAM_INT);
 
 /* Link generation */
 $urlparameters  = array("serviceid" => $serviceid);
-$managerservice = new moodle_url("/local/webhooks/managerservice.php", $urlparameters);
 $baseurl        = new moodle_url("/local/webhooks/editservice.php", $urlparameters);
+$managerservice = new moodle_url("/local/webhooks/index.php", $urlparameters);
 
 /* Configure the context of the page */
 admin_externalpage_setup("local_webhooks", "", null, $baseurl, array());
 $context = context_system::instance();
 
 /* Create an editing form */
-$mform = new local_webhooks\service_edit_form($PAGE->url);
+$mform = new service_edit_form($PAGE->url);
 
 /* Cancel processing */
 if ($mform->is_cancelled()) {
