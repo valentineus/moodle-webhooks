@@ -60,6 +60,6 @@ class service_deleted extends \core\event\base {
      * Get URL related to the action.
      */
     public function get_url() {
-        return new \moodle_url("/local/webhooks/editservice.php", array("serviceid" => $this->objectid));
+        return new \moodle_url("/local/webhooks/index.php");
     }
 }

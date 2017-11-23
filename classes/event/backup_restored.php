@@ -60,6 +60,6 @@ class backup_restored extends \core\event\base {
      * Get URL related to the action.
      */
     public function get_url() {
-        return new \moodle_url("/local/webhooks/managerservice.php");
+        return new \moodle_url("/local/webhooks/index.php");
     }
 }
