@@ -109,6 +109,32 @@ function local_webhooks_update_record($data, $insert = true) {
 }
 
 /**
+ * Make a backup copy of all the services.
+ *
+ * @return string
+ */
+function local_webhooks_create_backup() {
+    $listservices = local_webhooks_get_list_records();
+    $listservices = local_webhooks_archiving_data($listservices);
+    return $listservices;
+}
+
+/**
+ * Restore the data from the backup.
+ *
+ * @param string $data
+ */
+function local_webhooks_restore_backup($listservices = "") {
+    $listservices = local_webhooks_unarchive_data($listservices);
+
+    local_webhooks_remove_list_records();
+
+    foreach ($listservices as $servicerecord) {
+        local_webhooks_update_record($servicerecord, true);
+    }
+}
+
+/**
  * Compress an array into a string.
  *
  * @param  array  $data

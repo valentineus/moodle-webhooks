@@ -46,14 +46,8 @@ if ($mform->is_cancelled()) {
 
 /* Processing the received file */
 if ($data = $mform->get_data()) {
-    $content   = $mform->get_file_content("backupfile");
-    $callbacks = local_webhooks_unarchive_data($content);
-
-    local_webhooks_remove_list_records();
-    foreach ($callbacks as $callback) {
-        local_webhooks_update_record($callback, true);
-    }
-
+    $content = $mform->get_file_content("backupfile");
+    local_webhooks_restore_backup($content);
     redirect($managerservice, new lang_string("restorefinished", "moodle"));
 }
 

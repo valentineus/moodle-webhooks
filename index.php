@@ -54,7 +54,7 @@ $callbacks = local_webhooks_get_list_records();
 
 /* Upload settings as a file */
 if (boolval($backupservices)) {
-    $filecontent = local_webhooks_archiving_data($callbacks);
+    $filecontent = local_webhooks_create_backup();
     $filename    = "webhooks_" . date("U") . ".backup";
     send_file($filecontent, $filename, 0, 0, true, true);
 }
