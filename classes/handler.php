@@ -27,6 +27,7 @@ namespace local_webhooks;
 defined("MOODLE_INTERNAL") || die();
 
 require_once(__DIR__ . "/../lib.php");
+require_once(__DIR__ . "/../locallib.php");
 
 require_once($CFG->libdir . "/filelib.php");
 
@@ -55,17 +56,17 @@ class handler {
     /**
      * Processes each callback.
      *
-     * @param array $data
+     * @param array  $data
      * @param object $callback
      */
     private static function handler_callback($data, $callback) {
         global $CFG;
 
         if (boolval($callback->enable)) {
-            if (!empty($data["eventname"])) {
+            if (!empty($callback->events[$data["eventname"]])) {
                 $urlparse = parse_url($CFG->wwwroot);
 
-                $data["host"]  = $urlparse['host'];
+                $data["host"] = $urlparse['host'];
                 $data["token"] = $callback->token;
                 $data["extra"] = $callback->other;
 
@@ -77,7 +78,7 @@ class handler {
     /**
      * Sending data to the node.
      *
-     * @param array $data
+     * @param array  $data
      * @param object $callback
      */
     private static function send($data, $callback) {
@@ -86,6 +87,7 @@ class handler {
         $curl->post($callback->url, json_encode($data));
 
         $response = $curl->getResponse();
+        \local_webhooks_events::response_answer($callback->id, $response);
         return $response;
     }
 }
