@@ -2,12 +2,12 @@
 
 ## Navigation
 
-* Installation
-    * Build
-* User guide
-    * Guide to the manager
-    * Guide to the editor
-* Request format
+* [Installation](#installation)
+    * [Build](#build)
+* [User guide](#user-guide)
+    * [Guide to the manager](#guide-to-the-manager)
+    * [Guide to the editor](#guide-to-the-editor)
+* [Request format](#request-format)
 
 ## Installation
 
@@ -64,16 +64,13 @@ During the editing and creation of the service, this page opens:
 
 ![Service Editor](screenshots/editservice.jpg)
 
-The field "**Name**" stores an arbitrary name for the service
-
-The "**URL**" field stores the address of the service to which notifications will be sent as a POST request.
-
-The "**Token**" field allows you to specify an individual key that will allow an external service to identify requests.
-
-The "**Advanced**" field stores a large string passed to the service.
+Description of fields:
+* "**Name**" stores an arbitrary name for the service.
+* "**URL**" stores the address of the service to which notifications will be sent as a POST request.
+* "**Token**" allows you to specify an individual key that will allow an external service to identify requests.
+* "**Advanced**" stores a large string passed to the service.
 This can be useful for some services or users.
-
-The "**Content Type**" field allows you to configure the type of outbound requests if there are compatibility issues.
+* "**Content Type**" allows you to configure the type of outbound requests if there are compatibility issues.
 
 The "**All events**" list contains a list of all events registered in the system.
 The selected events will notify the service.
