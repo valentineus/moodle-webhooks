@@ -20,27 +20,11 @@ Features:
 * Use a secret phrase to authenticate requests;
 * [JSON](https://en.wikipedia.org/wiki/JSON) - Format of outgoing data;
 
-## Installation
+## Documentation
 
-Get the installation package in any of the available methods:
-
-* [GitHub Releases](https://github.com/valentineus/moodle-webhooks/releases).
-* [Compilation from the source code](#build).
-
-## Build
-
-Self-assembly package is as follows:
-
-* Clone the repository:
-```bash
-git clone https://github.com/valentineus/moodle-webhooks.git moodle-webhooks
-```
-
-* Run the build script:
-```bash
-cd ./moodle-webhooks
-/bin/sh build.sh
-```
+* [Install the plugin](docs/getting-started.md#installation).
+* [User guide](docs/getting-started.md#user-guide).
+* [Request format](docs/getting-started.md#request-format).
 
 ## License
 
