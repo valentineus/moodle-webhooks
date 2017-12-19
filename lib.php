@@ -27,6 +27,25 @@ defined("MOODLE_INTERNAL") || die();
 require_once(__DIR__ . "/locallib.php");
 
 /**
+ * Change the status of the service.
+ *
+ * @param  number  $serviceid
+ * @return boolean
+ */
+function local_webhooks_change_status($serviceid) {
+    global $DB;
+
+    $result = false;
+    $conditions = array("id" => $serviceid);
+    if ($DB->record_exists("local_webhooks_service", $conditions)) {
+        $enabled = $DB->get_field("local_webhooks_service", "enable", $conditions, IGNORE_MISSING);
+        $result = $DB->set_field("local_webhooks_service", "enable", !boolval($enabled), $conditions);
+    }
+
+    return boolval($result);
+}
+
+/**
  * Getting a list of all services.
  *
  * @param  number $limitfrom
