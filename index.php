@@ -23,13 +23,14 @@
  */
 
 require_once(__DIR__ . "/../../config.php");
+require_once(__DIR__ . "/classes/webhooks_table.php");
 require_once(__DIR__ . "/lib.php");
 
 require_once($CFG->libdir . "/adminlib.php");
-require_once($CFG->libdir . "/tablelib.php");
 
 /* Optional parameters */
 $backupservices = optional_param("getbackup", 0, PARAM_BOOL);
+$deleteall      = optional_param("deleteall", 0, PARAM_INT);
 $deleteid       = optional_param("deleteid", 0, PARAM_INT);
 $hideshowid     = optional_param("hideshowid", 0, PARAM_INT);
 
@@ -44,13 +45,22 @@ admin_externalpage_setup("local_webhooks", "", null, $baseurl, array());
 $context = context_system::instance();
 
 /* Delete the service */
-if (boolval($deleteid)) {
+if (!empty($deleteid) && confirm_sesskey()) {
     local_webhooks_remove_record($deleteid);
-    redirect($PAGE->url, new lang_string("eventwebserviceservicedeleted", "webservice"));
+    redirect($PAGE->url, new lang_string("deleted", "moodle"));
 }
 
-/* Retrieving a list of services */
-$callbacks = local_webhooks_get_list_records();
+/* Switching the status of the service */
+if (!empty($hideshowid) && confirm_sesskey()) {
+    local_webhooks_change_status($hideshowid);
+    redirect($PAGE->url, new lang_string("changessaved", "moodle"));
+}
+
+/* Deletes all data */
+if (boolval($deleteall) && confirm_sesskey()) {
+    local_webhooks_remove_list_records();
+    redirect($PAGE->url, new lang_string("deleted", "moodle"));
+}
 
 /* Upload settings as a file */
 if (boolval($backupservices)) {
@@ -59,74 +69,32 @@ if (boolval($backupservices)) {
     send_file($filecontent, $filename, 0, 0, true, true);
 }
 
-/* Switching the status of the service */
-if (boolval($hideshowid)) {
-    $callback = $callbacks[$hideshowid];
-
-    if (!empty($callback)) {
-        $callback->enable = !boolval($callback->enable);
-        local_webhooks_update_record($callback, false);
-        redirect($PAGE->url, new lang_string("eventwebserviceserviceupdated", "webservice"));
-    }
-}
-
 /* The page title */
 $titlepage = new lang_string("pluginname", "local_webhooks");
 $PAGE->set_heading($titlepage);
 $PAGE->set_title($titlepage);
 echo $OUTPUT->header();
 
-/* Table declaration */
-$table = new flexible_table("webhooks-service-table");
-
-/* Customize the table */
-$table->define_columns(array("title", "url", "actions"));
-$table->define_headers(array(new lang_string("name", "moodle"), new lang_string("url", "moodle"), new lang_string("actions", "moodle")));
-$table->define_baseurl($baseurl);
-$table->setup();
-
-foreach ($callbacks as $callback) {
-    /* Filling of information columns */
-    $titlecallback = html_writer::div($callback->title, "title");
-    $urlcallback   = html_writer::div($callback->url, "url");
-
-    /* Defining service status */
-    $hideshowicon   = "t/show";
-    $hideshowstring = new lang_string("enable", "moodle");
-    if (boolval($callback->enable)) {
-        $hideshowicon   = "t/hide";
-        $hideshowstring = new lang_string("disable", "moodle");
-    }
-
-    /* Link to enable / disable the service */
-    $hideshowlink = new moodle_url($managerservice, array("hideshowid" => $callback->id));
-    $hideshowitem = $OUTPUT->action_icon($hideshowlink, new pix_icon($hideshowicon, $hideshowstring));
-
-    /* Link for editing */
-    $editlink = new moodle_url($editservice, array("serviceid" => $callback->id));
-    $edititem = $OUTPUT->action_icon($editlink, new pix_icon("t/edit", new lang_string("edit", "moodle")));
-
-    /* Link to remove */
-    $deletelink = new moodle_url($managerservice, array("deleteid" => $callback->id));
-    $deleteitem = $OUTPUT->action_icon($deletelink, new pix_icon("t/delete", new lang_string("delete", "moodle")));
-
-    /* Adding data to the table */
-    $table->add_data(array($titlecallback, $urlcallback, $hideshowitem . $edititem . $deleteitem));
-}
-
-/* Display the table */
-$table->print_html();
-
-/* Add service button */
+/* Adds the add button */
 $addserviceurl = new moodle_url($editservice);
-echo $OUTPUT->single_button($addserviceurl, new lang_string("addaservice", "webservice"), "get");
+echo $OUTPUT->single_button($addserviceurl, new lang_string("addaservice", "webservice"));
 
-/* Button to get a backup */
+/* Adds a delete button */
+$deleteallurl = new moodle_url($managerservice, array("deleteall" => true, "sesskey" => sesskey()));
+echo $OUTPUT->single_button($deleteallurl, new lang_string("deleteall", "moodle"), "get");
+
+/* Adds a backup button */
 $backupurl = new moodle_url($managerservice, array("getbackup" => true));
 echo $OUTPUT->single_button($backupurl, new lang_string("backup", "moodle"), "get");
 
-/* Button for restoring settings */
+/* Adds a restore button */
 $restorebackupurl = new moodle_url($restorebackup);
-echo $OUTPUT->single_button($restorebackupurl, new lang_string("restore", "moodle"), "get");
+echo $OUTPUT->single_button($restorebackupurl, new lang_string("restore", "moodle"));
 
+/* Displays the table */
+$table = new local_webhooks_table("local-webhooks-table");
+$table->define_baseurl($baseurl);
+$table->out(25, true);
+
+/* Footer */
 echo $OUTPUT->footer();
