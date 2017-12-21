@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Library code used by the service control interfaces.
+ * This file contains the functions used by the plugin.
  *
  * @package   local_webhooks
  * @copyright 2017 "Valentin Popov" <info@valentineus.link>
@@ -35,18 +35,37 @@ require_once(__DIR__ . "/locallib.php");
 function local_webhooks_change_status($serviceid) {
     global $DB;
 
-    $result = false;
+    $result     = false;
     $conditions = array("id" => $serviceid);
+
     if ($DB->record_exists("local_webhooks_service", $conditions)) {
         $enabled = $DB->get_field("local_webhooks_service", "enable", $conditions, IGNORE_MISSING);
-        $result = $DB->set_field("local_webhooks_service", "enable", !boolval($enabled), $conditions);
+        $result  = $DB->set_field("local_webhooks_service", "enable", !boolval($enabled), $conditions);
     }
 
     return boolval($result);
 }
 
 /**
- * Getting a list of all services.
+ * Get the record from the database.
+ *
+ * @param  number $serviceid
+ * @return object
+ */
+function local_webhooks_get_record($serviceid) {
+    global $DB;
+
+    $servicerecord = $DB->get_record("local_webhooks_service", array("id" => $serviceid), "*", MUST_EXIST);
+
+    if (!empty($servicerecord->events)) {
+        $servicerecord->events = local_webhooks_deserialization_data($servicerecord->events);
+    }
+
+    return $servicerecord;
+}
+
+/**
+ * Get all records from the database.
  *
  * @param  number $limitfrom
  * @param  number $limitnum
@@ -55,130 +74,120 @@ function local_webhooks_change_status($serviceid) {
 function local_webhooks_get_list_records($limitfrom = 0, $limitnum = 0) {
     global $DB;
 
-    $listservices = $DB->get_records("local_webhooks_service", null, "id", "*", $limitfrom, $limitnum);
+    $listrecords = $DB->get_records("local_webhooks_service", null, "id", "*", $limitfrom, $limitnum);
 
-    foreach ($listservices as $servicerecord) {
+    foreach ($listrecords as $servicerecord) {
         if (!empty($servicerecord->events)) {
-            $servicerecord->events = local_webhooks_unarchive_data($servicerecord->events);
+            $servicerecord->events = local_webhooks_deserialization_data($servicerecord->events);
         }
     }
 
-    return $listservices;
+    return $listrecords;
 }
 
 /**
- * Getting information about the service.
+ * Create an entry in the database.
  *
- * @param  number $serviceid
- * @return object
+ * @param  object  $record
+ * @return boolean
  */
-function local_webhooks_get_record($serviceid = 0) {
+function local_webhooks_create_record($record) {
     global $DB;
 
-    $servicerecord = $DB->get_record("local_webhooks_service", array("id" => $serviceid), "*", MUST_EXIST);
-
-    if (!empty($servicerecord->events)) {
-        $servicerecord->events = local_webhooks_unarchive_data($servicerecord->events);
+    if (!empty($record->events)) {
+        $record->events = local_webhooks_serialization_data($record->events);
     }
 
-    return $servicerecord;
-}
-
-/**
- * Clear the database table.
- */
-function local_webhooks_remove_list_records() {
-    global $DB;
-
-    $DB->delete_records("local_webhooks_service", null);
-}
-
-/**
- * Delete the record.
- *
- * @param number $serviceid
- */
-function local_webhooks_remove_record($serviceid = 0) {
-    global $DB;
-
-    $DB->delete_records("local_webhooks_service", array("id" => $serviceid));
-    local_webhooks_events::service_deleted($serviceid);
+    $result = $DB->insert_record("local_webhooks_service", $record, true, false);
+    return boolval($result);
 }
 
 /**
  * Update the record in the database.
  *
  * @param  object  $data
- * @param  boolean $insert
  * @return boolean
  */
-function local_webhooks_update_record($data, $insert = true) {
+function local_webhooks_update_record($record) {
     global $DB;
 
-    if (empty($data->events)) {
-        $data->events = array();
+    if (!empty($record->events)) {
+        $record->events = local_webhooks_serialization_data($record->events);
     }
 
-    $data->events = local_webhooks_archiving_data($data->events);
-
-    if (boolval($insert)) {
-        $result = $DB->insert_record("local_webhooks_service", $data, true, false);
-        local_webhooks_events::service_added($result);
-    } else {
-        $result = $DB->update_record("local_webhooks_service", $data, false);
-        local_webhooks_events::service_updated($data->id);
-    }
-
+    $result = $DB->update_record("local_webhooks_service", $record, false);
     return boolval($result);
 }
 
 /**
- * Make a backup copy of all the services.
+ * Delete the record from the database.
+ *
+ * @param  number  $serviceid
+ * @return boolean
+ */
+function local_webhooks_delete_record($serviceid) {
+    global $DB;
+    $result = $DB->delete_records("local_webhooks_service", array("id" => $serviceid));
+    return boolval($result);
+}
+
+/**
+ * Delete all records from the database.
+ *
+ * @return boolean
+ */
+function local_webhooks_delete_all_records() {
+    global $DB;
+    $result = $DB->delete_records("local_webhooks_service", null);
+    return boolval($result);
+}
+
+/**
+ * Create a backup.
  *
  * @return string
  */
 function local_webhooks_create_backup() {
-    $listservices = local_webhooks_get_list_records();
-    $listservices = local_webhooks_archiving_data($listservices);
-    local_webhooks_events::backup_performed();
-    return $listservices;
-}
-
-/**
- * Restore the data from the backup.
- *
- * @param string $data
- */
-function local_webhooks_restore_backup($listservices = "") {
-    $listservices = local_webhooks_unarchive_data($listservices);
-
-    local_webhooks_remove_list_records();
-
-    foreach ($listservices as $servicerecord) {
-        local_webhooks_update_record($servicerecord, true);
-    }
-
-    local_webhooks_events::backup_restored();
-}
-
-/**
- * Compress an array into a string.
- *
- * @param  array  $data
- * @return string
- */
-function local_webhooks_archiving_data($data = array()) {
-    $result = base64_encode(gzcompress(serialize($data), 3));
+    $listrecords = local_webhooks_get_list_records();
+    $result      = local_webhooks_serialization_data($listrecords);
     return $result;
 }
 
 /**
- * Gets an array from a compressed string.
+ * Restore from a backup.
  *
- * @param  string $data
- * @return array
+ * @param string $data
  */
-function local_webhooks_unarchive_data($data = "") {
-    $result = unserialize(gzuncompress(base64_decode($data)));
+function local_webhooks_restore_backup($data, $deleterecords = false) {
+    $listrecords = local_webhooks_deserialization_data($data);
+
+    if (boolval($deleterecords)) {
+        local_webhooks_delete_all_records();
+    }
+
+    foreach ($listrecords as $servicerecord) {
+        local_webhooks_create_record($servicerecord);
+    }
+}
+
+/**
+ * Data serialization.
+ *
+ * @param  array|object $data
+ * @return string
+ */
+function local_webhooks_serialization_data($data) {
+    $result = serialize($data);
+    return $result;
+}
+
+/**
+ * Data deserialization.
+ *
+ * @param  string       $data
+ * @return array|object
+ */
+function local_webhooks_deserialization_data($data) {
+    $result = unserialize($data);
     return $result;
 }
