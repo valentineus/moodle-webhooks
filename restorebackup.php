@@ -61,4 +61,5 @@ echo $OUTPUT->header();
 /* Displays the form */
 $mform->display();
 
+/* Footer */
 echo $OUTPUT->footer();

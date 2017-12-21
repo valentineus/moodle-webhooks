@@ -77,7 +77,7 @@ echo $OUTPUT->header();
 
 /* Adds the add button */
 $addserviceurl = new moodle_url($editservice);
-echo $OUTPUT->single_button($addserviceurl, new lang_string("addaservice", "webservice"));
+echo $OUTPUT->single_button($addserviceurl, new lang_string("changessaved", "moodle"));
 
 /* Adds a delete button */
 $deleteallurl = new moodle_url($managerservice, array("deleteall" => true, "sesskey" => sesskey()));
