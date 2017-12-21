@@ -125,6 +125,11 @@ class service_backup_form extends moodleform {
         /* Form heading */
         $mform->addElement("header", "editserviceheader", new lang_string("restore", "moodle"));
 
+        /* Flag for deleting existing data */
+        $mform->addElement("advcheckbox", "deleterecords", new lang_string("deleteall", "moodle"));
+        $mform->setType("deleterecords", PARAM_BOOL);
+        $mform->setDefault("deleterecords", 1);
+
         /* Download the file */
         $mform->addElement("filepicker", "backupfile", new lang_string("file", "moodle"));
         $mform->addRule("backupfile", null, "required");
