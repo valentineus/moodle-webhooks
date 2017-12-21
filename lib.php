@@ -35,15 +35,13 @@ require_once(__DIR__ . "/locallib.php");
 function local_webhooks_change_status($serviceid) {
     global $DB;
 
-    $result     = false;
-    $conditions = array("id" => $serviceid);
-
-    if ($DB->record_exists("local_webhooks_service", $conditions)) {
-        $enabled = $DB->get_field("local_webhooks_service", "enable", $conditions, IGNORE_MISSING);
-        $result  = $DB->set_field("local_webhooks_service", "enable", !boolval($enabled), $conditions);
+    $result = false;
+    if ($record = local_webhooks_get_record($serviceid)) {
+        $record->enable = !boolval($record->enable);
+        $result = local_webhooks_update_record($record);
     }
 
-    return boolval($result);
+    return $result;
 }
 
 /**
@@ -99,6 +97,7 @@ function local_webhooks_create_record($record) {
     }
 
     $result = $DB->insert_record("local_webhooks_service", $record, true, false);
+    local_webhooks_events::service_added($result);
     return boolval($result);
 }
 
@@ -116,6 +115,7 @@ function local_webhooks_update_record($record) {
     }
 
     $result = $DB->update_record("local_webhooks_service", $record, false);
+    local_webhooks_events::service_updated($record->id);
     return boolval($result);
 }
 
@@ -128,6 +128,7 @@ function local_webhooks_update_record($record) {
 function local_webhooks_delete_record($serviceid) {
     global $DB;
     $result = $DB->delete_records("local_webhooks_service", array("id" => $serviceid));
+    local_webhooks_events::service_deleted($serviceid);
     return boolval($result);
 }
 
@@ -139,6 +140,7 @@ function local_webhooks_delete_record($serviceid) {
 function local_webhooks_delete_all_records() {
     global $DB;
     $result = $DB->delete_records("local_webhooks_service", null);
+    local_webhooks_events::service_deletedall();
     return boolval($result);
 }
 
@@ -150,6 +152,7 @@ function local_webhooks_delete_all_records() {
 function local_webhooks_create_backup() {
     $listrecords = local_webhooks_get_list_records();
     $result      = local_webhooks_serialization_data($listrecords);
+    local_webhooks_events::backup_performed();
     return $result;
 }
 
@@ -168,6 +171,8 @@ function local_webhooks_restore_backup($data, $deleterecords = false) {
     foreach ($listrecords as $servicerecord) {
         local_webhooks_create_record($servicerecord);
     }
+
+    local_webhooks_events::backup_restored();
 }
 
 /**

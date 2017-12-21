@@ -46,14 +46,14 @@ class service_deletedall extends \core\event\base {
      * Return localised event name.
      */
     public static function get_name() {
-        return new \lang_string("deleteall", "moodle");
+        return new \lang_string("deleted", "moodle");
     }
 
     /**
      * Returns description of what happened.
      */
     public function get_description() {
-        return new \lang_string("eventwebserviceservicedeleted", "webservice");
+        return new \lang_string("deletecompletely", "moodle");
     }
 
     /**
