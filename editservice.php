@@ -59,12 +59,12 @@ if ($editing = boolval($serviceid)) {
 if ($data = $mform->get_data()) {
     if ($editing) {
         $data->id = $serviceid;
-        local_webhooks_update_record($data, false);
-        redirect($managerservice, new lang_string("eventwebserviceserviceupdated", "webservice"));
+        local_webhooks_update_record($data);
     } else {
-        local_webhooks_update_record($data, true);
-        redirect($managerservice, new lang_string("eventwebserviceservicecreated", "webservice"));
+        local_webhooks_create_record($data);
     }
+
+    redirect($managerservice, new lang_string("changessaved", "moodle"));
 }
 
 /* The page title */
@@ -77,4 +77,5 @@ echo $OUTPUT->header();
 /* Displays the form */
 $mform->display();
 
+/* Footer */
 echo $OUTPUT->footer();
