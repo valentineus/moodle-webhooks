@@ -46,7 +46,7 @@ $context = context_system::instance();
 
 /* Delete the service */
 if (!empty($deleteid) && confirm_sesskey()) {
-    local_webhooks_remove_record($deleteid);
+    local_webhooks_delete_record($deleteid);
     redirect($PAGE->url, new lang_string("deleted", "moodle"));
 }
 
@@ -58,7 +58,7 @@ if (!empty($hideshowid) && confirm_sesskey()) {
 
 /* Deletes all data */
 if (boolval($deleteall) && confirm_sesskey()) {
-    local_webhooks_remove_list_records();
+    local_webhooks_delete_all_records();
     redirect($PAGE->url, new lang_string("deleted", "moodle"));
 }
 
