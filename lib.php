@@ -120,10 +120,11 @@ function local_webhooks_create_record($record) {
 function local_webhooks_update_record($record) {
     global $DB;
 
-    if (!empty($record->events)) {
-        $record->events = local_webhooks_serialization_data($record->events);
+    if (empty($record->id)) {
+        print_error("missingparam", "error", null, "id");
     }
 
+    $record->events = !empty($record->events) ? local_webhooks_serialization_data($record->events) : null;
     $result = $DB->update_record("local_webhooks_service", $record, false);
     local_webhooks_events::service_updated($record->id);
     return boolval($result);
