@@ -27,12 +27,9 @@ namespace local_webhooks;
 defined("MOODLE_INTERNAL") || die();
 
 require_once(__DIR__ . "/../lib.php");
-require_once(__DIR__ . "/../locallib.php");
-
-require_once($CFG->libdir . "/filelib.php");
 
 /**
- * Defines how to work with events.
+ * Defines event handlers.
  *
  * @copyright 2017 "Valentin Popov" <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -48,46 +45,10 @@ class handler {
 
         if ($callbacks = local_webhooks_get_list_records()) {
             foreach ($callbacks as $callback) {
-                self::handler_callback($data, $callback);
+                if (boolval($callback->enable) && !empty($callback->events[$data["eventname"]])) {
+                    local_webhooks_send_request($data, $callback);
+                }
             }
         }
-    }
-
-    /**
-     * Processes each callback.
-     *
-     * @param array  $data
-     * @param object $callback
-     */
-    private static function handler_callback($data, $callback) {
-        global $CFG;
-
-        if (boolval($callback->enable)) {
-            if (!empty($callback->events[$data["eventname"]])) {
-                $urlparse = parse_url($CFG->wwwroot);
-
-                $data["host"] = $urlparse['host'];
-                $data["token"] = $callback->token;
-                $data["extra"] = $callback->other;
-
-                self::send($data, $callback);
-            }
-        }
-    }
-
-    /**
-     * Sending data to the node.
-     *
-     * @param array  $data
-     * @param object $callback
-     */
-    private static function send($data, $callback) {
-        $curl = new \curl();
-        $curl->setHeader(array("Content-Type: application/" . $callback->type));
-        $curl->post($callback->url, json_encode($data));
-
-        $response = $curl->getResponse();
-        \local_webhooks_events::response_answer($callback->id, $response);
-        return $response;
     }
 }
