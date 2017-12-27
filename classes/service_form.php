@@ -24,6 +24,8 @@
 
 defined("MOODLE_INTERNAL") || die();
 
+require_once(__DIR__ . "/../lib.php");
+
 require_once($CFG->libdir . "/formslib.php");
 
 /**
@@ -84,7 +86,7 @@ class service_edit_form extends moodleform {
         $mform->addElement("header", "editserviceheaderevent", new lang_string("edulevel", "moodle"));
 
         /* List of events */
-        $eventlist = report_eventlist_list_generator::get_all_events_list(true);
+        $eventlist = local_webhooks_get_list_events();
         $events    = array();
 
         /* Formation of the list of elements */

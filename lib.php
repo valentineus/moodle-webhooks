@@ -84,6 +84,16 @@ function local_webhooks_get_list_records($limitfrom = 0, $limitnum = 0) {
 }
 
 /**
+ * Get a list of all system events.
+ *
+ * @return array
+ */
+function local_webhooks_get_list_events() {
+    $eventlist = report_eventlist_list_generator::get_all_events_list(true);
+    return $eventlist;
+}
+
+/**
  * Create an entry in the database.
  *
  * @param  object $record
