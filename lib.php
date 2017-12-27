@@ -86,8 +86,8 @@ function local_webhooks_get_list_records($limitfrom = 0, $limitnum = 0) {
 /**
  * Create an entry in the database.
  *
- * @param  object  $record
- * @return boolean
+ * @param  object $record
+ * @return number
  */
 function local_webhooks_create_record($record) {
     global $DB;
@@ -98,7 +98,7 @@ function local_webhooks_create_record($record) {
 
     $result = $DB->insert_record("local_webhooks_service", $record, true, false);
     local_webhooks_events::service_added($result);
-    return boolval($result);
+    return $result;
 }
 
 /**
