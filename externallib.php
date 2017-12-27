@@ -506,8 +506,12 @@ class local_webhooks_external extends external_api {
     public static function restore_backup_parameters() {
         return new external_function_parameters(
             array(
-                "backup"        => new external_value(PARAM_TEXT, "Backup copy."),
-                "deleterecords" => new external_value(PARAM_BOOL, "Delete existing records.")
+                "options" => new external_single_structure(
+                    array(
+                        "backup"        => new external_value(PARAM_TEXT, "Backup copy."),
+                        "deleterecords" => new external_value(PARAM_BOOL, "Delete existing records.", VALUE_OPTIONAL)
+                    )
+                )
             )
         );
     }
@@ -515,18 +519,18 @@ class local_webhooks_external extends external_api {
     /**
      * Restore from a backup.
      *
-     * @param string  $data
-     * @param boolean $deleterecords
+     * @param array  $options
      * @since Moodle 2.9 Options available
      * @since Moodle 2.2
      */
-    public static function restore_backup($backup = "", $deleterecords = false) {
-        $parameters = self::validate_parameters(self::restore_backup_parameters(), array("backup" => $backup, "deleterecords" => $deleterecords));
+    public static function restore_backup($options = array()) {
+        $parameters = self::validate_parameters(self::restore_backup_parameters(), array("options" => $options));
 
         $context = context_system::instance();
         self::validate_context($context);
 
-        local_webhooks_restore_backup($parameters["backup"], $parameters["deleterecords"]);
+        $deleterecords = !empty($parameters["options"]["deleterecords"]) ? boolval($parameters["options"]["deleterecords"]) : false;
+        local_webhooks_restore_backup($parameters["options"]["backup"], $deleterecords);
     }
 
     /**
