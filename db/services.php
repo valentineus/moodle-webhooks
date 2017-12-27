@@ -49,6 +49,14 @@ $functions = array(
         "type"        => "read"
     ),
 
+    "local_webhooks_get_list_events" => array(
+        "classname"   => "local_webhooks_external",
+        "methodname"  => "get_list_events",
+        "classpath"   => "local/webhooks/externallib.php",
+        "description" => "Get a list of all system events.",
+        "type"        => "read"
+    ),
+
     "local_webhooks_create_record" => array(
         "classname"   => "local_webhooks_external",
         "methodname"  => "create_record",
