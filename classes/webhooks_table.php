@@ -76,12 +76,14 @@ class local_webhooks_table extends table_sql {
         $columns = array(
             "title",
             "url",
+            "events",
             "actions"
         );
 
         $headers = array(
             new lang_string("name", "moodle"),
             new lang_string("url", "moodle"),
+            new lang_string("edulevel", "moodle"),
             new lang_string("actions", "moodle")
         );
 
@@ -116,6 +118,17 @@ class local_webhooks_table extends table_sql {
 
         $html = $hideshowitem . $edititem . $deleteitem;
         return $html;
+    }
+
+    /**
+     * Specifies the display of a column with events.
+     *
+     * @param  object $row Data from the database.
+     * @return string      Displayed data.
+     */
+    public function col_events($row) {
+        $eventlist = local_webhooks_deserialization_data($row->events);
+        return count($eventlist);
     }
 
     /**
