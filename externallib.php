@@ -234,6 +234,50 @@ class local_webhooks_external extends external_api {
      * @since  Moodle 2.9 Options available
      * @since  Moodle 2.2
      */
+    public static function get_list_events_parameters() {
+        return new external_function_parameters(array());
+    }
+
+    /**
+     * Get a list of all system events.
+     *
+     * @return array
+     * @since  Moodle 2.9 Options available
+     * @since  Moodle 2.2
+     */
+    public static function get_list_events() {
+        $context = context_system::instance();
+        self::validate_context($context);
+
+        $result = array();
+        if ($eventlist = local_webhooks_get_list_events()) {
+            foreach ($eventlist as $item) {
+                $result[] = $item["eventname"];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Returns description of method result value.
+     *
+     * @return external_description
+     * @since  Moodle 2.2
+     */
+    public static function get_list_events_returns() {
+        return new external_multiple_structure(
+            new external_value(PARAM_TEXT, "Event name.")
+        );
+    }
+
+    /**
+     * Returns description of method parameters.
+     *
+     * @return external_function_parameters
+     * @since  Moodle 2.9 Options available
+     * @since  Moodle 2.2
+     */
     public static function create_record_parameters() {
         return new external_function_parameters(
             array(
