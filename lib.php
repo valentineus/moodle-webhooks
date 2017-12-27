@@ -187,6 +187,29 @@ function local_webhooks_restore_backup($data, $deleterecords = false) {
 }
 
 /**
+ * Send the event remotely to the service.
+ *
+ * @param  array  $event
+ * @param  object $callback
+ * @return array
+ */
+function local_webhooks_send_request($event, $callback) {
+    global $CFG;
+
+    $event["host"]  = parse_url($CFG->wwwroot)["host"];
+    $event["token"] = $callback->token;
+    $event["extra"] = $callback->other;
+
+    $curl = new curl();
+    $curl->setHeader(array("Content-Type: application/" . $callback->type));
+    $curl->post($callback->url, json_encode($event));
+
+    $response = $curl->getResponse();
+    local_webhooks_events::response_answer($callback->id, $response);
+    return $response;
+}
+
+/**
  * Data serialization.
  *
  * @param  array|object $data
