@@ -24,9 +24,9 @@
 
 defined("MOODLE_INTERNAL") || die();
 
-$plugin->release      = "3.0.0 (Build: 2017112600)";
-$plugin->version      = 2017112600;
+$plugin->release      = "4.0.0-rc.1 (Build: 2017122900)";
+$plugin->version      = 2017122900;
 $plugin->requires     = 2016112900;
 $plugin->component    = "local_webhooks";
-$plugin->maturity     = MATURITY_STABLE;
-$plugin->dependencies = array( "report_eventlist" => 2016120500 );
+$plugin->maturity     = MATURITY_RC;
+$plugin->dependencies = array("report_eventlist" => 2016120500);
