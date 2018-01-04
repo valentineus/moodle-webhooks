@@ -56,7 +56,7 @@ if ($editing = boolval($serviceid)) {
 }
 
 /* Processing of received data */
-if ($data = $mform->get_data()) {
+if (($data = $mform->get_data()) && confirm_sesskey()) {
     if ($editing) {
         $data->id = $serviceid;
         local_webhooks_update_record($data);
