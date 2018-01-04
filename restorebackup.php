@@ -40,7 +40,7 @@ $context = context_system::instance();
 $mform = new service_backup_form($PAGE->url);
 
 /* Cancel processing */
-if ($mform->is_cancelled()) {
+if (($mform->is_cancelled()) && confirm_sesskey()) {
     redirect($managerservice);
 }
 
