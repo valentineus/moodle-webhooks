@@ -110,7 +110,7 @@ class local_webhooks_table extends table_sql {
         $hideshowlink = new moodle_url(self::$manager, array("hideshowid" => $row->id, "sesskey" => sesskey()));
         $hideshowitem = $OUTPUT->action_icon($hideshowlink, new pix_icon($hideshowicon, $hideshowstring));
 
-        $editlink = new moodle_url(self::$editor, array("serviceid" => $row->id));
+        $editlink = new moodle_url(self::$editor, array("serviceid" => $row->id, "sesskey" => sesskey()));
         $edititem = $OUTPUT->action_icon($editlink, new pix_icon("t/edit", new lang_string("edit", "moodle")));
 
         $deletelink = new moodle_url(self::$manager, array("deleteid" => $row->id, "sesskey" => sesskey()));
@@ -138,7 +138,7 @@ class local_webhooks_table extends table_sql {
      * @return string      Displayed data.
      */
     public function col_title($row) {
-        $link = new moodle_url(self::$editor, array("serviceid" => $row->id));
+        $link = new moodle_url(self::$editor, array("serviceid" => $row->id, "sesskey" => sesskey()));
         $html = html_writer::link($link, $row->title);
         return $html;
     }

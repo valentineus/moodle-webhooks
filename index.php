@@ -76,7 +76,7 @@ $PAGE->set_title($titlepage);
 echo $OUTPUT->header();
 
 /* Adds the add button */
-$addserviceurl = new moodle_url($editservice);
+$addserviceurl = new moodle_url($editservice, array("sesskey" => sesskey()));
 echo $OUTPUT->single_button($addserviceurl, new lang_string("add", "moodle"));
 
 /* Adds a delete button */
