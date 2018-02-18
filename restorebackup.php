@@ -40,12 +40,12 @@ $context = context_system::instance();
 $mform = new service_backup_form($PAGE->url);
 
 /* Cancel processing */
-if (($mform->is_cancelled()) && confirm_sesskey()) {
+if ($mform->is_cancelled()) {
     redirect($managerservice);
 }
 
 /* Processing the received file */
-if ($data = $mform->get_data()) {
+if (($data = $mform->get_data()) && confirm_sesskey()) {
     $content = $mform->get_file_content("backupfile");
     local_webhooks_restore_backup($content, $data->deleterecords);
     redirect($managerservice, new lang_string("restorefinished", "moodle"));
