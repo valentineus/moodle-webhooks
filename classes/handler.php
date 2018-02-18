@@ -26,6 +26,7 @@ namespace local_webhooks;
 
 defined("MOODLE_INTERNAL") || die();
 
+require_once(__DIR__ . "/../locallib.php");
 require_once(__DIR__ . "/../lib.php");
 
 /**
@@ -43,12 +44,13 @@ class handler {
     public static function events($event) {
         $data = $event->get_data();
 
-        if ($callbacks = local_webhooks_get_list_records()) {
-            foreach ($callbacks as $callback) {
-                if (boolval($callback->enable) && !empty($callback->events[$data["eventname"]])) {
-                    local_webhooks_send_request($data, $callback);
-                }
-            }
+        if (!is_array($recordlist = local_webhooks_cache_get($data["eventname"]))) {
+            $recordlist = local_webhooks_search_services_by_event($data["eventname"]);
+            local_webhooks_cache_set($data["eventname"], $recordlist);
+        }
+
+        foreach ($recordlist as $record) {
+            local_webhooks_send_request($data, $record);
         }
     }
 }
