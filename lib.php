@@ -45,6 +45,25 @@ function local_webhooks_change_status($serviceid) {
 }
 
 /**
+ * Search for services that contain the specified event.
+ *
+ * @param  string $eventname
+ * @return array
+ */
+function local_webhooks_search_services_by_event($eventname) {
+    $recordlist = local_webhooks_get_list_records();
+    $result = array();
+
+    foreach ($recordlist as $record) {
+        if (boolval($record->enable) && !empty($record->events[$eventname])) {
+            $result[] = $record;
+        }
+    }
+
+    return $result;
+}
+
+/**
  * Get the record from the database.
  *
  * @param  number $serviceid
