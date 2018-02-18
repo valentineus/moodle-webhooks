@@ -45,40 +45,6 @@ function local_webhooks_change_status($serviceid) {
 }
 
 /**
- * Get data from the cache by key.
- *
- * @param  string $eventname
- * @return array
- */
-function local_webhooks_cache_get($eventname) {
-    $cache = cache::make("local_webhooks", "webhooks_services");
-    return $cache->get($eventname);
-}
-
-/**
- * Update the data in the cache by key.
- *
- * @param  string  $eventname
- * @param  array   $recordlist
- * @return boolean
- */
-function local_webhooks_cache_set($eventname, $recordlist = array()) {
-    $cache = cache::make("local_webhooks", "webhooks_services");
-    return $cache->set($eventname, $recordlist);
-}
-
-/**
- * Delete the data in the cache by key.
- *
- * @param  string  $eventname
- * @return boolean
- */
-function local_webhooks_cache_delete($eventname) {
-    $cache = cache::make("local_webhooks", "webhooks_services");
-    return $cache->delete($eventname);
-}
-
-/**
  * Get the record from the database.
  *
  * @param  number $serviceid

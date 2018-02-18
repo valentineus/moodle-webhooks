@@ -25,6 +25,50 @@
 defined("MOODLE_INTERNAL") || die();
 
 /**
+ * Get data from the cache by key.
+ *
+ * @param  string $eventname
+ * @return array
+ */
+function local_webhooks_cache_get($eventname) {
+    $cache = cache::make("local_webhooks", "webhooks_services");
+    return $cache->get($eventname);
+}
+
+/**
+ * Update the data in the cache by key.
+ *
+ * @param  string  $eventname
+ * @param  array   $recordlist
+ * @return boolean
+ */
+function local_webhooks_cache_set($eventname, $recordlist = array()) {
+    $cache = cache::make("local_webhooks", "webhooks_services");
+    return $cache->set($eventname, $recordlist);
+}
+
+/**
+ * Delete the data in the cache by key.
+ *
+ * @param  string  $eventname
+ * @return boolean
+ */
+function local_webhooks_cache_delete($eventname) {
+    $cache = cache::make("local_webhooks", "webhooks_services");
+    return $cache->delete($eventname);
+}
+
+/**
+ * Clear the cache of the plugin.
+ *
+ * @return boolean
+ */
+function local_webhooks_cache_delete_all() {
+    $cache = cache::make("local_webhooks", "webhooks_services");
+    return $cache->purge();
+}
+
+/**
  * Description of functions of the call of events
  *
  * @copyright 2017 "Valentin Popov" <info@valentineus.link>
