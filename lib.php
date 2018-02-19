@@ -259,25 +259,3 @@ function local_webhooks_send_request($event, $callback) {
 
     return $response;
 }
-
-/**
- * Data serialization.
- *
- * @param  array|object $data
- * @return string
- */
-function local_webhooks_serialization_data($data) {
-    $result = serialize($data);
-    return $result;
-}
-
-/**
- * Data deserialization.
- *
- * @param  string       $data
- * @return array|object
- */
-function local_webhooks_deserialization_data($data) {
-    $result = unserialize($data);
-    return $result;
-}

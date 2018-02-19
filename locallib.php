@@ -69,6 +69,28 @@ function local_webhooks_cache_reset() {
 }
 
 /**
+ * Data serialization.
+ *
+ * @param  array|object $data
+ * @return string
+ */
+function local_webhooks_serialization_data($data) {
+    $result = serialize($data);
+    return $result;
+}
+
+/**
+ * Data deserialization.
+ *
+ * @param  string       $data
+ * @return array|object
+ */
+function local_webhooks_deserialization_data($data) {
+    $result = unserialize($data);
+    return $result;
+}
+
+/**
  * Description of functions of the call of events
  *
  * @copyright 2017 "Valentin Popov" <info@valentineus.link>
