@@ -128,7 +128,7 @@ function local_webhooks_create_record($record) {
     $result = $DB->insert_record("local_webhooks_service", $record, true, false);
 
     /* Clear the plugin cache */
-    local_webhooks_cache_delete_all();
+    local_webhooks_cache_reset();
 
     /* Event notification */
     local_webhooks_events::service_added($result);
@@ -153,7 +153,7 @@ function local_webhooks_update_record($record) {
     $result = $DB->update_record("local_webhooks_service", $record, false);
 
     /* Clear the plugin cache */
-    local_webhooks_cache_delete_all();
+    local_webhooks_cache_reset();
 
     /* Event notification */
     local_webhooks_events::service_updated($record->id);
@@ -173,7 +173,7 @@ function local_webhooks_delete_record($serviceid) {
     $result = $DB->delete_records("local_webhooks_service", array("id" => $serviceid));
 
     /* Clear the plugin cache */
-    local_webhooks_cache_delete_all();
+    local_webhooks_cache_reset();
 
     /* Event notification */
     local_webhooks_events::service_deleted($serviceid);
@@ -192,7 +192,7 @@ function local_webhooks_delete_all_records() {
     $result = $DB->delete_records("local_webhooks_service", null);
 
     /* Clear the plugin cache */
-    local_webhooks_cache_delete_all();
+    local_webhooks_cache_reset();
 
     /* Event notification */
     local_webhooks_events::service_deletedall();

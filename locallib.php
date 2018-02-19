@@ -63,7 +63,7 @@ function local_webhooks_cache_delete($eventname) {
  *
  * @return boolean
  */
-function local_webhooks_cache_delete_all() {
+function local_webhooks_cache_reset() {
     $cache = cache::make("local_webhooks", "webhooks_services");
     return $cache->purge();
 }
