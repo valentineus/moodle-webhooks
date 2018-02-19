@@ -88,7 +88,8 @@ class local_webhooks_external extends external_api {
     public static function search_services_by_event_parameters() {
         return new external_function_parameters(
             array(
-                "eventname" => new external_value(PARAM_TEXT, "The name of the event.")
+                "eventname" => new external_value(PARAM_TEXT, "The name of the event."),
+                "active"    => new external_value(PARAM_BOOL, "Service status filter switch.", VALUE_OPTIONAL)
             )
         );
     }
@@ -96,19 +97,20 @@ class local_webhooks_external extends external_api {
     /**
      * Search for services that contain the specified event.
      *
-     * @param  string $eventname
+     * @param  string  $eventname
+     * @param  boolean $active
      * @return array
      * @since  Moodle 2.9 Options available
      * @since  Moodle 2.2
      */
-    public static function search_services_by_event($eventname = "") {
-        $parameters = self::validate_parameters(self::search_services_by_event_parameters(), array("eventname" => $eventname));
+    public static function search_services_by_event($eventname = "", $active = false) {
+        $parameters = self::validate_parameters(self::search_services_by_event_parameters(), array("eventname" => $eventname, "active" => $active));
 
         $context = context_system::instance();
         self::validate_context($context);
 
         $result = array();
-        if ($listrecords = local_webhooks_search_services_by_event($parameters["eventname"])) {
+        if ($listrecords = local_webhooks_search_services_by_event($parameters["eventname"], $parameters["active"])) {
             foreach ($listrecords as $index => $record) {
                 $result[$index]["enable"] = $record->enable;
                 $result[$index]["id"]     = $record->id;
