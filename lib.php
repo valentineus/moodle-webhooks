@@ -52,7 +52,7 @@ function local_webhooks_change_status($serviceid) {
  */
 function local_webhooks_search_services_by_event($eventname) {
     $recordlist = local_webhooks_get_list_records();
-    $result = array();
+    $result     = array();
 
     foreach ($recordlist as $record) {
         if (boolval($record->enable) && !empty($record->events[$eventname])) {
@@ -126,7 +126,13 @@ function local_webhooks_create_record($record) {
     }
 
     $result = $DB->insert_record("local_webhooks_service", $record, true, false);
+
+    /* Clear the plugin cache */
+    local_webhooks_cache_delete_all();
+
+    /* Event notification */
     local_webhooks_events::service_added($result);
+
     return $result;
 }
 
@@ -145,7 +151,13 @@ function local_webhooks_update_record($record) {
 
     $record->events = !empty($record->events) ? local_webhooks_serialization_data($record->events) : null;
     $result = $DB->update_record("local_webhooks_service", $record, false);
+
+    /* Clear the plugin cache */
+    local_webhooks_cache_delete_all();
+
+    /* Event notification */
     local_webhooks_events::service_updated($record->id);
+
     return boolval($result);
 }
 
@@ -157,8 +169,15 @@ function local_webhooks_update_record($record) {
  */
 function local_webhooks_delete_record($serviceid) {
     global $DB;
+
     $result = $DB->delete_records("local_webhooks_service", array("id" => $serviceid));
+
+    /* Clear the plugin cache */
+    local_webhooks_cache_delete_all();
+
+    /* Event notification */
     local_webhooks_events::service_deleted($serviceid);
+
     return boolval($result);
 }
 
@@ -169,8 +188,15 @@ function local_webhooks_delete_record($serviceid) {
  */
 function local_webhooks_delete_all_records() {
     global $DB;
+
     $result = $DB->delete_records("local_webhooks_service", null);
+
+    /* Clear the plugin cache */
+    local_webhooks_cache_delete_all();
+
+    /* Event notification */
     local_webhooks_events::service_deletedall();
+
     return boolval($result);
 }
 
@@ -182,7 +208,10 @@ function local_webhooks_delete_all_records() {
 function local_webhooks_create_backup() {
     $listrecords = local_webhooks_get_list_records();
     $result      = local_webhooks_serialization_data($listrecords);
+
+    /* Event notification */
     local_webhooks_events::backup_performed();
+
     return $result;
 }
 
@@ -202,6 +231,7 @@ function local_webhooks_restore_backup($data, $deleterecords = false) {
         local_webhooks_create_record($servicerecord);
     }
 
+    /* Event notification */
     local_webhooks_events::backup_restored();
 }
 
@@ -222,9 +252,11 @@ function local_webhooks_send_request($event, $callback) {
     $curl = new curl();
     $curl->setHeader(array("Content-Type: application/" . $callback->type));
     $curl->post($callback->url, json_encode($event));
-
     $response = $curl->getResponse();
+
+    /* Event notification */
     local_webhooks_events::response_answer($callback->id, $response);
+
     return $response;
 }
 
