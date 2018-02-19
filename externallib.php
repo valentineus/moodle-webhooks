@@ -85,6 +85,86 @@ class local_webhooks_external extends external_api {
      * @since  Moodle 2.9 Options available
      * @since  Moodle 2.2
      */
+    public static function search_services_by_event_parameters() {
+        return new external_function_parameters(
+            array(
+                "eventname" => new external_value(PARAM_TEXT, "The name of the event.")
+            )
+        );
+    }
+
+    /**
+     * Search for services that contain the specified event.
+     *
+     * @param  string $eventname
+     * @return array
+     * @since  Moodle 2.9 Options available
+     * @since  Moodle 2.2
+     */
+    public static function search_services_by_event($eventname = "") {
+        $parameters = self::validate_parameters(self::search_services_by_event_parameters(), array("eventname" => $eventname));
+
+        $context = context_system::instance();
+        self::validate_context($context);
+
+        $result = array();
+        if ($listrecords = local_webhooks_search_services_by_event($parameters["eventname"])) {
+            foreach ($listrecords as $index => $record) {
+                $result[$index]["enable"] = $record->enable;
+                $result[$index]["id"]     = $record->id;
+                $result[$index]["other"]  = $record->other;
+                $result[$index]["title"]  = $record->title;
+                $result[$index]["token"]  = $record->token;
+                $result[$index]["type"]   = $record->type;
+                $result[$index]["url"]    = $record->url;
+
+                $result[$index]["events"] = array();
+                foreach ($record->events as $key => $value) {
+                    $result[$index]["events"][] = array("name" => $key, "value" => $value);
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Returns description of method result value.
+     *
+     * @return external_description
+     * @since  Moodle 2.2
+     */
+    public static function search_services_by_event_returns() {
+        return new external_multiple_structure(
+            new external_single_structure(
+                array(
+                    "id" => new external_value(PARAM_INT, "Service identifier."),
+                    "enable" => new external_value(PARAM_INT, "Service status."),
+                    "title" => new external_value(PARAM_TEXT, "Name of the service."),
+                    "url" => new external_value(PARAM_URL, "URL address."),
+                    "type" => new external_value(PARAM_TEXT, "Header type."),
+                    "token" => new external_value(PARAM_TEXT, "Authorization key.", VALUE_OPTIONAL),
+                    "other" => new external_value(PARAM_TEXT, "Additional field.", VALUE_OPTIONAL),
+                    "events" => new external_multiple_structure(
+                        new external_single_structure(
+                            array(
+                                "name" => new external_value(PARAM_TEXT, "Event name."),
+                                "value" => new external_value(PARAM_INT, "Observation status.")
+                            )
+                        ), "Observed events.", VALUE_OPTIONAL
+                    )
+                ), "Record about the service."
+            ), "List of services."
+        );
+    }
+
+    /**
+     * Returns description of method parameters.
+     *
+     * @return external_function_parameters
+     * @since  Moodle 2.9 Options available
+     * @since  Moodle 2.2
+     */
     public static function get_record_parameters() {
         return new external_function_parameters(
             array(
