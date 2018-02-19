@@ -33,6 +33,14 @@ $functions = array(
         "type"        => "write"
     ),
 
+    "local_webhooks_search_services_by_event" => array(
+        "classname"   => "local_webhooks_external",
+        "methodname"  => "search_services_by_event",
+        "classpath"   => "local/webhooks/externallib.php",
+        "description" => "Search for services that contain the specified event.",
+        "type"        => "read"
+    ),
+
     "local_webhooks_get_record" => array(
         "classname"   => "local_webhooks_external",
         "methodname"  => "get_record",
