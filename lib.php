@@ -47,16 +47,24 @@ function local_webhooks_change_status($serviceid) {
 /**
  * Search for services that contain the specified event.
  *
- * @param  string $eventname
+ * @param  string  $eventname
+ * @param  boolean $active
  * @return array
  */
-function local_webhooks_search_services_by_event($eventname) {
+function local_webhooks_search_services_by_event($eventname, $active = false) {
     $recordlist = local_webhooks_get_list_records();
+    $active     = boolval($active);
     $result     = array();
 
     foreach ($recordlist as $record) {
-        if (boolval($record->enable) && !empty($record->events[$eventname])) {
-            $result[] = $record;
+        if (!empty($record->events[$eventname])) {
+            if ($active && boolval($record->enable)) {
+                $result[] = $record;
+            }
+
+            if (!$active) {
+                $result[] = $record;
+            }
         }
     }
 
