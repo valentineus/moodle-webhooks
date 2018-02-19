@@ -45,7 +45,7 @@ class handler {
         $data = $event->get_data();
 
         if (!is_array($recordlist = local_webhooks_cache_get($data["eventname"]))) {
-            $recordlist = local_webhooks_search_services_by_event($data["eventname"]);
+            $recordlist = local_webhooks_search_services_by_event($data["eventname"], true);
             local_webhooks_cache_set($data["eventname"], $recordlist);
         }
 
