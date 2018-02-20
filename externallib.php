@@ -388,8 +388,8 @@ class local_webhooks_external extends external_api {
     /**
      * Create an entry in the database.
      *
-     * @param  array  $service
-     * @return number
+     * @param  array   $service
+     * @return boolean
      * @since  Moodle 2.9 Options available
      * @since  Moodle 2.2
      */
@@ -413,8 +413,7 @@ class local_webhooks_external extends external_api {
             $record->events[$value["name"]] = $value["value"];
         }
 
-        $result = local_webhooks_create_record($record);
-        return $result;
+        return local_webhooks_create_record($record);
     }
 
     /**
@@ -424,7 +423,7 @@ class local_webhooks_external extends external_api {
      * @since  Moodle 2.2
      */
     public static function create_record_returns() {
-        return new external_value(PARAM_INT, "Service identifier.");
+        return new external_value(PARAM_BOOL, "The result of the operation.");
     }
 
     /**

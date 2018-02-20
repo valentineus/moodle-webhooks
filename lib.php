@@ -123,8 +123,8 @@ function local_webhooks_get_list_events() {
 /**
  * Create an entry in the database.
  *
- * @param  object $record
- * @return number
+ * @param  object  $record
+ * @return boolean
  */
 function local_webhooks_create_record($record) {
     global $DB;
@@ -141,7 +141,7 @@ function local_webhooks_create_record($record) {
     /* Event notification */
     local_webhooks_events::service_added($result);
 
-    return $result;
+    return boolval($result);
 }
 
 /**
