@@ -75,8 +75,7 @@ function local_webhooks_cache_reset() {
  * @return string
  */
 function local_webhooks_serialization_data($data) {
-    $result = serialize($data);
-    return $result;
+    return serialize($data);
 }
 
 /**
@@ -86,8 +85,7 @@ function local_webhooks_serialization_data($data) {
  * @return array|object
  */
 function local_webhooks_deserialization_data($data) {
-    $result = unserialize($data);
-    return $result;
+    return unserialize($data);
 }
 
 /**
@@ -102,7 +100,7 @@ class local_webhooks_events {
      */
     public static function backup_performed() {
         $context = context_system::instance();
-        $event = local_webhooks\event\backup_performed::create(array("context" => $context, "objectid" => 0));
+        $event   = local_webhooks\event\backup_performed::create(array("context" => $context, "objectid" => 0));
         $event->trigger();
     }
 
@@ -111,7 +109,7 @@ class local_webhooks_events {
      */
     public static function backup_restored() {
         $context = context_system::instance();
-        $event = local_webhooks\event\backup_restored::create(array("context" => $context, "objectid" => 0));
+        $event   = local_webhooks\event\backup_restored::create(array("context" => $context, "objectid" => 0));
         $event->trigger();
     }
 
@@ -123,7 +121,8 @@ class local_webhooks_events {
      */
     public static function response_answer($objectid = 0, $response = array()) {
         $context = context_system::instance();
-        $status = "Error sending request";
+        $status  = "Error sending request";
+
         if (!empty($response["HTTP/1.1"])) {
             $status = $response["HTTP/1.1"];
         }
@@ -139,7 +138,7 @@ class local_webhooks_events {
      */
     public static function service_added($objectid = 0) {
         $context = context_system::instance();
-        $event = local_webhooks\event\service_added::create(array("context" => $context, "objectid" => $objectid));
+        $event   = local_webhooks\event\service_added::create(array("context" => $context, "objectid" => $objectid));
         $event->trigger();
     }
 
@@ -150,7 +149,7 @@ class local_webhooks_events {
      */
     public static function service_deleted($objectid = 0) {
         $context = context_system::instance();
-        $event = local_webhooks\event\service_deleted::create(array("context" => $context, "objectid" => $objectid));
+        $event   = local_webhooks\event\service_deleted::create(array("context" => $context, "objectid" => $objectid));
         $event->trigger();
     }
 
@@ -159,7 +158,7 @@ class local_webhooks_events {
      */
     public static function service_deletedall() {
         $context = context_system::instance();
-        $event = local_webhooks\event\service_deletedall::create(array("context" => $context, "objectid" => 0));
+        $event   = local_webhooks\event\service_deletedall::create(array("context" => $context, "objectid" => 0));
         $event->trigger();
     }
 
@@ -170,7 +169,7 @@ class local_webhooks_events {
      */
     public static function service_updated($objectid = 0) {
         $context = context_system::instance();
-        $event = local_webhooks\event\service_updated::create(array("context" => $context, "objectid" => $objectid));
+        $event   = local_webhooks\event\service_updated::create(array("context" => $context, "objectid" => $objectid));
         $event->trigger();
     }
 }
