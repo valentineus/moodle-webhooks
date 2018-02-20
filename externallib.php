@@ -64,8 +64,7 @@ class local_webhooks_external extends external_api {
         $context = context_system::instance();
         self::validate_context($context);
 
-        $result = local_webhooks_change_status($parameters["serviceid"]);
-        return $result;
+        return local_webhooks_change_status($parameters["serviceid"]);
     }
 
     /**
@@ -535,8 +534,7 @@ class local_webhooks_external extends external_api {
         $context = context_system::instance();
         self::validate_context($context);
 
-        $result = local_webhooks_delete_record($parameters["serviceid"]);
-        return $result;
+        return local_webhooks_delete_record($parameters["serviceid"]);
     }
 
     /**
@@ -571,8 +569,7 @@ class local_webhooks_external extends external_api {
         $context = context_system::instance();
         self::validate_context($context);
 
-        $result = local_webhooks_delete_all_records();
-        return $result;
+        return local_webhooks_delete_all_records();
     }
 
     /**
@@ -607,8 +604,7 @@ class local_webhooks_external extends external_api {
         $context = context_system::instance();
         self::validate_context($context);
 
-        $result = local_webhooks_create_backup();
-        return $result;
+        return local_webhooks_create_backup();
     }
 
     /**

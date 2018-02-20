@@ -116,8 +116,7 @@ function local_webhooks_get_list_records($limitfrom = 0, $limitnum = 0) {
  * @return array
  */
 function local_webhooks_get_list_events() {
-    $eventlist = report_eventlist_list_generator::get_all_events_list(true);
-    return $eventlist;
+    return report_eventlist_list_generator::get_all_events_list(true);
 }
 
 /**
