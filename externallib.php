@@ -36,6 +36,22 @@ require_once($CFG->libdir . "/externallib.php");
  */
 class local_webhooks_external extends external_api {
     /**
+     * Formation of the final list of events.
+     *
+     * @param  array $listevents
+     * @return array
+     */
+    private static function formation_events($listevents) {
+        $result = array();
+
+        foreach ($listevents as $key => $value) {
+            $result[] = array("name" => $key, "value" => $value);
+        }
+
+        return $result;
+    }
+
+    /**
      * Returns description of method parameters.
      *
      * @return external_function_parameters
@@ -111,6 +127,7 @@ class local_webhooks_external extends external_api {
         $result = array();
         if ($listrecords = local_webhooks_search_services_by_event($parameters["eventname"], $parameters["active"])) {
             foreach ($listrecords as $index => $record) {
+                $result[$index]["events"] = self::formation_events($record->events);
                 $result[$index]["enable"] = $record->enable;
                 $result[$index]["id"]     = $record->id;
                 $result[$index]["other"]  = $record->other;
@@ -118,11 +135,6 @@ class local_webhooks_external extends external_api {
                 $result[$index]["token"]  = $record->token;
                 $result[$index]["type"]   = $record->type;
                 $result[$index]["url"]    = $record->url;
-
-                $result[$index]["events"] = array();
-                foreach ($record->events as $key => $value) {
-                    $result[$index]["events"][] = array("name" => $key, "value" => $value);
-                }
             }
         }
 
@@ -190,6 +202,7 @@ class local_webhooks_external extends external_api {
 
         $service = array();
         if ($record = local_webhooks_get_record($parameters["serviceid"])) {
+            $service["events"] = self::formation_events($record->events);
             $service["enable"] = $record->enable;
             $service["id"]     = $record->id;
             $service["other"]  = $record->other;
@@ -197,11 +210,6 @@ class local_webhooks_external extends external_api {
             $service["token"]  = $record->token;
             $service["type"]   = $record->type;
             $service["url"]    = $record->url;
-
-            $service["events"] = array();
-            foreach ($record->events as $key => $value) {
-                $service["events"][] = array("name" => $key, "value" => $value);
-            }
         }
 
         return $service;
@@ -260,6 +268,7 @@ class local_webhooks_external extends external_api {
         $result = array();
         if ($listrecords = local_webhooks_get_list_records()) {
             foreach ($listrecords as $index => $record) {
+                $result[$index]["events"] = self::formation_events($record->events);
                 $result[$index]["enable"] = $record->enable;
                 $result[$index]["id"]     = $record->id;
                 $result[$index]["other"]  = $record->other;
@@ -267,11 +276,6 @@ class local_webhooks_external extends external_api {
                 $result[$index]["token"]  = $record->token;
                 $result[$index]["type"]   = $record->type;
                 $result[$index]["url"]    = $record->url;
-
-                $result[$index]["events"] = array();
-                foreach ($record->events as $key => $value) {
-                    $result[$index]["events"][] = array("name" => $key, "value" => $value);
-                }
             }
         }
 
