@@ -36,6 +36,29 @@ require_once($CFG->libdir . "/externallib.php");
  */
 class local_webhooks_external extends external_api {
     /**
+     * Formation of the final list.
+     *
+     * @param array $listrecords
+     * @return array
+     */
+    private static function formation_list($listrecords) {
+        $result = array();
+
+        foreach ($listrecords as $index => $record) {
+            $result[$index]["events"] = self::formation_events($record->events);
+            $result[$index]["enable"] = $record->enable;
+            $result[$index]["id"]     = $record->id;
+            $result[$index]["other"]  = $record->other;
+            $result[$index]["title"]  = $record->title;
+            $result[$index]["token"]  = $record->token;
+            $result[$index]["type"]   = $record->type;
+            $result[$index]["url"]    = $record->url;
+        }
+
+        return $result;
+    }
+
+    /**
      * Formation of the final list of events.
      *
      * @param  array $listevents
@@ -126,16 +149,7 @@ class local_webhooks_external extends external_api {
 
         $result = array();
         if ($listrecords = local_webhooks_search_services_by_event($parameters["eventname"], $parameters["active"])) {
-            foreach ($listrecords as $index => $record) {
-                $result[$index]["events"] = self::formation_events($record->events);
-                $result[$index]["enable"] = $record->enable;
-                $result[$index]["id"]     = $record->id;
-                $result[$index]["other"]  = $record->other;
-                $result[$index]["title"]  = $record->title;
-                $result[$index]["token"]  = $record->token;
-                $result[$index]["type"]   = $record->type;
-                $result[$index]["url"]    = $record->url;
-            }
+            $result = self::formation_list($listrecords);
         }
 
         return $result;
@@ -267,16 +281,7 @@ class local_webhooks_external extends external_api {
 
         $result = array();
         if ($listrecords = local_webhooks_get_list_records()) {
-            foreach ($listrecords as $index => $record) {
-                $result[$index]["events"] = self::formation_events($record->events);
-                $result[$index]["enable"] = $record->enable;
-                $result[$index]["id"]     = $record->id;
-                $result[$index]["other"]  = $record->other;
-                $result[$index]["title"]  = $record->title;
-                $result[$index]["token"]  = $record->token;
-                $result[$index]["type"]   = $record->type;
-                $result[$index]["url"]    = $record->url;
-            }
+            $result = self::formation_list($listrecords);
         }
 
         return $result;
