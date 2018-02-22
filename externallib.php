@@ -127,7 +127,7 @@ class local_webhooks_external extends external_api {
         return new external_function_parameters(
             array(
                 "eventname" => new external_value(PARAM_TEXT, "The name of the event."),
-                "active"    => new external_value(PARAM_BOOL, "Service status filter switch.", VALUE_OPTIONAL)
+                "active"    => new external_value(PARAM_BOOL, "Service status filter switch.")
             )
         );
     }
