@@ -36,23 +36,46 @@ require_once($CFG->libdir . "/externallib.php");
  */
 class local_webhooks_external extends external_api {
     /**
+     * Single template output parameters.
+     *
+     * @return external_description
+     * @since  Moodle 2.9 Options available
+     * @since  Moodle 2.2
+     */
+    private static function structure_record_parameters() {
+        return new external_single_structure(
+            array(
+                "id"     => new external_value(PARAM_INT, "Service ID."),
+                "enable" => new external_value(PARAM_BOOL, "Enable or disable the service."),
+                "title"  => new external_value(PARAM_TEXT, "Name of the service."),
+                "url"    => new external_value(PARAM_URL, "Web address of the service."),
+                "type"   => new external_value(PARAM_TEXT, "Used header type."),
+                "token"  => new external_value(PARAM_RAW, "Authorization key.", VALUE_OPTIONAL),
+                "other"  => new external_value(PARAM_RAW, "Additional field.", VALUE_OPTIONAL),
+                "events" => new external_multiple_structure(
+                    new external_single_structure(
+                        array(
+                            "name"  => new external_value(PARAM_TEXT, "The name of the event."),
+                            "value" => new external_value(PARAM_BOOL, "Enabled or disabled handler.")
+                        )
+                    ), "List of observed events.", VALUE_OPTIONAL
+                )
+            ), "Information about the service."
+        );
+    }
+
+    /**
      * Formation of the final list.
      *
-     * @param array $listrecords
+     * @param  array $listrecords
      * @return array
      */
     private static function formation_list($listrecords) {
         $result = array();
 
         foreach ($listrecords as $index => $record) {
+            $result[$index] = (array) $record;
             $result[$index]["events"] = self::formation_events($record->events);
-            $result[$index]["enable"] = $record->enable;
-            $result[$index]["id"]     = $record->id;
-            $result[$index]["other"]  = $record->other;
-            $result[$index]["title"]  = $record->title;
-            $result[$index]["token"]  = $record->token;
-            $result[$index]["type"]   = $record->type;
-            $result[$index]["url"]    = $record->url;
         }
 
         return $result;
@@ -84,7 +107,7 @@ class local_webhooks_external extends external_api {
     public static function change_status_parameters() {
         return new external_function_parameters(
             array(
-                "serviceid" => new external_value(PARAM_INT, "Service identifier.")
+                "serviceid" => new external_value(PARAM_INT, "Service ID.")
             )
         );
     }
@@ -97,7 +120,7 @@ class local_webhooks_external extends external_api {
      * @since  Moodle 2.9 Options available
      * @since  Moodle 2.2
      */
-    public static function change_status($serviceid = 0) {
+    public static function change_status($serviceid) {
         $parameters = self::validate_parameters(self::change_status_parameters(), array("serviceid" => $serviceid));
 
         $context = context_system::instance();
@@ -113,7 +136,7 @@ class local_webhooks_external extends external_api {
      * @since  Moodle 2.2
      */
     public static function change_status_returns() {
-        return new external_value(PARAM_BOOL, "The result of the operation.");
+        return new external_value(PARAM_BOOL, "Result of execution.");
     }
 
     /**
@@ -127,7 +150,7 @@ class local_webhooks_external extends external_api {
         return new external_function_parameters(
             array(
                 "eventname" => new external_value(PARAM_TEXT, "The name of the event."),
-                "active"    => new external_value(PARAM_BOOL, "Service status filter switch.")
+                "active"    => new external_value(PARAM_BOOL, "Filter show active or all services.")
             )
         );
     }
@@ -141,13 +164,14 @@ class local_webhooks_external extends external_api {
      * @since  Moodle 2.9 Options available
      * @since  Moodle 2.2
      */
-    public static function search_services_by_event($eventname = "", $active = false) {
+    public static function search_services_by_event($eventname, $active) {
         $parameters = self::validate_parameters(self::search_services_by_event_parameters(), array("eventname" => $eventname, "active" => $active));
 
         $context = context_system::instance();
         self::validate_context($context);
 
         $result = array();
+
         if ($listrecords = local_webhooks_search_services_by_event($parameters["eventname"], $parameters["active"])) {
             $result = self::formation_list($listrecords);
         }
@@ -163,25 +187,7 @@ class local_webhooks_external extends external_api {
      */
     public static function search_services_by_event_returns() {
         return new external_multiple_structure(
-            new external_single_structure(
-                array(
-                    "id" => new external_value(PARAM_INT, "Service identifier."),
-                    "enable" => new external_value(PARAM_INT, "Service status."),
-                    "title" => new external_value(PARAM_TEXT, "Name of the service."),
-                    "url" => new external_value(PARAM_URL, "URL address."),
-                    "type" => new external_value(PARAM_TEXT, "Header type."),
-                    "token" => new external_value(PARAM_TEXT, "Authorization key.", VALUE_OPTIONAL),
-                    "other" => new external_value(PARAM_TEXT, "Additional field.", VALUE_OPTIONAL),
-                    "events" => new external_multiple_structure(
-                        new external_single_structure(
-                            array(
-                                "name" => new external_value(PARAM_TEXT, "Event name."),
-                                "value" => new external_value(PARAM_INT, "Observation status.")
-                            )
-                        ), "Observed events.", VALUE_OPTIONAL
-                    )
-                ), "Record about the service."
-            ), "List of services."
+            self::structure_record_parameters(), "List of services."
         );
     }
 
@@ -195,7 +201,7 @@ class local_webhooks_external extends external_api {
     public static function get_record_parameters() {
         return new external_function_parameters(
             array(
-                "serviceid" => new external_value(PARAM_INT, "Service identifier.")
+                "serviceid" => new external_value(PARAM_INT, "Service ID.")
             )
         );
     }
@@ -208,25 +214,20 @@ class local_webhooks_external extends external_api {
      * @since  Moodle 2.9 Options available
      * @since  Moodle 2.2
      */
-    public static function get_record($serviceid = 0) {
+    public static function get_record($serviceid) {
         $parameters = self::validate_parameters(self::get_record_parameters(), array("serviceid" => $serviceid));
 
         $context = context_system::instance();
         self::validate_context($context);
 
-        $service = array();
+        $result = array();
+
         if ($record = local_webhooks_get_record($parameters["serviceid"])) {
-            $service["events"] = self::formation_events($record->events);
-            $service["enable"] = $record->enable;
-            $service["id"]     = $record->id;
-            $service["other"]  = $record->other;
-            $service["title"]  = $record->title;
-            $service["token"]  = $record->token;
-            $service["type"]   = $record->type;
-            $service["url"]    = $record->url;
+            $result = (array) $record;
+            $result["events"] = self::formation_events($record->events);
         }
 
-        return $service;
+        return $result;
     }
 
     /**
@@ -236,25 +237,7 @@ class local_webhooks_external extends external_api {
      * @since  Moodle 2.2
      */
     public static function get_record_returns() {
-        return new external_single_structure(
-            array(
-                "id"     => new external_value(PARAM_INT, "Service identifier."),
-                "enable" => new external_value(PARAM_INT, "Service status."),
-                "title"  => new external_value(PARAM_TEXT, "Name of the service."),
-                "url"    => new external_value(PARAM_URL, "URL address."),
-                "type"   => new external_value(PARAM_TEXT, "Header type."),
-                "token"  => new external_value(PARAM_TEXT, "Authorization key.", VALUE_OPTIONAL),
-                "other"  => new external_value(PARAM_TEXT, "Additional field.", VALUE_OPTIONAL),
-                "events" => new external_multiple_structure(
-                    new external_single_structure(
-                        array(
-                            "name"  => new external_value(PARAM_TEXT, "Event name."),
-                            "value" => new external_value(PARAM_INT, "Observation status.")
-                        )
-                    ), "Observed events.", VALUE_OPTIONAL
-                )
-            ), "Record about the service."
-        );
+        return self::structure_record_parameters();
     }
 
     /**
@@ -280,6 +263,7 @@ class local_webhooks_external extends external_api {
         self::validate_context($context);
 
         $result = array();
+
         if ($listrecords = local_webhooks_get_list_records()) {
             $result = self::formation_list($listrecords);
         }
@@ -295,25 +279,7 @@ class local_webhooks_external extends external_api {
      */
     public static function get_list_records_returns() {
         return new external_multiple_structure(
-            new external_single_structure(
-                array(
-                    "id"     => new external_value(PARAM_INT, "Service identifier."),
-                    "enable" => new external_value(PARAM_INT, "Service status."),
-                    "title"  => new external_value(PARAM_TEXT, "Name of the service."),
-                    "url"    => new external_value(PARAM_URL, "URL address."),
-                    "type"   => new external_value(PARAM_TEXT, "Header type."),
-                    "token"  => new external_value(PARAM_TEXT, "Authorization key.", VALUE_OPTIONAL),
-                    "other"  => new external_value(PARAM_TEXT, "Additional field.", VALUE_OPTIONAL),
-                    "events" => new external_multiple_structure(
-                        new external_single_structure(
-                            array(
-                                "name"  => new external_value(PARAM_TEXT, "Event name."),
-                                "value" => new external_value(PARAM_INT, "Observation status.")
-                            )
-                        ), "Observed events.", VALUE_OPTIONAL
-                    )
-                ), "Record about the service."
-            ), "List of services."
+            self::structure_record_parameters(), "List of services."
         );
     }
 
@@ -340,6 +306,7 @@ class local_webhooks_external extends external_api {
         self::validate_context($context);
 
         $result = array();
+
         if ($eventlist = local_webhooks_get_list_events()) {
             foreach ($eventlist as $item) {
                 $result[] = $item["eventname"];
@@ -357,7 +324,7 @@ class local_webhooks_external extends external_api {
      */
     public static function get_list_events_returns() {
         return new external_multiple_structure(
-            new external_value(PARAM_TEXT, "Event name.")
+            new external_value(PARAM_TEXT, "The name of the event.")
         );
     }
 
@@ -373,21 +340,21 @@ class local_webhooks_external extends external_api {
             array(
                 "service" => new external_single_structure(
                     array(
-                        "enable" => new external_value(PARAM_BOOL, "Service status.", VALUE_OPTIONAL),
+                        "enable" => new external_value(PARAM_BOOL, "Enable or disable the service.", VALUE_OPTIONAL),
                         "title"  => new external_value(PARAM_TEXT, "Name of the service."),
-                        "url"    => new external_value(PARAM_URL, "URL address."),
-                        "type"   => new external_value(PARAM_TEXT, "Header type.", VALUE_OPTIONAL),
-                        "token"  => new external_value(PARAM_TEXT, "Authorization key.", VALUE_OPTIONAL),
-                        "other"  => new external_value(PARAM_TEXT, "Additional field.", VALUE_OPTIONAL),
+                        "url"    => new external_value(PARAM_URL, "Web address of the service."),
+                        "type"   => new external_value(PARAM_TEXT, "Used header type.", VALUE_OPTIONAL),
+                        "token"  => new external_value(PARAM_RAW, "Authorization key.", VALUE_OPTIONAL),
+                        "other"  => new external_value(PARAM_RAW, "Additional field.", VALUE_OPTIONAL),
                         "events" => new external_multiple_structure(
                             new external_single_structure(
                                 array(
-                                    "name"  => new external_value(PARAM_TEXT, "Event name."),
-                                    "value" => new external_value(PARAM_INT, "Observation status.")
+                                    "name"  => new external_value(PARAM_TEXT, "The name of the event."),
+                                    "value" => new external_value(PARAM_BOOL, "Enabled or disabled handler.")
                                 )
-                            ), "Observed events.", VALUE_OPTIONAL
+                            ), "List of observed events.", VALUE_OPTIONAL
                         )
-                    ), "Record about the service."
+                    ), "Information about the service."
                 )
             )
         );
@@ -401,22 +368,22 @@ class local_webhooks_external extends external_api {
      * @since  Moodle 2.9 Options available
      * @since  Moodle 2.2
      */
-    public static function create_record($service = array()) {
+    public static function create_record($service) {
         $parameters = self::validate_parameters(self::create_record_parameters(), array("service" => $service));
 
         $context = context_system::instance();
         self::validate_context($context);
 
         $record = new stdClass();
-        $record->other = $parameters["service"]["other"];
-        $record->title = $parameters["service"]["title"];
-        $record->token = $parameters["service"]["token"];
-        $record->url   = $parameters["service"]["url"];
+        $record->other  = $parameters["service"]["other"];
+        $record->title  = $parameters["service"]["title"];
+        $record->token  = $parameters["service"]["token"];
+        $record->url    = $parameters["service"]["url"];
+        $record->events = array();
 
         $record->enable = !empty($parameters["service"]["enable"]) ? $parameters["service"]["enable"] : false;
         $record->type   = !empty($parameters["service"]["type"]) ? $parameters["service"]["type"] : "json";
 
-        $record->events = array();
         foreach ($parameters["service"]["events"] as $value) {
             $record->events[$value["name"]] = $value["value"];
         }
@@ -431,7 +398,7 @@ class local_webhooks_external extends external_api {
      * @since  Moodle 2.2
      */
     public static function create_record_returns() {
-        return new external_value(PARAM_BOOL, "The result of the operation.");
+        return new external_value(PARAM_BOOL, "Result of execution.");
     }
 
     /**
@@ -444,24 +411,24 @@ class local_webhooks_external extends external_api {
     public static function update_record_parameters() {
         return new external_function_parameters(
             array(
-                "id"      => new external_value(PARAM_INT, "Service identifier."),
-                "service" => new external_single_structure(
+                "service" => return new external_single_structure(
                     array(
-                        "enable" => new external_value(PARAM_BOOL, "Service status.", VALUE_OPTIONAL),
+                        "id"     => new external_value(PARAM_INT, "Service ID."),
+                        "enable" => new external_value(PARAM_BOOL, "Enable or disable the service.", VALUE_OPTIONAL),
                         "title"  => new external_value(PARAM_TEXT, "Name of the service.", VALUE_OPTIONAL),
-                        "url"    => new external_value(PARAM_URL, "URL address.", VALUE_OPTIONAL),
-                        "type"   => new external_value(PARAM_TEXT, "Header type.", VALUE_OPTIONAL),
-                        "token"  => new external_value(PARAM_TEXT, "Authorization key.", VALUE_OPTIONAL),
-                        "other"  => new external_value(PARAM_TEXT, "Additional field.", VALUE_OPTIONAL),
+                        "url"    => new external_value(PARAM_URL, "Web address of the service.", VALUE_OPTIONAL),
+                        "type"   => new external_value(PARAM_TEXT, "Used header type.", VALUE_OPTIONAL),
+                        "token"  => new external_value(PARAM_RAW, "Authorization key.", VALUE_OPTIONAL),
+                        "other"  => new external_value(PARAM_RAW, "Additional field.", VALUE_OPTIONAL),
                         "events" => new external_multiple_structure(
                             new external_single_structure(
                                 array(
-                                    "name"  => new external_value(PARAM_TEXT, "Event name."),
-                                    "value" => new external_value(PARAM_INT, "Observation status.")
+                                    "name"  => new external_value(PARAM_TEXT, "The name of the event."),
+                                    "value" => new external_value(PARAM_BOOL, "Enabled or disabled handler.")
                                 )
-                            ), "Observed events.", VALUE_OPTIONAL
+                            ), "List of observed events.", VALUE_OPTIONAL
                         )
-                    ), "Record about the service."
+                    ), "Information about the service."
                 )
             )
         );
@@ -470,20 +437,20 @@ class local_webhooks_external extends external_api {
     /**
      * Update the record in the database.
      *
-     * @param  number  $serviceid
      * @param  array   $service
      * @return boolean
      * @since  Moodle 2.9 Options available
      * @since  Moodle 2.2
      */
-    public static function update_record($serviceid = 0, $service = array()) {
-        $parameters = self::validate_parameters(self::update_record_parameters(), array("id" => $serviceid, "service" => $service));
+    public static function update_record($service) {
+        $parameters = self::validate_parameters(self::update_record_parameters(), array("service" => $service));
 
         $context = context_system::instance();
         self::validate_context($context);
 
         $result = false;
-        if ($record = local_webhooks_get_record($parameters["id"])) {
+
+        if ($record = local_webhooks_get_record($parameters["service"]["id"])) {
             $record->enable = !empty($parameters["service"]["enable"]) ? $parameters["service"]["enable"] : $record->enable;
             $record->other  = !empty($parameters["service"]["other"]) ? $parameters["service"]["other"] : $record->other;
             $record->title  = !empty($parameters["service"]["title"]) ? $parameters["service"]["title"] : $record->title;
@@ -493,6 +460,7 @@ class local_webhooks_external extends external_api {
 
             if (!empty($parameters["service"]["events"])) {
                 $record->events = array();
+
                 foreach ($parameters["service"]["events"] as $value) {
                     $record->events[$value["name"]] = $value["value"];
                 }
@@ -508,10 +476,10 @@ class local_webhooks_external extends external_api {
      * Returns description of method result value.
      *
      * @return external_description
-     * @since  Moodle 2.2
+     * @since Moodle 2.2
      */
     public static function update_record_returns() {
-        return new external_value(PARAM_BOOL, "The result of the operation.");
+        return new external_value(PARAM_BOOL, "Result of execution.");
     }
 
     /**
@@ -524,7 +492,7 @@ class local_webhooks_external extends external_api {
     public static function delete_record_parameters() {
         return new external_function_parameters(
             array(
-                "serviceid" => new external_value(PARAM_INT, "Service identifier.")
+                "serviceid" => new external_value(PARAM_INT, "Service ID.")
             )
         );
     }
@@ -537,7 +505,7 @@ class local_webhooks_external extends external_api {
      * @since  Moodle 2.9 Options available
      * @since  Moodle 2.2
      */
-    public static function delete_record($serviceid = 0) {
+    public static function delete_record($serviceid) {
         $parameters = self::validate_parameters(self::delete_record_parameters(), array("serviceid" => $serviceid));
 
         $context = context_system::instance();
@@ -552,8 +520,8 @@ class local_webhooks_external extends external_api {
      * @return external_description
      * @since  Moodle 2.2
      */
-    public static function delete_record_returns() {
-        return new external_value(PARAM_BOOL, "The result of the operation.");
+     public static function delete_record_returns() {
+        return new external_value(PARAM_BOOL, "Result of execution.");
     }
 
     /**
@@ -588,7 +556,7 @@ class local_webhooks_external extends external_api {
      * @since  Moodle 2.2
      */
     public static function delete_all_records_returns() {
-        return new external_value(PARAM_BOOL, "The result of the operation.");
+        return new external_value(PARAM_BOOL, "Result of execution.");
     }
 
     /**
@@ -623,7 +591,7 @@ class local_webhooks_external extends external_api {
      * @since  Moodle 2.2
      */
     public static function create_backup_returns() {
-        return new external_value(PARAM_TEXT, "Backup copy.");
+        return new external_value(PARAM_RAW, "Backup copy.");
     }
 
     /**
@@ -638,8 +606,8 @@ class local_webhooks_external extends external_api {
             array(
                 "options" => new external_single_structure(
                     array(
-                        "backup"        => new external_value(PARAM_TEXT, "Backup copy."),
-                        "deleterecords" => new external_value(PARAM_BOOL, "Delete existing records.", VALUE_OPTIONAL)
+                        "backup"        => new external_value(PARAM_RAW, "Backup copy."),
+                        "deleterecords" => new external_value(PARAM_BOOL, "Delete or leave all records.", VALUE_OPTIONAL)
                     )
                 )
             )
@@ -649,17 +617,17 @@ class local_webhooks_external extends external_api {
     /**
      * Restore from a backup.
      *
-     * @param array  $options
+     * @param array $options
      * @since Moodle 2.9 Options available
      * @since Moodle 2.2
      */
-    public static function restore_backup($options = array()) {
+    public static function restore_backup($options) {
         $parameters = self::validate_parameters(self::restore_backup_parameters(), array("options" => $options));
 
         $context = context_system::instance();
         self::validate_context($context);
 
-        $deleterecords = !empty($parameters["options"]["deleterecords"]) ? boolval($parameters["options"]["deleterecords"]) : false;
+        $deleterecords = !empty($parameters["options"]["deleterecords"]) ? $parameters["options"]["deleterecords"] : false;
         local_webhooks_restore_backup($parameters["options"]["backup"], $deleterecords);
     }
 
