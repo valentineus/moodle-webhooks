@@ -520,7 +520,7 @@ class local_webhooks_external extends external_api {
      * @return external_description
      * @since  Moodle 2.2
      */
-     public static function delete_record_returns() {
+    public static function delete_record_returns() {
         return new external_value(PARAM_BOOL, "Result of execution.");
     }
 
