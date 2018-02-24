@@ -411,7 +411,7 @@ class local_webhooks_external extends external_api {
     public static function update_record_parameters() {
         return new external_function_parameters(
             array(
-                "service" => return new external_single_structure(
+                "service" => new external_single_structure(
                     array(
                         "id"     => new external_value(PARAM_INT, "Service ID."),
                         "enable" => new external_value(PARAM_BOOL, "Enable or disable the service.", VALUE_OPTIONAL),
