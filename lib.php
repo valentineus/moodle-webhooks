@@ -225,7 +225,8 @@ function local_webhooks_create_backup() {
 /**
  * Restore from a backup.
  *
- * @param string $data
+ * @param string  $data
+ * @param boolean $deleterecords
  */
 function local_webhooks_restore_backup($data, $deleterecords = false) {
     $listrecords = local_webhooks_deserialization_data($data);
