@@ -24,6 +24,8 @@
 
 defined("MOODLE_INTERNAL") || die();
 
+require_once(__DIR__ . "/../lib.php");
+
 require_once($CFG->libdir . "/tablelib.php");
 
 /**
@@ -59,10 +61,23 @@ class local_webhooks_table extends table_sql {
     }
 
     /**
+     * Query the database for results to display in the table.
+     *
+     * @param number  $pagesize
+     * @param boolean $useinitialsbar
+     */
+    public function query_db($pagesize, $useinitialsbar = false) {
+        $listrecords = local_webhooks_get_list_records();
+        $total       = count($listrecords);
+
+        $this->pagesize($pagesize, $total);
+        $this->rawdata = local_webhooks_get_list_records($this->get_page_start(), $this->get_page_size());
+    }
+
+    /**
      * Defines the basic settings of the table.
      */
     public function define_table_configs() {
-        $this->set_sql("*", "{local_webhooks_service}", "1");
         $this->collapsible(false);
         $this->is_downloadable(false);
         $this->no_sorting("actions");
@@ -124,11 +139,16 @@ class local_webhooks_table extends table_sql {
      * Specifies the display of a column with events.
      *
      * @param  object $row Data from the database.
-     * @return string      Displayed data.
+     * @return number      Displayed data.
      */
     public function col_events($row) {
-        $eventlist = local_webhooks_deserialization_data($row->events);
-        return count($eventlist);
+        $result = 0;
+
+        if (!empty($row->events)) {
+            $result = count($row->events);
+        }
+
+        return $result;
     }
 
     /**
