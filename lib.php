@@ -128,6 +128,7 @@ function local_webhooks_get_list_events() {
  */
 function local_webhooks_get_total_count() {
     global $DB;
+
     return $DB->count_records(LOCAL_WEBHOOKS_NAME_TABLE, array());
 }
 
