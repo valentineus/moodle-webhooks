@@ -67,9 +67,7 @@ class local_webhooks_table extends table_sql {
      * @param boolean $useinitialsbar
      */
     public function query_db($pagesize, $useinitialsbar = false) {
-        $listrecords = local_webhooks_get_list_records();
-        $total       = count($listrecords);
-
+        $total = local_webhooks_get_total_count();
         $this->pagesize($pagesize, $total);
         $this->rawdata = local_webhooks_get_list_records($this->get_page_start(), $this->get_page_size());
     }
