@@ -39,7 +39,7 @@ class backup_performed extends \core\event\base {
     protected function init() {
         $this->data["crud"]        = "c";
         $this->data["edulevel"]    = self::LEVEL_OTHER;
-        $this->data["objecttable"] = "local_webhooks_service";
+        $this->data["objecttable"] = LOCAL_WEBHOOKS_NAME_TABLE;
     }
 
     /**

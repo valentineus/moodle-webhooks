@@ -39,7 +39,7 @@ class service_updated extends \core\event\base {
     protected function init() {
         $this->data["crud"]        = "u";
         $this->data["edulevel"]    = self::LEVEL_OTHER;
-        $this->data["objecttable"] = "local_webhooks_service";
+        $this->data["objecttable"] = LOCAL_WEBHOOKS_NAME_TABLE;
     }
 
     /**

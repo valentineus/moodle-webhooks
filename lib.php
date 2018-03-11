@@ -24,6 +24,8 @@
 
 defined("MOODLE_INTERNAL") || die();
 
+define("LOCAL_WEBHOOKS_NAME_TABLE", "local_webhooks_service");
+
 require_once(__DIR__ . "/locallib.php");
 
 /**
@@ -80,7 +82,7 @@ function local_webhooks_search_services_by_event($eventname, $active = false) {
 function local_webhooks_get_record($serviceid) {
     global $DB;
 
-    $servicerecord = $DB->get_record("local_webhooks_service", array("id" => $serviceid), "*", MUST_EXIST);
+    $servicerecord = $DB->get_record(LOCAL_WEBHOOKS_NAME_TABLE, array("id" => $serviceid), "*", MUST_EXIST);
 
     if (!empty($servicerecord->events)) {
         $servicerecord->events = local_webhooks_deserialization_data($servicerecord->events);
@@ -99,7 +101,7 @@ function local_webhooks_get_record($serviceid) {
 function local_webhooks_get_list_records($limitfrom = 0, $limitnum = 0) {
     global $DB;
 
-    $listrecords = $DB->get_records("local_webhooks_service", null, "id", "*", $limitfrom, $limitnum);
+    $listrecords = $DB->get_records(LOCAL_WEBHOOKS_NAME_TABLE, null, "id", "*", $limitfrom, $limitnum);
 
     foreach ($listrecords as $servicerecord) {
         if (!empty($servicerecord->events)) {
@@ -126,7 +128,7 @@ function local_webhooks_get_list_events() {
  */
 function local_webhooks_get_total_count() {
     global $DB;
-    return $DB->count_records("local_webhooks_service", array());
+    return $DB->count_records(LOCAL_WEBHOOKS_NAME_TABLE, array());
 }
 
 /**
@@ -142,7 +144,7 @@ function local_webhooks_create_record($record) {
         $record->events = local_webhooks_serialization_data($record->events);
     }
 
-    $result = $DB->insert_record("local_webhooks_service", $record, true, false);
+    $result = $DB->insert_record(LOCAL_WEBHOOKS_NAME_TABLE, $record, true, false);
 
     /* Clear the plugin cache */
     local_webhooks_cache_reset();
@@ -167,7 +169,7 @@ function local_webhooks_update_record($record) {
     }
 
     $record->events = !empty($record->events) ? local_webhooks_serialization_data($record->events) : null;
-    $result = $DB->update_record("local_webhooks_service", $record, false);
+    $result = $DB->update_record(LOCAL_WEBHOOKS_NAME_TABLE, $record, false);
 
     /* Clear the plugin cache */
     local_webhooks_cache_reset();
@@ -187,7 +189,7 @@ function local_webhooks_update_record($record) {
 function local_webhooks_delete_record($serviceid) {
     global $DB;
 
-    $result = $DB->delete_records("local_webhooks_service", array("id" => $serviceid));
+    $result = $DB->delete_records(LOCAL_WEBHOOKS_NAME_TABLE, array("id" => $serviceid));
 
     /* Clear the plugin cache */
     local_webhooks_cache_reset();
@@ -206,7 +208,7 @@ function local_webhooks_delete_record($serviceid) {
 function local_webhooks_delete_all_records() {
     global $DB;
 
-    $result = $DB->delete_records("local_webhooks_service", null);
+    $result = $DB->delete_records(LOCAL_WEBHOOKS_NAME_TABLE, null);
 
     /* Clear the plugin cache */
     local_webhooks_cache_reset();
