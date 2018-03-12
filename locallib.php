@@ -24,6 +24,9 @@
 
 defined("MOODLE_INTERNAL") || die();
 
+define("LOCAL_WEBHOOKS_NAME_CACHE_REPOSITORY", "webhooks_services");
+define("LOCAL_WEBHOOKS_NAME_PLUGIN", "local_webhooks");
+
 /**
  * Get data from the cache by key.
  *
@@ -31,7 +34,7 @@ defined("MOODLE_INTERNAL") || die();
  * @return array
  */
 function local_webhooks_cache_get($eventname) {
-    $cache = cache::make("local_webhooks", "webhooks_services");
+    $cache = cache::make(LOCAL_WEBHOOKS_NAME_PLUGIN, LOCAL_WEBHOOKS_NAME_CACHE_REPOSITORY);
     return $cache->get($eventname);
 }
 
@@ -43,7 +46,7 @@ function local_webhooks_cache_get($eventname) {
  * @return boolean
  */
 function local_webhooks_cache_set($eventname, $recordlist = array()) {
-    $cache = cache::make("local_webhooks", "webhooks_services");
+    $cache = cache::make(LOCAL_WEBHOOKS_NAME_PLUGIN, LOCAL_WEBHOOKS_NAME_CACHE_REPOSITORY);
     return $cache->set($eventname, $recordlist);
 }
 
@@ -54,7 +57,7 @@ function local_webhooks_cache_set($eventname, $recordlist = array()) {
  * @return boolean
  */
 function local_webhooks_cache_delete($eventname) {
-    $cache = cache::make("local_webhooks", "webhooks_services");
+    $cache = cache::make(LOCAL_WEBHOOKS_NAME_PLUGIN, LOCAL_WEBHOOKS_NAME_CACHE_REPOSITORY);
     return $cache->delete($eventname);
 }
 
@@ -64,7 +67,7 @@ function local_webhooks_cache_delete($eventname) {
  * @return boolean
  */
 function local_webhooks_cache_reset() {
-    $cache = cache::make("local_webhooks", "webhooks_services");
+    $cache = cache::make(LOCAL_WEBHOOKS_NAME_PLUGIN, LOCAL_WEBHOOKS_NAME_CACHE_REPOSITORY);
     return $cache->purge();
 }
 
