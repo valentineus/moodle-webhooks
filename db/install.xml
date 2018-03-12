@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="blocks/local_webhooks/db" VERSION="20171029" COMMENT="XMLDB file for Moodle" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
+<XMLDB PATH="blocks/local_webhooks/db" VERSION="20180312" COMMENT="XMLDB file for Moodle" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
     <TABLES>
-        <TABLE NAME="local_webhooks_service" COMMENT="A table for storing callback services.">
+        <TABLE NAME="local_webhooks_service" COMMENT="Storing created services.">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
-                <FIELD NAME="enable" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
-                <FIELD NAME="title" TYPE="text" NOTNULL="true" SEQUENCE="false" />
-                <FIELD NAME="url" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" />
-                <FIELD NAME="type" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" />
-                <FIELD NAME="token" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" />
-                <FIELD NAME="events" TYPE="text" NOTNULL="false" SEQUENCE="false" />
-                <FIELD NAME="other" TYPE="text" NOTNULL="false" SEQUENCE="false" />
+                <FIELD NAME="header" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Type of outgoing header." />
+                <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Name of the service." />
+                <FIELD NAME="point" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Point of delivery of notifications." />
+                <FIELD NAME="status" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" COMMENT="Current status of the service." />
+                <FIELD NAME="token" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Token for verification of requests." />
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+            </KEYS>
+        </TABLE>
+        <TABLE NAME="local_webhooks_events" COMMENT="Storing of viewed events.">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+                <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Name of the service." />
+                <FIELD NAME="serviceid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Service ID." />
+                <FIELD NAME="status" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" COMMENT="Current status of the observer." />
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id" />
