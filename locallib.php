@@ -79,6 +79,8 @@ function local_webhooks_cache_reset() {
  * @return boolean
  */
 function local_webhooks_insert_events($serviceid, $events) {
+    global $DB;
+
     $records = array();
 
     foreach ($events as $eventname => $eventstatus) {
