@@ -83,13 +83,10 @@ function local_webhooks_search_services_by_event($eventname, $active = false) {
 function local_webhooks_get_record($serviceid) {
     global $DB;
 
-    $servicerecord = $DB->get_record(LOCAL_WEBHOOKS_TABLE_SERVICES, array("id" => $serviceid), "*", MUST_EXIST);
+    $record = $DB->get_record(LOCAL_WEBHOOKS_TABLE_SERVICES, array("id" => $serviceid), "*", IGNORE_MISSING);
+    $record->events = local_webhooks_get_list_events_for_service($serviceid);
 
-    if (!empty($servicerecord->events)) {
-        $servicerecord->events = local_webhooks_deserialization_data($servicerecord->events);
-    }
-
-    return $servicerecord;
+    return $record;
 }
 
 /**
