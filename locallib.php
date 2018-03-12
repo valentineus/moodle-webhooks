@@ -72,14 +72,25 @@ function local_webhooks_cache_reset() {
 }
 
 /**
- * Adding an event to the database.
+ * Adds all events to the database.
  *
- * @param  object  $event
+ * @param  number  $serviceid
+ * @param  array   $events
  * @return boolean
  */
-function local_webhooks_insert_event($event) {
-    global $DB;
-    return $DB->insert_record(LOCAL_WEBHOOKS_TABLE_EVENTS, $event, true, false);
+function local_webhooks_insert_events($serviceid, $events) {
+    $records = array();
+
+    foreach ($events as $eventname => $eventstatus) {
+        $event = new stdClass();
+        $event->name = $eventname;
+        $event->status = $eventstatus;
+        $event->serviceid = $serviceid;
+        $records[] = $event;
+    }
+
+    local_webhooks_delete_events($serviceid);
+    return $DB->insert_records(LOCAL_WEBHOOKS_TABLE_EVENTS, $records);
 }
 
 /**
