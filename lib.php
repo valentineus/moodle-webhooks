@@ -199,6 +199,7 @@ function local_webhooks_delete_record($serviceid) {
     global $DB;
 
     $result = $DB->delete_records(LOCAL_WEBHOOKS_TABLE_SERVICES, array("id" => $serviceid));
+    local_webhooks_delete_events_for_service($serviceid);
 
     /* Clear the plugin cache */
     local_webhooks_cache_reset();
