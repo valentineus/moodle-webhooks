@@ -96,12 +96,14 @@ function local_webhooks_get_record($serviceid) {
  *
  * @param  number $limitfrom
  * @param  number $limitnum
+ * @param  array  $conditions
+ * @param  string $sort
  * @return array
  */
-function local_webhooks_get_list_records($limitfrom = 0, $limitnum = 0) {
+function local_webhooks_get_list_records($limitfrom = 0, $limitnum = 0, $conditions = array(), $sort = "id") {
     global $DB;
 
-    $listrecords = $DB->get_records(LOCAL_WEBHOOKS_NAME_TABLE, null, "id", "*", $limitfrom, $limitnum);
+    $listrecords = $DB->get_records(LOCAL_WEBHOOKS_NAME_TABLE, $conditions, $sort, "*", $limitfrom, $limitnum);
 
     foreach ($listrecords as $servicerecord) {
         if (!empty($servicerecord->events)) {
