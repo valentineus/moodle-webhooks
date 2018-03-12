@@ -248,23 +248,32 @@ class local_webhooks_external extends external_api {
      * @since  Moodle 2.2
      */
     public static function get_list_records_parameters() {
-        return new external_function_parameters(array());
+        return new external_function_parameters(
+            array(
+                "limitfrom" => new external_value(PARAM_INT, "Where to start results from."),
+                "limitnum"  => new external_value(PARAM_INT, "How many results to return.")
+            )
+        );
     }
 
     /**
      * Get all records from the database.
      *
+     * @param  number $limitfrom
+     * @param  number $limitnum
      * @return array
      * @since  Moodle 2.9 Options available
      * @since  Moodle 2.2
      */
-    public static function get_list_records() {
+    public static function get_list_records($limitfrom, $limitnum) {
+        $parameters = self::validate_parameters(self::get_list_records_parameters(), array("limitfrom" => $limitfrom, "limitnum" => $limitnum));
+
         $context = context_system::instance();
         self::validate_context($context);
 
         $result = array();
 
-        if ($listrecords = local_webhooks_get_list_records()) {
+        if ($listrecords = local_webhooks_get_list_records($parameters["limitfrom"], $parameters["limitnum"])) {
             $result = self::formation_list($listrecords);
         }
 
