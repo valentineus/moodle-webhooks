@@ -130,26 +130,6 @@ function local_webhooks_delete_events_for_service($serviceid) {
 }
 
 /**
- * Data serialization.
- *
- * @param  array|object $data
- * @return string
- */
-function local_webhooks_serialization_data($data) {
-    return serialize($data);
-}
-
-/**
- * Data deserialization.
- *
- * @param  string       $data
- * @return array|object
- */
-function local_webhooks_deserialization_data($data) {
-    return unserialize($data);
-}
-
-/**
  * Description of functions of the call of events
  *
  * @copyright 2017 "Valentin Popov" <info@valentineus.link>
