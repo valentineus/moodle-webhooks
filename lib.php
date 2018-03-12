@@ -219,6 +219,7 @@ function local_webhooks_delete_all_records() {
     global $DB;
 
     $result = $DB->delete_records(LOCAL_WEBHOOKS_TABLE_SERVICES, null);
+    $DB->delete_records(LOCAL_WEBHOOKS_TABLE_EVENTS, null);
 
     /* Clear the plugin cache */
     local_webhooks_cache_reset();
