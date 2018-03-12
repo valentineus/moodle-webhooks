@@ -147,7 +147,7 @@ function local_webhooks_create_record($record) {
     local_webhooks_cache_reset();
 
     /* Event notification */
-    local_webhooks_events::service_added($result);
+    local_webhooks_events::service_added($serviceid);
 
     return $serviceid;
 }
@@ -247,22 +247,27 @@ function local_webhooks_create_backup() {
 /**
  * Restore from a backup.
  *
- * @param string  $data
- * @param boolean $deleterecords
+ * @param string $data
  */
-function local_webhooks_restore_backup($data, $deleterecords = false) {
-    $listrecords = local_webhooks_deserialization_data($data);
+function local_webhooks_restore_backup($backup) {
+    global $DB;
 
-    if (boolval($deleterecords)) {
-        local_webhooks_delete_all_records();
+    $serialize = gzuncompress(base64_decode($backup));
+    $records = unserialize($serialize);
+
+    $transaction = $DB->start_delegated_transaction();
+    local_webhooks_delete_all_records();
+
+    foreach ($records as $record) {
+        local_webhooks_create_record($record);
     }
 
-    foreach ($listrecords as $servicerecord) {
-        local_webhooks_create_record($servicerecord);
-    }
+    $transaction->allow_commit();
 
     /* Event notification */
     local_webhooks_events::backup_restored();
+
+    return true;
 }
 
 /**
