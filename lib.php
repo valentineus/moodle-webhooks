@@ -144,20 +144,14 @@ function local_webhooks_get_total_count() {
 function local_webhooks_create_record($record) {
     global $DB;
 
-    $transaction = $DB->start_delegated_transaction();
-    $serviceid = $DB->insert_record(LOCAL_WEBHOOKS_TABLE_SERVICES, $record, true, false);
-
-    if (!empty($record->events)) {
-        foreach ($record->events as $eventname => $eventstatus) {
-            $event = new stdClass();
-            $event->name = $eventname;
-            $event->serviceid = $serviceid;
-            $event->status = $record->status;
-
-            $DB->insert_record(LOCAL_WEBHOOKS_TABLE_EVENTS, $event, false, false);
-        }
+    if (empty($record->events)) {
+        $record->events = array();
     }
 
+    /* Adding entries */
+    $transaction = $DB->start_delegated_transaction();
+    $serviceid = $DB->insert_record(LOCAL_WEBHOOKS_TABLE_SERVICES, $record, true, false);
+    local_webhooks_insert_events($serviceid, $record->events);
     $transaction->allow_commit();
 
     /* Clear the plugin cache */
