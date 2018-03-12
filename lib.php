@@ -172,7 +172,7 @@ function local_webhooks_create_record($record) {
 /**
  * Update the record in the database.
  *
- * @param  object  $data
+ * @param  object  $record
  * @return boolean
  */
 function local_webhooks_update_record($record) {
@@ -182,8 +182,15 @@ function local_webhooks_update_record($record) {
         print_error("missingparam", "error", null, "id");
     }
 
-    $record->events = !empty($record->events) ? local_webhooks_serialization_data($record->events) : null;
+    if (empty($record->events)) {
+        $record->events = array();
+    }
+
+    /* Update records */
+    $transaction = $DB->start_delegated_transaction();
     $result = $DB->update_record(LOCAL_WEBHOOKS_TABLE_SERVICES, $record, false);
+    local_webhooks_insert_events($record->id, $record->events);
+    $transaction->allow_commit();
 
     /* Clear the plugin cache */
     local_webhooks_cache_reset();
