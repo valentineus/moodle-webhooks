@@ -72,6 +72,16 @@ function local_webhooks_cache_reset() {
 }
 
 /**
+ * Deleting all the events linked to the given service.
+ *
+ * @param number $serviceid
+ */
+function local_webhooks_delete_events($serviceid) {
+    global $DB;
+    $DB->delete_records(LOCAL_WEBHOOKS_TABLE_EVENTS, array("serviceid" => $serviceid));
+}
+
+/**
  * Data serialization.
  *
  * @param  array|object $data
