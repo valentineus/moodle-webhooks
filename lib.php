@@ -114,17 +114,6 @@ function local_webhooks_get_list_events() {
 }
 
 /**
- * Get the total number of records.
- *
- * @return number
- */
-function local_webhooks_get_total_count() {
-    global $DB;
-
-    return $DB->count_records(LOCAL_WEBHOOKS_TABLE_SERVICES, array());
-}
-
-/**
  * Create an entry in the database.
  *
  * @param  object $record
