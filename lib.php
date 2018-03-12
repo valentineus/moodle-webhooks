@@ -231,13 +231,17 @@ function local_webhooks_delete_all_records() {
  * @return string
  */
 function local_webhooks_create_backup() {
-    $listrecords = local_webhooks_get_list_records();
-    $result      = local_webhooks_serialization_data($listrecords);
+    $records = local_webhooks_get_list_records();
+    $result = false;
+
+    if ($serialize = serialize($records)) {
+        $result = gzcompress($serialize, 9);
+    }
 
     /* Event notification */
     local_webhooks_events::backup_performed();
 
-    return $result;
+    return base64_encode($result);
 }
 
 /**
