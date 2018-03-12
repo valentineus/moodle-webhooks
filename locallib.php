@@ -72,6 +72,27 @@ function local_webhooks_cache_reset() {
 }
 
 /**
+ * Forms a list of events for the specified service.
+ *
+ * @param  number $serviceid
+ * @return array
+ */
+function local_webhooks_get_list_events_for_service($serviceid) {
+    global $DB;
+
+    $rs = $DB->get_recordset(LOCAL_WEBHOOKS_TABLE_EVENTS, array("serviceid" => $serviceid), "id", "*", 0, 0);
+    $events = array();
+
+    foreach ($rs as $record) {
+        $events[$record->name] = $record->status;
+    }
+
+    $rs->close();
+
+    return $events;
+}
+
+/**
  * Adds all events to the database.
  *
  * @param  number  $serviceid
