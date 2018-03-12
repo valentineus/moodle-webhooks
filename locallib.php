@@ -99,7 +99,7 @@ function local_webhooks_get_list_events_for_service($serviceid) {
  * @param  array   $events
  * @return boolean
  */
-function local_webhooks_insert_events($serviceid, $events) {
+function local_webhooks_insert_events_for_service($serviceid, $events) {
     global $DB;
 
     $records = array();
@@ -112,7 +112,7 @@ function local_webhooks_insert_events($serviceid, $events) {
         $records[] = $event;
     }
 
-    local_webhooks_delete_events($serviceid);
+    local_webhooks_delete_events_for_service($serviceid);
     return $DB->insert_records(LOCAL_WEBHOOKS_TABLE_EVENTS, $records);
 }
 
@@ -122,7 +122,7 @@ function local_webhooks_insert_events($serviceid, $events) {
  * @param  number  $serviceid
  * @return boolean
  */
-function local_webhooks_delete_events($serviceid) {
+function local_webhooks_delete_events_for_service($serviceid) {
     global $DB;
     return $DB->delete_records(LOCAL_WEBHOOKS_TABLE_EVENTS, array("serviceid" => $serviceid));
 }

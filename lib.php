@@ -151,7 +151,7 @@ function local_webhooks_create_record($record) {
     /* Adding entries */
     $transaction = $DB->start_delegated_transaction();
     $serviceid = $DB->insert_record(LOCAL_WEBHOOKS_TABLE_SERVICES, $record, true, false);
-    local_webhooks_insert_events($serviceid, $record->events);
+    local_webhooks_insert_events_for_service($serviceid, $record->events);
     $transaction->allow_commit();
 
     /* Clear the plugin cache */
@@ -183,7 +183,7 @@ function local_webhooks_update_record($record) {
     /* Update records */
     $transaction = $DB->start_delegated_transaction();
     $result = $DB->update_record(LOCAL_WEBHOOKS_TABLE_SERVICES, $record, false);
-    local_webhooks_insert_events($record->id, $record->events);
+    local_webhooks_insert_events_for_service($record->id, $record->events);
     $transaction->allow_commit();
 
     /* Clear the plugin cache */
