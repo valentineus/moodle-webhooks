@@ -38,11 +38,8 @@ require_once(__DIR__ . "/locallib.php");
 function local_webhooks_change_status($serviceid) {
     global $DB;
 
-    $result = false;
-    if ($record = local_webhooks_get_record($serviceid)) {
-        $record->enable = !boolval($record->enable);
-        $result = local_webhooks_update_record($record);
-    }
+    $status = $DB->get_field(LOCAL_WEBHOOKS_TABLE_SERVICES, "status", array("id" => $serviceid), IGNORE_MISSING);
+    $result = $DB->set_field(LOCAL_WEBHOOKS_TABLE_SERVICES, "status", !boolval($status), array("id" => $serviceid));
 
     return $result;
 }
