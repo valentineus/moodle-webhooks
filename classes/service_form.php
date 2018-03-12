@@ -53,34 +53,29 @@ class service_edit_form extends moodleform {
         $mform->addElement("header", "editserviceheader", new lang_string("service", "webservice"));
 
         /* Name of the service */
-        $mform->addElement("text", "title", new lang_string("name", "moodle"), $size);
-        $mform->addRule("title", null, "required");
-        $mform->setType("title", PARAM_NOTAGS);
+        $mform->addElement("text", "name", new lang_string("name", "moodle"), $size);
+        $mform->addRule("name", null, "required");
+        $mform->setType("name", PARAM_NOTAGS);
 
         /* Callback address */
-        $mform->addElement("text", "url", new lang_string("url", "moodle"), $size);
-        $mform->addRule("url", null, "required");
-        $mform->setType("url", PARAM_URL);
+        $mform->addElement("text", "point", new lang_string("url", "moodle"), $size);
+        $mform->addRule("point", null, "required");
+        $mform->setType("point", PARAM_URL);
 
         /* Enabling the service */
-        $mform->addElement("advcheckbox", "enable", new lang_string("enable", "moodle"));
-        $mform->setType("enable", PARAM_BOOL);
-        $mform->setDefault("enable", 1);
-        $mform->setAdvanced("enable");
+        $mform->addElement("advcheckbox", "status", new lang_string("enable", "moodle"));
+        $mform->setType("status", PARAM_BOOL);
+        $mform->setDefault("status", 1);
+        $mform->setAdvanced("status");
 
         /* Token */
         $mform->addElement("text", "token", new lang_string("token", "webservice"), $size);
         $mform->setType("token", PARAM_NOTAGS);
 
-        /* Additional information */
-        $mform->addElement("text", "other", new lang_string("sourceext", "plugin"), $size);
-        $mform->setType("other", PARAM_NOTAGS);
-        $mform->setAdvanced("other");
-
         /* Content type */
         $contenttype = array("json" => "application/json", "x-www-form-urlencoded" => "application/x-www-form-urlencoded");
-        $mform->addElement("select", "type", "Content type", $contenttype);
-        $mform->setAdvanced("type");
+        $mform->addElement("select", "header", "Content type", $contenttype);
+        $mform->setAdvanced("header");
 
         /* Form heading */
         $mform->addElement("header", "editserviceheaderevent", new lang_string("edulevel", "moodle"));
