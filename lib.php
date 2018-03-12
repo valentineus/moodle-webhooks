@@ -47,26 +47,24 @@ function local_webhooks_change_status($serviceid) {
 /**
  * Search for services that contain the specified event.
  *
- * @param  string  $eventname
- * @param  boolean $active
+ * @param  string $eventname
+ * @param  number $limitfrom
+ * @param  number $limitnum
  * @return array
  */
-function local_webhooks_search_services_by_event($eventname, $active = false) {
-    $recordlist = local_webhooks_get_list_records();
-    $active     = boolval($active);
-    $result     = array();
+function local_webhooks_search_record($eventname, $limitfrom = 0, $limitnum = 0) {
+    global $DB;
 
-    foreach ($recordlist as $record) {
-        if (!empty($record->events[$eventname])) {
-            if ($active && boolval($record->enable)) {
-                $result[] = $record;
-            }
+    $rs = $DB->get_recordset(LOCAL_WEBHOOKS_TABLE_EVENTS, array("name" => $eventname, "status" => true), "id", "*", $limitfrom, $limitnum);
+    $result = array();
 
-            if (!$active) {
-                $result[] = $record;
-            }
+    foreach ($rs as $event) {
+        if ($record = $DB->get_record(LOCAL_WEBHOOKS_TABLE_SERVICES, array("id" => $event->serviceid, "status" => true), "*", IGNORE_MISSING)) {
+            $result[] = $record;
         }
     }
+
+    $rs->close();
 
     return $result;
 }
