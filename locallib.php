@@ -72,13 +72,25 @@ function local_webhooks_cache_reset() {
 }
 
 /**
+ * Adding an event to the database.
+ *
+ * @param  object  $event
+ * @return boolean
+ */
+function local_webhooks_insert_event($event) {
+    global $DB;
+    return $DB->insert_record(LOCAL_WEBHOOKS_TABLE_EVENTS, $event, true, false);
+}
+
+/**
  * Deleting all the events linked to the given service.
  *
- * @param number $serviceid
+ * @param  number  $serviceid
+ * @return boolean
  */
 function local_webhooks_delete_events($serviceid) {
     global $DB;
-    $DB->delete_records(LOCAL_WEBHOOKS_TABLE_EVENTS, array("serviceid" => $serviceid));
+    return $DB->delete_records(LOCAL_WEBHOOKS_TABLE_EVENTS, array("serviceid" => $serviceid));
 }
 
 /**
