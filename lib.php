@@ -47,17 +47,25 @@ function local_webhooks_change_status($serviceid) {
 /**
  * Search for services that contain the specified event.
  *
- * @param  string $eventname
- * @param  number $limitfrom
- * @param  number $limitnum
+ * @param string $eventname
+ * @param number $limitfrom
+ * @param number $limitnum
  * @return array
  */
 function local_webhooks_search_record($eventname, $limitfrom = 0, $limitnum = 0) {
     global $DB;
 
+    /* Checks for the presence of a cache */
+    $namecache = "${eventname}_${limitfrom}_${limitnum}";
+    if (is_array($records = local_webhooks_cache_get($namecache))) {
+        return $records;
+    }
+
+    /* Loads a list of events */
     $rs = $DB->get_recordset(LOCAL_WEBHOOKS_TABLE_EVENTS, array("name" => $eventname, "status" => true), "id", "*", $limitfrom, $limitnum);
     $result = array();
 
+    /* Loads services */
     foreach ($rs as $event) {
         if ($record = $DB->get_record(LOCAL_WEBHOOKS_TABLE_SERVICES, array("id" => $event->serviceid, "status" => true), "*", IGNORE_MISSING)) {
             $result[] = $record;
@@ -65,6 +73,9 @@ function local_webhooks_search_record($eventname, $limitfrom = 0, $limitnum = 0)
     }
 
     $rs->close();
+
+    /* Saves the result in the cache */
+    local_webhooks_cache_set($namecache, $result);
 
     return $result;
 }
@@ -262,14 +273,14 @@ function local_webhooks_restore_backup($backup) {
 /**
  * Send the event remotely to the service.
  *
- * @param  array  $event
+ * @param  object $event
  * @param  object $record
  * @return array
  */
 function local_webhooks_send_request($event, $record) {
     global $CFG;
 
-    $event["host"]  = parse_url($CFG->wwwroot)["host"];
+    $event["host"]  = parse_url($CFG->wwwroot)["host"]; /* @todo: Fucking shit */
     $event["token"] = $record->token;
     $event["extra"] = $record->other;
 
