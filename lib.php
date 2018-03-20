@@ -38,6 +38,11 @@ require_once(__DIR__ . "/locallib.php");
 function local_webhooks_change_status($serviceid) {
     global $DB;
 
+    /* Checks arguments */
+    if (empty($serviceid)) {
+        print_error("missingparam", "error", null, "serviceid");
+    }
+
     /* Gets the current status */
     $status = $DB->get_field(LOCAL_WEBHOOKS_TABLE_SERVICES, "status", array("id" => $serviceid), IGNORE_MISSING);
 
@@ -56,10 +61,15 @@ function local_webhooks_change_status($serviceid) {
  * @param  string $eventname Event name
  * @param  number $limitfrom Start position
  * @param  number $limitnum  End position
- * @return array
+ * @return array             Search results
  */
 function local_webhooks_search_record($eventname, $limitfrom = 0, $limitnum = 0) {
     global $DB;
+
+    /* Checks arguments */
+    if (empty($eventname)) {
+        print_error("missingparam", "error", null, "eventname");
+    }
 
     /* Checks for the presence of a cache */
     $namecache = "${eventname}_${limitfrom}_${limitnum}";
@@ -94,6 +104,11 @@ function local_webhooks_search_record($eventname, $limitfrom = 0, $limitnum = 0)
  */
 function local_webhooks_get_record($serviceid) {
     global $DB;
+
+    /* Checks arguments */
+    if (empty($serviceid)) {
+        print_error("missingparam", "error", null, "serviceid");
+    }
 
     /* Loads service data */
     $record = $DB->get_record(LOCAL_WEBHOOKS_TABLE_SERVICES, array("id" => $serviceid), "*", IGNORE_MISSING);
