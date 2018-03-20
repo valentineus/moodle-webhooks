@@ -89,13 +89,16 @@ function local_webhooks_search_record($eventname, $limitfrom = 0, $limitnum = 0)
 /**
  * Get the record from the database.
  *
- * @param  number $serviceid
- * @return object
+ * @param  number $serviceid Service identifier
+ * @return object            Service data
  */
 function local_webhooks_get_record($serviceid) {
     global $DB;
 
+    /* Loads service data */
     $record = $DB->get_record(LOCAL_WEBHOOKS_TABLE_SERVICES, array("id" => $serviceid), "*", IGNORE_MISSING);
+
+    /* Loads service events */
     $record->events = local_webhooks_get_list_events_for_service($serviceid);
 
     return $record;
