@@ -114,7 +114,9 @@ function local_webhooks_get_record($serviceid) {
     $record = $DB->get_record(LOCAL_WEBHOOKS_TABLE_SERVICES, array("id" => $serviceid), "*", IGNORE_MISSING);
 
     /* Loads service events */
-    $record->events = local_webhooks_get_list_events_for_service($serviceid);
+    if (!empty($record)) {
+        $record->events = local_webhooks_get_list_events_for_service($serviceid);
+    }
 
     return $record;
 }
