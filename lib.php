@@ -53,9 +53,9 @@ function local_webhooks_change_status($serviceid) {
 /**
  * Search for services that contain the specified event.
  *
- * @param string $eventname
- * @param number $limitfrom
- * @param number $limitnum
+ * @param  string $eventname Event name
+ * @param  number $limitfrom Start position
+ * @param  number $limitnum  End position
  * @return array
  */
 function local_webhooks_search_record($eventname, $limitfrom = 0, $limitnum = 0) {
