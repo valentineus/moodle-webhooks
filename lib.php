@@ -32,14 +32,20 @@ require_once(__DIR__ . "/locallib.php");
 /**
  * Change the status of the service.
  *
- * @param  number  $serviceid
- * @return boolean
+ * @param  number  $serviceid Service identifier
+ * @return boolean            The result of the operation
  */
 function local_webhooks_change_status($serviceid) {
     global $DB;
 
+    /* Gets the current status */
     $status = $DB->get_field(LOCAL_WEBHOOKS_TABLE_SERVICES, "status", array("id" => $serviceid), IGNORE_MISSING);
+
+    /* Changes the status to the opposite */
     $result = $DB->set_field(LOCAL_WEBHOOKS_TABLE_SERVICES, "status", !boolval($status), array("id" => $serviceid));
+
+    /* Clears the cache */
+    local_webhooks_cache_reset();
 
     return $result;
 }
