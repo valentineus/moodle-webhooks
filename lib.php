@@ -56,48 +56,7 @@ function local_webhooks_change_status($serviceid) {
 }
 
 /**
- * Search for services that contain the specified event.
- *
- * @param  string $eventname Event name
- * @param  number $limitfrom Start position
- * @param  number $limitnum  End position
- * @return array             Search results
- */
-function local_webhooks_search_record($eventname, $limitfrom = 0, $limitnum = 0) {
-    global $DB;
-
-    /* Checks arguments */
-    if (empty($eventname)) {
-        print_error("missingparam", "error", null, "eventname");
-    }
-
-    /* Checks for the presence of a cache */
-    $cachename = crc32($limitnum . $limitfrom . $eventname);
-    if (is_array($records = local_webhooks_cache_get($cachename))) {
-        return $records;
-    }
-
-    /* Loads a list of events */
-    $rs = $DB->get_recordset(LOCAL_WEBHOOKS_TABLE_EVENTS, array("name" => $eventname, "status" => true), "id", "*", $limitfrom, $limitnum);
-    $result = array();
-
-    /* Loads services */
-    foreach ($rs as $event) {
-        if ($record = $DB->get_record(LOCAL_WEBHOOKS_TABLE_SERVICES, array("id" => $event->serviceid, "status" => true), "*", IGNORE_MISSING)) {
-            $result[] = $record;
-        }
-    }
-
-    $rs->close();
-
-    /* Saves the result in the cache */
-    local_webhooks_cache_set($cachename, $result);
-
-    return $result;
-}
-
-/**
- * Get the record from the database.
+ * Get the service record from the database.
  *
  * @param  number $serviceid Service identifier
  * @return object            Service data
@@ -113,8 +72,8 @@ function local_webhooks_get_record($serviceid) {
     /* Loads service data */
     $record = $DB->get_record(LOCAL_WEBHOOKS_TABLE_SERVICES, array("id" => $serviceid), "*", IGNORE_MISSING);
 
-    /* Loads service events */
     if (!empty($record)) {
+        /* Loads service events */
         $record->events = local_webhooks_get_list_events_for_service($serviceid);
     }
 
@@ -157,9 +116,51 @@ function local_webhooks_get_list_records($limitfrom = 0, $limitnum = 0, $conditi
 }
 
 /**
- * Get a list of all system events.
+ * Get a list of services associated with the event.
  *
- * @return array
+ * @param  string $eventname Event name
+ * @param  number $limitfrom Start position
+ * @param  number $limitnum  End position
+ * @return array             Search results
+ */
+function local_webhooks_get_list_records_by_event($eventname, $limitfrom = 0, $limitnum = 0) {
+    global $DB;
+
+    /* Checks arguments */
+    if (empty($eventname)) {
+        print_error("missingparam", "error", null, "eventname");
+    }
+
+    /* Checks for the presence of a cache */
+    $cachename = crc32($limitnum . $limitfrom . $eventname);
+    if (is_array($records = local_webhooks_cache_get($cachename))) {
+        return $records;
+    }
+
+    /* Loads the list of active events */
+    $rs = $DB->get_recordset(LOCAL_WEBHOOKS_TABLE_EVENTS, array("name" => $eventname, "status" => true), "id", "*", $limitfrom, $limitnum);
+    $result = array();
+
+    /* Loads services */
+    foreach ($rs as $event) {
+        /* Loads only the active service */
+        if ($record = $DB->get_record(LOCAL_WEBHOOKS_TABLE_SERVICES, array("id" => $event->serviceid, "status" => true), "*", IGNORE_MISSING)) {
+            $result[] = $record;
+        }
+    }
+
+    $rs->close();
+
+    /* Saves the result in the cache */
+    local_webhooks_cache_set($cachename, $result);
+
+    return $result;
+}
+
+/**
+ * Get a system list of registered events.
+ *
+ * @return array System list of events
  */
 function local_webhooks_get_list_events() {
     return report_eventlist_list_generator::get_all_events_list(true);
