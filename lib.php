@@ -122,21 +122,36 @@ function local_webhooks_get_record($serviceid) {
 }
 
 /**
- * Get all records from the database.
+ * Get a list of services from the database.
  *
- * @param  number $limitfrom
- * @param  number $limitnum
- * @param  array  $conditions
- * @return array
+ * @param  number $limitfrom  Start position
+ * @param  number $limitnum   End position
+ * @param  array  $conditions List of conditions
+ * @return array              List of services
  */
 function local_webhooks_get_list_records($limitfrom = 0, $limitnum = 0, $conditions = array()) {
     global $DB;
 
-    $records = $DB->get_records(LOCAL_WEBHOOKS_TABLE_SERVICES, $conditions, "id", "*", $limitfrom, $limitnum);
-
-    foreach ($records as $record) {
-        $record->events = local_webhooks_get_list_events_for_service($record->id);
+    /* Checks for the presence of a cache */
+    $cachename = crc32($limitfrom . $limitnum . serialize($conditions));
+    if (is_array($records = local_webhooks_cache_get($cachename))) {
+        return $records;
     }
+
+    /* Loads a list of services */
+    $rs = $DB->get_recordset(LOCAL_WEBHOOKS_TABLE_SERVICES, $conditions, "id", "*", $limitfrom, $limitnum);
+    $records = array();
+
+    foreach ($rs as $record) {
+        /* Loads a list of service events */
+        $record->events = local_webhooks_get_list_events_for_service($record->id);
+        $records[] = $record;
+    }
+
+    $rs->close();
+
+    /* Saves the result in the cache */
+    local_webhooks_cache_set($cachename, $records);
 
     return $records;
 }
