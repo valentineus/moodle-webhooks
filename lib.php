@@ -72,8 +72,8 @@ function local_webhooks_search_record($eventname, $limitfrom = 0, $limitnum = 0)
     }
 
     /* Checks for the presence of a cache */
-    $namecache = "${eventname}_${limitfrom}_${limitnum}";
-    if (is_array($records = local_webhooks_cache_get($namecache))) {
+    $cachename = crc32($limitnum . $limitfrom . $eventname);
+    if (is_array($records = local_webhooks_cache_get($cachename))) {
         return $records;
     }
 
@@ -91,7 +91,7 @@ function local_webhooks_search_record($eventname, $limitfrom = 0, $limitnum = 0)
     $rs->close();
 
     /* Saves the result in the cache */
-    local_webhooks_cache_set($namecache, $result);
+    local_webhooks_cache_set($cachename, $result);
 
     return $result;
 }
