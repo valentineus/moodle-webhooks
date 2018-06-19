@@ -24,7 +24,7 @@
 
 namespace local_webhooks;
 
-defined("MOODLE_INTERNAL") || die();
+defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . "/../lib.php");
 require_once(__DIR__ . "/../locallib.php");

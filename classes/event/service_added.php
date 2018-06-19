@@ -24,7 +24,7 @@
 
 namespace local_webhooks\event;
 
-defined("MOODLE_INTERNAL") || die();
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * Defines how to work with events.
