@@ -17,322 +17,98 @@
 /**
  * This file contains the functions used by the plugin.
  *
- * @package   local_webhooks
- * @copyright 2017 "Valentin Popov" <info@valentineus.link>
+ * @copyright 2018 'Valentin Popov' <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   local_webhooks
  */
 
 defined("MOODLE_INTERNAL") || die();
 
-define("LOCAL_WEBHOOKS_TABLE_SERVICES", "local_webhooks_service");
-define("LOCAL_WEBHOOKS_TABLE_EVENTS", "local_webhooks_events");
-
-require_once(__DIR__ . "/locallib.php");
+define("LW_TABLE_SERVICES", "local_webhooks_service");
+define("LW_TABLE_EVENTS", "local_webhooks_events");
 
 /**
- * Change the status of the service.
+ * Class local_webhooks_api
  *
- * @param  number  $serviceid Service identifier
- * @return boolean            The result of the operation
+ * @copyright 2018 'Valentin Popov' <info@valentineus.link>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   local_webhooks
  */
-function local_webhooks_change_status($serviceid) {
-    global $DB;
+class local_webhooks_api {
+    /**
+     * Create service data in the database.
+     *
+     * @param  array $service Data to the service
+     * @return int Service ID
+     */
+    public static function create_service($service = array()) {
+        global $DB;
 
-    /* Checks arguments */
-    if (empty($serviceid)) {
-        print_error("missingparam", "error", null, "serviceid");
-    }
-
-    /* Gets the current status */
-    $status = $DB->get_field(LOCAL_WEBHOOKS_TABLE_SERVICES, "status", array("id" => $serviceid), IGNORE_MISSING);
-
-    /* Changes the status to the opposite */
-    $result = $DB->set_field(LOCAL_WEBHOOKS_TABLE_SERVICES, "status", !boolval($status), array("id" => $serviceid));
-
-    /* Clears the cache */
-    local_webhooks_cache_reset();
-
-    return $result;
-}
-
-/**
- * Get the service record from the database.
- *
- * @param  number $serviceid Service identifier
- * @return object            Service data
- */
-function local_webhooks_get_record($serviceid) {
-    global $DB;
-
-    /* Checks arguments */
-    if (empty($serviceid)) {
-        print_error("missingparam", "error", null, "serviceid");
-    }
-
-    /* Loads service data */
-    $record = $DB->get_record(LOCAL_WEBHOOKS_TABLE_SERVICES, array("id" => $serviceid), "*", IGNORE_MISSING);
-
-    if (!empty($record)) {
-        /* Loads service events */
-        $record->events = local_webhooks_get_list_events_for_service($serviceid);
-    }
-
-    return $record;
-}
-
-/**
- * Get a list of services from the database.
- *
- * @param  number $limitfrom  Start position
- * @param  number $limitnum   End position
- * @param  array  $conditions List of conditions
- * @return array              List of services
- */
-function local_webhooks_get_list_records($limitfrom = 0, $limitnum = 0, $conditions = array()) {
-    global $DB;
-
-    /* Checks for the presence of a cache */
-    $cachename = crc32($limitfrom . $limitnum . serialize($conditions));
-    if (is_array($records = local_webhooks_cache_get($cachename))) {
-        return $records;
-    }
-
-    /* Loads a list of services */
-    $rs = $DB->get_recordset(LOCAL_WEBHOOKS_TABLE_SERVICES, $conditions, "id", "*", $limitfrom, $limitnum);
-    $records = array();
-
-    foreach ($rs as $record) {
-        /* Loads a list of service events */
-        $record->events = local_webhooks_get_list_events_for_service($record->id);
-        $records[] = $record;
-    }
-
-    $rs->close();
-
-    /* Saves the result in the cache */
-    local_webhooks_cache_set($cachename, $records);
-
-    return $records;
-}
-
-/**
- * Get a list of services associated with the event.
- *
- * @param  string $eventname Event name
- * @param  number $limitfrom Start position
- * @param  number $limitnum  End position
- * @return array             Search results
- */
-function local_webhooks_get_list_records_by_event($eventname, $limitfrom = 0, $limitnum = 0) {
-    global $DB;
-
-    /* Checks arguments */
-    if (empty($eventname)) {
-        print_error("missingparam", "error", null, "eventname");
-    }
-
-    /* Checks for the presence of a cache */
-    $cachename = crc32($limitnum . $limitfrom . $eventname);
-    if (is_array($records = local_webhooks_cache_get($cachename))) {
-        return $records;
-    }
-
-    /* Loads the list of active events */
-    $rs = $DB->get_recordset(LOCAL_WEBHOOKS_TABLE_EVENTS, array("name" => $eventname, "status" => true), "id", "*", $limitfrom, $limitnum);
-    $result = array();
-
-    /* Loads services */
-    foreach ($rs as $event) {
-        /* Loads only the active service */
-        if ($record = $DB->get_record(LOCAL_WEBHOOKS_TABLE_SERVICES, array("id" => $event->serviceid, "status" => true), "*", IGNORE_MISSING)) {
-            $result[] = $record;
+        if (!is_array($service) || empty($service)) {
+            print_error("unknowparamtype", "error", null, "service");
         }
+
+        $serviceId = $DB->insert_record(LW_TABLE_SERVICES, $service, true, false);
+        if ($serviceId && is_array($service["events"]) && !empty($service["events"])) {
+            self::insert_events($service["events"], $serviceId);
+        }
+
+        return (int) $serviceId;
     }
 
-    $rs->close();
+    /**
+     * Delete the service data from the database.
+     *
+     * @param  int $serviceId Service ID
+     * @return bool Execution result
+     */
+    public static function delete_service($serviceId = 0) {
+        global $DB;
 
-    /* Saves the result in the cache */
-    local_webhooks_cache_set($cachename, $result);
+        if (!is_numeric($serviceId) || empty($serviceId)) {
+            print_error("unknowparamtype", "error", null, "serviceId");
+        }
 
-    return $result;
-}
-
-/**
- * Get a system list of registered events.
- *
- * @return array System list of events
- */
-function local_webhooks_get_list_events() {
-    return report_eventlist_list_generator::get_all_events_list(true);
-}
-
-/**
- * Create an entry in the database.
- *
- * @param  object $record
- * @return number
- */
-function local_webhooks_create_record($record) {
-    global $DB;
-
-    if (empty($record->events)) {
-        $record->events = array();
+        $DB->delete_records(LW_TABLE_EVENTS, array("serviceid" => $serviceId));
+        return $DB->delete_records(LW_TABLE_SERVICES, array("id" => $serviceId));
     }
 
-    /* Adding entries */
-    $transaction = $DB->start_delegated_transaction();
-    $serviceid = $DB->insert_record(LOCAL_WEBHOOKS_TABLE_SERVICES, $record, true, false);
-    local_webhooks_insert_events_for_service($serviceid, $record->events);
-    $transaction->allow_commit();
+    /**
+     * Update the service data in the database.
+     *
+     * @param  array $service Data to the service
+     * @return bool Execution result
+     */
+    public static function update_service($service = array()) {
+        global $DB;
 
-    /* Clear the plugin cache */
-    local_webhooks_cache_reset();
+        if (!is_array($service) || empty($service) || empty($service["id"])) {
+            print_error("unknowparamtype", "error", null, "service");
+        }
 
-    /* Event notification */
-    local_webhooks_events::service_added($serviceid);
+        $result = $DB->update_record(LW_TABLE_SERVICES, $service, false);
+        $DB->delete_records(LW_TABLE_EVENTS, array("serviceid" => $service["id"]));
+        if ($result && is_array($service["events"]) && !empty($service["events"])) {
+            self::insert_events($service["events"], $service["id"]);
+        }
 
-    return $serviceid;
-}
-
-/**
- * Update the record in the database.
- *
- * @param  object  $record
- * @return boolean
- */
-function local_webhooks_update_record($record) {
-    global $DB;
-
-    if (empty($record->id)) {
-        print_error("missingparam", "error", null, "id");
+        return $result;
     }
 
-    if (empty($record->events)) {
-        $record->events = array();
+    /**
+     * Save the list of events to the database.
+     *
+     * @param array $events    List of events
+     * @param int   $serviceId Service ID
+     */
+    private static function insert_events($events = array(), $serviceId = 0) {
+        global $DB;
+
+        $conditions = array();
+        foreach ($events as $eventName) {
+            $conditions[] = array("name" => $eventName, "serviceid" => $serviceId);
+        }
+
+        $DB->insert_records(LW_TABLE_EVENTS, $conditions);
     }
-
-    /* Update records */
-    $transaction = $DB->start_delegated_transaction();
-    $result = $DB->update_record(LOCAL_WEBHOOKS_TABLE_SERVICES, $record, false);
-    local_webhooks_insert_events_for_service($record->id, $record->events);
-    $transaction->allow_commit();
-
-    /* Clear the plugin cache */
-    local_webhooks_cache_reset();
-
-    /* Event notification */
-    local_webhooks_events::service_updated($record->id);
-
-    return boolval($result);
-}
-
-/**
- * Delete the record from the database.
- *
- * @param  number  $serviceid
- * @return boolean
- */
-function local_webhooks_delete_record($serviceid) {
-    global $DB;
-
-    $result = $DB->delete_records(LOCAL_WEBHOOKS_TABLE_SERVICES, array("id" => $serviceid));
-    local_webhooks_delete_events_for_service($serviceid);
-
-    /* Clear the plugin cache */
-    local_webhooks_cache_reset();
-
-    /* Event notification */
-    local_webhooks_events::service_deleted($serviceid);
-
-    return boolval($result);
-}
-
-/**
- * Delete all records from the database.
- *
- * @return boolean
- */
-function local_webhooks_delete_all_records() {
-    global $DB;
-
-    $result = $DB->delete_records(LOCAL_WEBHOOKS_TABLE_SERVICES, null);
-    $DB->delete_records(LOCAL_WEBHOOKS_TABLE_EVENTS, null);
-
-    /* Clear the plugin cache */
-    local_webhooks_cache_reset();
-
-    /* Event notification */
-    local_webhooks_events::service_deletedall();
-
-    return boolval($result);
-}
-
-/**
- * Create a backup.
- *
- * @return string
- */
-function local_webhooks_create_backup() {
-    $records = local_webhooks_get_list_records();
-    $result = false;
-
-    if ($serialize = serialize($records)) {
-        $result = gzcompress($serialize, 9);
-    }
-
-    /* Event notification */
-    local_webhooks_events::backup_performed();
-
-    return base64_encode($result);
-}
-
-/**
- * Restore from a backup.
- *
- * @param string $data
- */
-function local_webhooks_restore_backup($backup) {
-    global $DB;
-
-    $serialize = gzuncompress(base64_decode($backup));
-    $records = unserialize($serialize);
-
-    $transaction = $DB->start_delegated_transaction();
-    local_webhooks_delete_all_records();
-
-    foreach ($records as $record) {
-        local_webhooks_create_record($record);
-    }
-
-    $transaction->allow_commit();
-
-    /* Event notification */
-    local_webhooks_events::backup_restored();
-
-    return true;
-}
-
-/**
- * Send the event remotely to the service.
- *
- * @param  object $event
- * @param  object $record
- * @return array
- */
-function local_webhooks_send_request($event, $record) {
-    global $CFG;
-
-    $event["host"]  = parse_url($CFG->wwwroot)["host"]; /* @todo: Fucking shit */
-    $event["token"] = $record->token;
-    $event["extra"] = $record->other;
-
-    $curl = new curl();
-    $curl->setHeader(array("Content-Type: application/" . $record->type));
-    $curl->post($record->url, json_encode($event));
-    $response = $curl->getResponse();
-
-    /* Event notification */
-    local_webhooks_events::response_answer($record->id, $response);
-
-    return $response;
 }
