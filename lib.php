@@ -104,6 +104,8 @@ class local_webhooks_api {
             self::insert_events( $service[ "events" ], $serviceId );
         }
 
+        // TODO: Mark the log
+
         return (int) $serviceId;
     }
 
@@ -119,6 +121,8 @@ class local_webhooks_api {
         if ( !is_numeric( $serviceId ) || empty( $serviceId ) ) {
             print_error( "unknowparamtype", "error", null, "serviceId" );
         }
+
+        // TODO: Mark the log
 
         $DB->delete_records( LW_TABLE_EVENTS, array( "serviceid" => $serviceId ) );
         return $DB->delete_records( LW_TABLE_SERVICES, array( "id" => $serviceId ) );
@@ -142,6 +146,8 @@ class local_webhooks_api {
         if ( $result && is_array( $service[ "events" ] ) && !empty( $service[ "events" ] ) ) {
             self::insert_events( $service[ "events" ], $service[ "id" ] );
         }
+
+        // TODO: Mark the log
 
         return $result;
     }
