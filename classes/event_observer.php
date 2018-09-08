@@ -15,41 +15,34 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The event handler.
+ * Handlers of observers for events.
  *
- * @package   local_webhooks
- * @copyright 2017 "Valentin Popov" <info@valentineus.link>
+ * @copyright 2018 'Valentin Popov' <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   local_webhooks
  */
 
 namespace local_webhooks;
 
-defined("MOODLE_INTERNAL") || die();
-
-require_once(__DIR__ . "/../lib.php");
+defined( "MOODLE_INTERNAL" ) || die();
 
 /**
  * Defines event handlers.
  *
- * @copyright 2017 "Valentin Popov" <info@valentineus.link>
+ * @copyright 2018 'Valentin Popov' <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   local_webhooks
  */
-class handler {
+class event_observer {
     /**
-     * External handler.
+     * Handler of all the events.
+     * Each event is put into the job queue.
      *
      * @param object $event
      */
-    public static function events($event) {
-        /* Gets the information about the event */
-        $data = $event->get_data();
-
-        /* Gets a list of involved services */
-        if (!empty($records = local_webhooks_get_list_records_by_event($data["eventname"]))) {
-            foreach ($records as $record) {
-                /* Sends an alert */
-                local_webhooks_send_request($data, $record);
-            }
-        }
+    public static function observe_all( $event ) {
+        $task = new \local_webhooks\task\process_events_task();
+        $task->set_custom_data( $event->get_data() );
+        \core\task\manager::queue_adhoc_task( $task );
     }
 }

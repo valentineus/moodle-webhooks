@@ -15,21 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Interception of all events in the system.
+ * Registration of observers for events.
  *
- * @package   local_webhooks
- * @copyright 2017 "Valentin Popov" <info@valentineus.link>
+ * @copyright 2018 'Valentin Popov' <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   local_webhooks
  */
 
-defined("MOODLE_INTERNAL") || die();
+defined( "MOODLE_INTERNAL" ) || die();
 
 $observers = array(
     array(
-        "callback"    => "\local_webhooks\\handler::events",
-        "eventname"   => "*",
-        "includefile" => null,
-        "internal"    => true,
-        "priority"    => 200
+        "callback"  => "\local_webhooks\\event_observer::observe_all",
+        "eventname" => "*"
     )
 );
