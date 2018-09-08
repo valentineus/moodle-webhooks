@@ -36,6 +36,30 @@ define( "LW_TABLE_EVENTS", "local_webhooks_events" );
  */
 class local_webhooks_api {
     /**
+     * Get information about the service.
+     *
+     * @param int $serviceId Service ID
+     * @return array Service data
+     */
+    public static function get_service( $serviceId = 0 ) {
+        global $DB;
+
+        if ( !is_numeric( $serviceId ) || empty( $serviceId ) ) {
+            print_error( "unknowparamtype", "error", null, "serviceId" );
+        }
+
+        $service = $DB->get_record( LW_TABLE_SERVICES, array( "id" => $serviceId ), "*", MUST_EXIST );
+        $events = $DB->get_records( LW_TABLE_EVENTS, array( "serviceid" => $serviceId ), "", "*", 0, 0 );
+
+        $service->events = array();
+        foreach ( $events as $event ) {
+            $service->events[] = $event->name;
+        }
+
+        return (array) $service;
+    }
+
+    /**
      * Create service data in the database.
      *
      * @param  array $service Data to the service
