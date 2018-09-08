@@ -38,8 +38,8 @@ class local_webhooks_api {
     /**
      * Get information about the service.
      *
-     * @param int $serviceId Service ID
-     * @return array Service data
+     * @param int $serviceId
+     * @return object
      */
     public static function get_service( $serviceId = 0 ) {
         global $DB;
@@ -56,14 +56,41 @@ class local_webhooks_api {
             $service->events[] = $event->name;
         }
 
-        return (array) $service;
+        return $service;
+    }
+
+    /**
+     * Get a list of services.
+     * By default, the entire list of services is given.
+     *
+     * @param array  $conditions
+     * @param string $sort
+     * @param int    $limitFrom
+     * @param int    $limitNum
+     * @return array
+     */
+    public static function get_services( $conditions = array(), $sort = "", $limitFrom = 0, $limitNum = 0 ) {
+        global $DB;
+
+        $services = $DB->get_records( LW_TABLE_SERVICES, $conditions, $sort, "*", $limitFrom, $limitNum );
+
+        foreach ( $services as $key => $service ) {
+            $events = $DB->get_records( LW_TABLE_EVENTS, array( "serviceid" => $service->id ), "", "*", 0, 0 );
+
+            $service->events = array();
+            foreach ( $events as $event ) {
+                $service->events[] = $event->name;
+            }
+        }
+
+        return $services;
     }
 
     /**
      * Create service data in the database.
      *
-     * @param  array $service Data to the service
-     * @return int Service ID
+     * @param  array $service
+     * @return int
      */
     public static function create_service( $service = array() ) {
         global $DB;
@@ -83,8 +110,8 @@ class local_webhooks_api {
     /**
      * Delete the service data from the database.
      *
-     * @param  int $serviceId Service ID
-     * @return bool Execution result
+     * @param  int $serviceId
+     * @return bool
      */
     public static function delete_service( $serviceId = 0 ) {
         global $DB;
@@ -100,8 +127,8 @@ class local_webhooks_api {
     /**
      * Update the service data in the database.
      *
-     * @param  array $service Data to the service
-     * @return bool Execution result
+     * @param  array $service
+     * @return bool
      */
     public static function update_service( $service = array() ) {
         global $DB;
@@ -122,8 +149,8 @@ class local_webhooks_api {
     /**
      * Save the list of events to the database.
      *
-     * @param array $events    List of events
-     * @param int   $serviceId Service ID
+     * @param array $events
+     * @param int   $serviceId
      */
     private static function insert_events( $events = array(), $serviceId = 0 ) {
         global $DB;
