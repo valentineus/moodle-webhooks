@@ -17,16 +17,17 @@
 /**
  * Settings of the plugin.
  *
- * @package   local_webhooks
- * @copyright 2017 "Valentin Popov" <info@valentineus.link>
+ * @copyright 2018 'Valentin Popov' <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   local_webhooks
  */
 
-defined("MOODLE_INTERNAL") || die();
+defined( "MOODLE_INTERNAL" ) || die();
 
-if ($hassiteconfig) {
-    $ADMIN->add("server", new admin_externalpage("local_webhooks",
-        new lang_string("pluginname", "local_webhooks"),
-        new moodle_url("/local/webhooks/index.php")
-    ));
+if ( $hassiteconfig ) {
+    $ADMIN->add( "server", new admin_externalpage( "local_webhooks",
+            new lang_string( "pluginname", "local_webhooks" ),
+            new moodle_url( "/local/webhooks/index.php" )
+        )
+    );
 }
