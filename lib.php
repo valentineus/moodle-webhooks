@@ -44,7 +44,7 @@ class local_webhooks_api {
     public static function get_service( $serviceId = 0 ) {
         global $DB;
 
-        if ( !is_numeric( $serviceId ) || empty( $serviceId ) ) {
+        if ( empty( $serviceId ) || !is_numeric( $serviceId ) ) {
             print_error( "unknowparamtype", "error", null, "serviceId" );
         }
 
@@ -94,7 +94,7 @@ class local_webhooks_api {
     public static function get_services_by_event( $eventName = "" ) {
         global $DB;
 
-        if ( !is_string( $eventName ) || empty( $eventName ) ) {
+        if ( empty( $eventName ) || !is_string( $eventName ) ) {
             print_error( "unknowparamtype", "error", null, "eventName" );
         }
 
@@ -117,12 +117,12 @@ class local_webhooks_api {
     public static function create_service( $service = array() ) {
         global $DB;
 
-        if ( !is_array( $service ) || empty( $service ) ) {
+        if ( empty( $service ) || !is_array( $service ) ) {
             print_error( "unknowparamtype", "error", null, "service" );
         }
 
         $serviceId = $DB->insert_record( LW_TABLE_SERVICES, $service, true, false );
-        if ( $serviceId && is_array( $service[ "events" ] ) && !empty( $service[ "events" ] ) ) {
+        if ( $serviceId && !empty( $service[ "events" ] ) && is_array( $service[ "events" ] ) ) {
             self::insert_events( $service[ "events" ], $serviceId );
         }
 
@@ -140,7 +140,7 @@ class local_webhooks_api {
     public static function delete_service( $serviceId = 0 ) {
         global $DB;
 
-        if ( !is_numeric( $serviceId ) || empty( $serviceId ) ) {
+        if ( empty( $serviceId ) || !is_numeric( $serviceId ) ) {
             print_error( "unknowparamtype", "error", null, "serviceId" );
         }
 
@@ -159,14 +159,14 @@ class local_webhooks_api {
     public static function update_service( $service = array() ) {
         global $DB;
 
-        if ( !is_array( $service ) || empty( $service ) || empty( $service[ "id" ] ) ) {
+        if ( empty( $service ) || !is_array( $service ) || empty( $service[ "id" ] ) ) {
             print_error( "unknowparamtype", "error", null, "service" );
         }
 
         // TODO: Add transactions for operations
         $result = $DB->update_record( LW_TABLE_SERVICES, $service, false );
         $DB->delete_records( LW_TABLE_EVENTS, array( "serviceid" => $service[ "id" ] ) );
-        if ( $result && is_array( $service[ "events" ] ) && !empty( $service[ "events" ] ) ) {
+        if ( $result && !empty( $service[ "events" ] ) && is_array( $service[ "events" ] ) ) {
             self::insert_events( $service[ "events" ], $service[ "id" ] );
         }
 
