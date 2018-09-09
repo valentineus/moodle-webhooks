@@ -63,18 +63,17 @@ class local_webhooks_api {
      * Get a list of services.
      * By default, the entire list of services is given.
      *
-     * @param array  $conditions
-     * @param string $sort
-     * @param int    $limitFrom
-     * @param int    $limitNum
+     * @param array $conditions
+     * @param int   $limitFrom
+     * @param int   $limitNum
      * @return array
      */
-    public static function get_services( $conditions = array(), $sort = "", $limitFrom = 0, $limitNum = 0 ) {
+    public static function get_services( $conditions = array(), $limitFrom = 0, $limitNum = 0 ) {
         global $DB;
 
-        $services = $DB->get_records( LW_TABLE_SERVICES, $conditions, $sort, "*", $limitFrom, $limitNum );
+        $services = $DB->get_records( LW_TABLE_SERVICES, $conditions, "", "*", $limitFrom, $limitNum );
 
-        foreach ( $services as $key => $service ) {
+        foreach ( $services as $service ) {
             $events = $DB->get_records( LW_TABLE_EVENTS, array( "serviceid" => $service->id ), "", "*", 0, 0 );
 
             $service->events = array();
