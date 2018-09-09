@@ -86,6 +86,29 @@ class local_webhooks_api {
     }
 
     /**
+     * Get the list of services subscribed to the event.
+     *
+     * @param string $eventName
+     * @return array
+     */
+    public static function get_services_by_event( $eventName = "" ) {
+        global $DB;
+
+        if ( !is_string( $eventName ) || empty( $eventName ) ) {
+            print_error( "unknowparamtype", "error", null, "eventName" );
+        }
+
+        $events = $DB->get_records( LW_TABLE_EVENTS, array( "name" => $eventName ), "", "*", 0, 0 );
+
+        $services = array();
+        foreach ( $events as $event ) {
+            $services[] = local_webhooks_api::get_service( $event->serviceid );
+        }
+
+        return $services;
+    }
+
+    /**
      * Create service data in the database.
      *
      * @param  array $service
