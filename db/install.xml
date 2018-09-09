@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/webhooks/db" VERSION="20180907" COMMENT="XMLDB file for Moodle local/webhooks"
+<XMLDB PATH="local/webhooks/db" VERSION="2018090700" COMMENT="XMLDB file for Moodle local/webhooks"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
 
