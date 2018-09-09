@@ -163,6 +163,7 @@ class local_webhooks_api {
             print_error( "unknowparamtype", "error", null, "service" );
         }
 
+        // TODO: Add transactions for operations
         $result = $DB->update_record( LW_TABLE_SERVICES, $service, false );
         $DB->delete_records( LW_TABLE_EVENTS, array( "serviceid" => $service[ "id" ] ) );
         if ( $result && is_array( $service[ "events" ] ) && !empty( $service[ "events" ] ) ) {
@@ -180,7 +181,7 @@ class local_webhooks_api {
      * @param array $events
      * @param int   $serviceId
      */
-    private static function insert_events( $events = array(), $serviceId = 0 ) {
+    protected static function insert_events( $events = array(), $serviceId = 0 ) {
         global $DB;
 
         $conditions = array();
