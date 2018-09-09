@@ -15,86 +15,58 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Service Management Manager.
+ * Service list manager.
  *
- * @package   local_webhooks
- * @copyright 2017 "Valentin Popov" <info@valentineus.link>
+ * @copyright 2018 'Valentin Popov' <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   local_webhooks
  */
 
-require_once(__DIR__ . "/../../config.php");
-require_once(__DIR__ . "/classes/webhooks_table.php");
-require_once(__DIR__ . "/lib.php");
+require_once( __DIR__ . "/../../config.php" );
 
-require_once($CFG->libdir . "/adminlib.php");
+require_once( $CFG->dirroot . "/local/webhooks/classes/ui_tables_plugin.php" );
+require_once( $CFG->dirroot . "/local/webhooks/lib.php" );
+require_once( $CFG->libdir . "/adminlib.php" );
 
-/* Optional parameters */
-$backupservices = optional_param("getbackup", 0, PARAM_BOOL);
-$deleteall      = optional_param("deleteall", 0, PARAM_INT);
-$deleteid       = optional_param("deleteid", 0, PARAM_INT);
-$hideshowid     = optional_param("hideshowid", 0, PARAM_INT);
+$deleteId = optional_param( "deleteid", 0, PARAM_INT );
+$hideShowId = optional_param( "hideshowid", 0, PARAM_INT );
 
-/* Link generation */
-$editservice    = "/local/webhooks/editservice.php";
-$managerservice = "/local/webhooks/index.php";
-$restorebackup  = "/local/webhooks/restorebackup.php";
-$baseurl        = new moodle_url($managerservice);
+$editPage = "/local/webhooks/service.php";
+$mainPage = "/local/webhooks/index.php";
+$baseUrl = new moodle_url( $mainPage );
 
-/* Configure the context of the page */
-admin_externalpage_setup("local_webhooks", "", null, $baseurl, array());
+admin_externalpage_setup( "local_webhooks", "", null, $baseUrl, array() );
 $context = context_system::instance();
 
-/* Delete the service */
-if (!empty($deleteid) && confirm_sesskey()) {
-    local_webhooks_delete_record($deleteid);
-    redirect($PAGE->url, new lang_string("deleted", "moodle"));
+if ( !empty( $deleteId ) && confirm_sesskey() ) {
+    local_webhooks_api::delete_service( $deleteId );
+    redirect( $PAGE->url, new lang_string( "deleted", "moodle" ) );
 }
 
-/* Switching the status of the service */
-if (!empty($hideshowid) && confirm_sesskey()) {
-    local_webhooks_change_status($hideshowid);
-    redirect($PAGE->url, new lang_string("changessaved", "moodle"));
-}
-
-/* Deletes all data */
-if (boolval($deleteall) && confirm_sesskey()) {
-    local_webhooks_delete_all_records();
-    redirect($PAGE->url, new lang_string("deleted", "moodle"));
-}
-
-/* Upload settings as a file */
-if (boolval($backupservices)) {
-    $filecontent = local_webhooks_create_backup();
-    $filename    = "webhooks_" . date("U") . ".backup";
-    send_file($filecontent, $filename, 0, 0, true, true);
+if ( !empty( $hideShowId ) && confirm_sesskey() ) {
+    $service = local_webhooks_api::get_service( $hideShowId );
+    $service->status = !(bool) $service->status;
+    local_webhooks_api::update_service( (array) $service );
+    redirect( $PAGE->url, new lang_string( "changessaved", "moodle" ) );
 }
 
 /* The page title */
-$titlepage = new lang_string("pluginname", "local_webhooks");
-$PAGE->set_heading($titlepage);
-$PAGE->set_title($titlepage);
+$titlePage = new lang_string( "pluginname", "local_webhooks" );
+$PAGE->set_heading( $titlePage );
+$PAGE->set_title( $titlePage );
 echo $OUTPUT->header();
 
-/* Adds the add button */
-$addserviceurl = new moodle_url($editservice, array("sesskey" => sesskey()));
-echo $OUTPUT->single_button($addserviceurl, new lang_string("add", "moodle"));
-
-/* Adds a delete button */
-$deleteallurl = new moodle_url($managerservice, array("deleteall" => true, "sesskey" => sesskey()));
-echo $OUTPUT->single_button($deleteallurl, new lang_string("deleteall", "moodle"), "get");
-
-/* Adds a backup button */
-$backupurl = new moodle_url($managerservice, array("getbackup" => true));
-echo $OUTPUT->single_button($backupurl, new lang_string("backup", "moodle"), "get");
-
-/* Adds a restore button */
-$restorebackupurl = new moodle_url($restorebackup);
-echo $OUTPUT->single_button($restorebackupurl, new lang_string("restore", "moodle"));
-
 /* Displays the table */
-$table = new local_webhooks_table("local-webhooks-table");
-$table->define_baseurl($baseurl);
-$table->out(25, true);
+$table = new local_webhooks_services_table( "local-webhooks-table" );
+$table->define_baseurl( $baseUrl );
+$table->out( 25, true );
+
+/* Separation */
+echo html_writer::empty_tag( "br" );
+
+/* Adds the add button */
+$addServiceUrl = new moodle_url( $editPage, array( "sesskey" => sesskey() ) );
+echo $OUTPUT->single_button( $addServiceUrl, new lang_string( "add", "moodle" ) );
 
 /* Footer */
 echo $OUTPUT->footer();
