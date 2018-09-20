@@ -40,10 +40,12 @@ $context = context_system::instance();
 $mForm = new local_webhooks_service_edit_form( $PAGE->url );
 $formData = (array) $mForm->get_data();
 
+/* Cancel */
 if ( $mForm->is_cancelled() ) {
     redirect( $mainPage );
 }
 
+/* Updating the data */
 if ( !empty( $formData ) && confirm_sesskey() ) {
     if ( isset( $formData[ "events" ] ) ) {
         $formData[ "events" ] = array_keys( $formData[ "events" ] );
@@ -59,6 +61,7 @@ if ( !empty( $formData ) && confirm_sesskey() ) {
     redirect( $mainPage, new lang_string( "changessaved", "moodle" ) );
 }
 
+/* Loading service data */
 if ( !empty( $serviceId ) ) {
     $service = local_webhooks_api::get_service( $serviceId );
     $service->events = array_fill_keys( $service->events, 1 );

@@ -38,11 +38,13 @@ $baseUrl = new moodle_url( $mainPage );
 admin_externalpage_setup( "local_webhooks", "", null, $baseUrl, array() );
 $context = context_system::instance();
 
+/* Remove the service */
 if ( !empty( $deleteId ) && confirm_sesskey() ) {
     local_webhooks_api::delete_service( $deleteId );
     redirect( $PAGE->url, new lang_string( "deleted", "moodle" ) );
 }
 
+/* Disable / Enable the service */
 if ( !empty( $hideShowId ) && confirm_sesskey() ) {
     $service = local_webhooks_api::get_service( $hideShowId );
     $service->status = !(bool) $service->status;
