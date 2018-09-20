@@ -45,18 +45,20 @@ class process_events_task extends \core\task\adhoc_task {
         $services = \local_webhooks_api::get_services_by_event( $this->get_custom_data()->eventname );
 
         foreach ( $services as $service ) {
-            if ( !empty( $service->status ) ) {
-                $curl = new \curl();
-
-                $event = (array) $this->get_custom_data();
-                $event[ "token" ] = $service->token;
-
-                $curl->setHeader( array( "Content-Type: " . $service->header ) );
-                $curl->post( $service->point, json_encode( $event ) );
-
-                // TODO: Mark the log
-                $curl->getResponse();
+            if ( empty( $service->status ) ) {
+                return;
             }
+
+            $curl = new \curl();
+
+            $event = (array) $this->get_custom_data();
+            $event[ "token" ] = $service->token;
+
+            $curl->setHeader( array( "Content-Type: " . $service->header ) );
+            $curl->post( $service->point, json_encode( $event ) );
+
+            // TODO: Mark the log
+            $curl->getResponse();
         }
     }
 }
