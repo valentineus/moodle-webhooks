@@ -15,11 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component "local_webhooks", language "en".
+ * Strings for component 'local_webhooks', language 'en'.
  *
- * @package   local_webhooks
- * @copyright 2017 "Valentin Popov" <info@valentineus.link>
+ * @copyright 2018 'Valentin Popov' <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   local_webhooks
  */
 
-$string["pluginname"] = "WebHooks";
+$string[ "pluginname" ] = "WebHooks";
