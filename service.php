@@ -22,61 +22,61 @@
  * @package   local_webhooks
  */
 
-require_once __DIR__ . '/../../config.php';
+require_once(__DIR__ . '/../../config.php');
 
-require_once $CFG->dirroot . '/local/webhooks/classes/ui_forms_plugin.php';
-require_once $CFG->dirroot . '/local/webhooks/lib.php';
-require_once $CFG->libdir . '/adminlib.php';
+require_once($CFG->dirroot . '/local/webhooks/classes/ui_forms_plugin.php');
+require_once($CFG->dirroot . '/local/webhooks/lib.php');
+require_once($CFG->libdir . '/adminlib.php');
 
-$serviceId = optional_param('serviceid', 0, PARAM_INT);
+$service_id = optional_param('serviceid', 0, PARAM_INT);
 
-$urlParameters = array('serviceid' => $serviceId);
-$baseUrl = new moodle_url('/local/webhooks/service.php', $urlParameters);
-$mainPage = new moodle_url('/local/webhooks/index.php');
+$url_parameters = array('serviceid' => $service_id);
+$base_url = new moodle_url('/local/webhooks/service.php', $url_parameters);
+$main_page = new moodle_url('/local/webhooks/index.php');
 
-admin_externalpage_setup('local_webhooks', '', null, $baseUrl, array());
+admin_externalpage_setup('local_webhooks', '', null, $base_url, array());
 $context = context_system::instance();
 
-$mForm = new local_webhooks_service_edit_form($PAGE->url);
-$formData = (array) $mForm->get_data();
+$m_form = new local_webhooks_service_edit_form($PAGE->url);
+$form_data = (array) $m_form->get_data();
 
 /* Cancel */
-if ($mForm->is_cancelled()) {
-    redirect($mainPage);
+if ($m_form->is_cancelled()) {
+    redirect($main_page);
 }
 
 /* Updating the data */
-if (!empty($formData) && confirm_sesskey()) {
-    if (isset($formData['events'])) {
-        $formData['events'] = array_keys($formData['events']);
+if (!empty($form_data) && confirm_sesskey()) {
+    if (isset($form_data['events'])) {
+        $form_data['events'] = array_keys($form_data['events']);
     }
 
-    if (!empty($serviceId)) {
-        $formData['id'] = $serviceId;
-        local_webhooks_api::update_service($formData);
+    if (!empty($service_id)) {
+        $form_data['id'] = $service_id;
+        local_webhooks_api::update_service($form_data);
     } else {
-        local_webhooks_api::create_service($formData);
+        local_webhooks_api::create_service($form_data);
     }
 
-    redirect($mainPage, new lang_string('changessaved', 'moodle'));
+    redirect($main_page, new lang_string('changessaved', 'moodle'));
 }
 
 /* Loading service data */
-if (!empty($serviceId)) {
-    $service = local_webhooks_api::get_service($serviceId);
+if (!empty($service_id)) {
+    $service = local_webhooks_api::get_service($service_id);
     $service->events = array_fill_keys($service->events, 1);
-    $mForm->set_data($service);
+    $m_form->set_data($service);
 }
 
 /* The page title */
-$titlePage = new lang_string('externalservice', 'webservice');
-$PAGE->navbar->add($titlePage);
-$PAGE->set_heading($titlePage);
-$PAGE->set_title($titlePage);
+$title_page = new lang_string('externalservice', 'webservice');
+$PAGE->navbar->add($title_page);
+$PAGE->set_heading($title_page);
+$PAGE->set_title($title_page);
 echo $OUTPUT->header();
 
 /* Displays the form */
-$mForm->display();
+$m_form->display();
 
 /* Footer */
 echo $OUTPUT->footer();

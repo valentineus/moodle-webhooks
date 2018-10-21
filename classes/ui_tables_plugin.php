@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once $CFG->dirroot . '/local/webhooks/lib.php';
-require_once $CFG->libdir . '/tablelib.php';
+require_once($CFG->dirroot . '/local/webhooks/lib.php');
+require_once($CFG->libdir . '/tablelib.php');
 
 /**
  * Display the list of services table.
@@ -36,24 +36,24 @@ require_once $CFG->libdir . '/tablelib.php';
  */
 class local_webhooks_services_table extends table_sql {
     /**
-     * @var string $mainPage
+     * @var string $main_page
      */
-    protected static $mainPage = '/local/webhooks/index.php';
+    protected static $main_page = '/local/webhooks/index.php';
 
     /**
-     * @var string $editorPage
+     * @var string $editor_page
      */
-    protected static $editorPage = '/local/webhooks/service.php';
+    protected static $editor_page = '/local/webhooks/service.php';
 
     /**
      * Constructor.
      *
-     * @param string $uniqueId
+     * @param string $unique_id
      *
      * @throws \coding_exception
      */
-    public function __construct($uniqueId = '') {
-        parent::__construct($uniqueId);
+    public function __construct($unique_id = '') {
+        parent::__construct($unique_id);
         $this->define_table_columns();
         $this->define_table_configs();
     }
@@ -61,12 +61,12 @@ class local_webhooks_services_table extends table_sql {
     /**
      * Query the database for results to display in the table.
      *
-     * @param int     $pageSize
-     * @param boolean $useInitialsBar
+     * @param int     $page_size
+     * @param boolean $use_initials_bar
      *
      * @throws \dml_exception
      */
-    public function query_db($pageSize = 0, $useInitialsBar = false) {
+    public function query_db($page_size = 0, $use_initials_bar = false) {
         $this->rawdata = local_webhooks_api::get_services(array(), $this->get_page_start(), $this->get_page_size());
     }
 
@@ -116,27 +116,27 @@ class local_webhooks_services_table extends table_sql {
     public function col_actions($row) {
         global $OUTPUT;
 
-        $hideShowIcon = 't/show';
-        $hideShowString = new lang_string('enable', 'moodle');
+        $hide_show_icon = 't/show';
+        $hide_show_string = new lang_string('enable', 'moodle');
 
         if (!empty($row->status)) {
-            $hideShowIcon = 't/hide';
-            $hideShowString = new lang_string('disable', 'moodle');
+            $hide_show_icon = 't/hide';
+            $hide_show_string = new lang_string('disable', 'moodle');
         }
 
         /* Link for activation / deactivation */
-        $hideShowLink = new moodle_url(self::$mainPage, array('hideshowid' => $row->id, 'sesskey' => sesskey()));
-        $hideShowItem = $OUTPUT->action_icon($hideShowLink, new pix_icon($hideShowIcon, $hideShowString));
+        $hide_show_link = new moodle_url(self::$main_page, array('hideshowid' => $row->id, 'sesskey' => sesskey()));
+        $hide_show_item = $OUTPUT->action_icon($hide_show_link, new pix_icon($hide_show_icon, $hide_show_string));
 
         /* Link for editing */
-        $editLink = new moodle_url(self::$editorPage, array('serviceid' => $row->id, 'sesskey' => sesskey()));
-        $editItem = $OUTPUT->action_icon($editLink, new pix_icon('t/edit', new lang_string('edit', 'moodle')));
+        $edit_link = new moodle_url(self::$editor_page, array('serviceid' => $row->id, 'sesskey' => sesskey()));
+        $edit_item = $OUTPUT->action_icon($edit_link, new pix_icon('t/edit', new lang_string('edit', 'moodle')));
 
         /* Link to remove */
-        $deleteLink = new moodle_url(self::$mainPage, array('deleteid' => $row->id, 'sesskey' => sesskey()));
-        $deleteItem = $OUTPUT->action_icon($deleteLink, new pix_icon('t/delete', new lang_string('delete', 'moodle')));
+        $delete_link = new moodle_url(self::$main_page, array('deleteid' => $row->id, 'sesskey' => sesskey()));
+        $delete_item = $OUTPUT->action_icon($delete_link, new pix_icon('t/delete', new lang_string('delete', 'moodle')));
 
-        return $hideShowItem . $editItem . $deleteItem;
+        return $hide_show_item . $edit_item . $delete_item;
     }
 
     /**
@@ -159,7 +159,7 @@ class local_webhooks_services_table extends table_sql {
      * @throws \moodle_exception
      */
     public function col_name($row) {
-        $link = new moodle_url(self::$editorPage, array('serviceid' => $row->id, 'sesskey' => sesskey()));
+        $link = new moodle_url(self::$editor_page, array('serviceid' => $row->id, 'sesskey' => sesskey()));
 
         return html_writer::link($link, $row->name);
     }

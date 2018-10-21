@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once $CFG->dirroot . '/local/webhooks/lib.php';
-require_once $CFG->libdir . '/formslib.php';
+require_once($CFG->dirroot . '/local/webhooks/lib.php');
+require_once($CFG->libdir . '/formslib.php');
 
 /**
  * Description editing form definition.
@@ -36,10 +36,10 @@ require_once $CFG->libdir . '/formslib.php';
  */
 class local_webhooks_service_edit_form extends moodleform {
     /**
-     * @param string $baseUrl
+     * @param string $base_url
      */
-    public function __construct($baseUrl) {
-        parent::__construct($baseUrl);
+    public function __construct($base_url) {
+        parent::__construct($base_url);
     }
 
     /**
@@ -48,55 +48,55 @@ class local_webhooks_service_edit_form extends moodleform {
      * @throws \coding_exception
      */
     protected function definition() {
-        $mForm =& $this->_form;
+        $m_form =& $this->_form;
         $size = array('size' => 60);
 
         /* Form heading */
-        $mForm->addElement('header', 'editserviceheadermain', new lang_string('service', 'webservice'));
+        $m_form->addElement('header', 'edit-service-header-main', new lang_string('service', 'webservice'));
 
         /* Name of the service */
-        $mForm->addElement('text', 'name', new lang_string('name', 'moodle'), $size);
-        $mForm->addRule('name', null, 'required');
-        $mForm->setType('name', PARAM_RAW);
+        $m_form->addElement('text', 'name', new lang_string('name', 'moodle'), $size);
+        $m_form->addRule('name', null, 'required');
+        $m_form->setType('name', PARAM_RAW);
 
         /* Callback address */
-        $mForm->addElement('text', 'point', new lang_string('url', 'moodle'), $size);
-        $mForm->addRule('point', null, 'required');
-        $mForm->setType('point', PARAM_URL);
+        $m_form->addElement('text', 'point', new lang_string('url', 'moodle'), $size);
+        $m_form->addRule('point', null, 'required');
+        $m_form->setType('point', PARAM_URL);
 
         /* Enabling the service */
-        $mForm->addElement('advcheckbox', 'status', new lang_string('enable', 'moodle'));
-        $mForm->setType('status', PARAM_BOOL);
-        $mForm->setDefault('status', 1);
-        $mForm->setAdvanced('status');
+        $m_form->addElement('advcheckbox', 'status', new lang_string('enable', 'moodle'));
+        $m_form->setType('status', PARAM_BOOL);
+        $m_form->setDefault('status', 1);
+        $m_form->setAdvanced('status');
 
         /* Token */
-        $mForm->addElement('text', 'token', new lang_string('token', 'webservice'), $size);
-        $mForm->addRule('token', null, 'required');
-        $mForm->setType('token', PARAM_RAW);
+        $m_form->addElement('text', 'token', new lang_string('token', 'webservice'), $size);
+        $m_form->addRule('token', null, 'required');
+        $m_form->setType('token', PARAM_RAW);
 
         /* Content type */
-        $contentType = array(
+        $content_type = array(
             'application/json'                  => 'application/json',
             'application/x-www-form-urlencoded' => 'application/x-www-form-urlencoded',
         );
 
-        $mForm->addElement('select', 'header', 'Content-Type', $contentType);
-        $mForm->setAdvanced('header');
+        $m_form->addElement('select', 'header', 'Content-Type', $content_type);
+        $m_form->setAdvanced('header');
 
         /* Form heading */
-        $mForm->addElement('header', 'editserviceheaderevent', new lang_string('edulevel', 'moodle'));
+        $m_form->addElement('header', 'edit-service-header-event', new lang_string('edulevel', 'moodle'));
 
         /* List of events */
-        $eventList = report_eventlist_list_generator::get_all_events_list(true);
+        $event_list = report_eventlist_list_generator::get_all_events_list(true);
 
         $events = array();
-        foreach ($eventList as $event) {
-            $events[$event['component']][] =& $mForm->createElement('checkbox', $event['eventname'], $event['eventname']);
+        foreach ($event_list as $event) {
+            $events[$event['component']][] =& $m_form->createElement('checkbox', $event['eventname'], $event['eventname']);
         }
 
         foreach ($events as $key => $event) {
-            $mForm->addGroup($event, 'events', $key, '<br />', true);
+            $m_form->addGroup($event, 'events', $key, '<br />', true);
         }
 
         /* Control Panel */

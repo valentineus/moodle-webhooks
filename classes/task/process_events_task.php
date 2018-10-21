@@ -24,11 +24,11 @@
 
 namespace local_webhooks\task;
 
+defined('MOODLE_INTERNAL') || die();
+
 global $CFG;
 
-require_once $CFG->dirroot . '/local/webhooks/lib.php';
-
-defined('MOODLE_INTERNAL') || die();
+require_once($CFG->dirroot . '/local/webhooks/lib.php');
 
 /**
  * Class process_events_task
@@ -60,7 +60,8 @@ class process_events_task extends \core\task\adhoc_task {
             $curl->setHeader(array('Content-Type: ' . $service->header));
             $curl->post($service->point, json_encode($event));
 
-            // TODO: Mark the log
+            // TODO: Mark the log.
+
             $curl->getResponse();
         }
     }

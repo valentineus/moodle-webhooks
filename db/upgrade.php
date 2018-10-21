@@ -27,41 +27,43 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Function to upgrade 'local_webhooks'.
  *
- * @param int $oldversion
+ * @param int $old_version
  *
  * @return boolean
  * @throws \dml_exception
  * @throws \downgrade_exception
  * @throws \upgrade_exception
  */
-function xmldb_local_webhooks_upgrade($oldversion = 0) {
+function xmldb_local_webhooks_upgrade($old_version = 0) {
     global $DB;
 
     /* Update from versions 3.* */
-    if ($oldversion < 2017112600 || $oldversion === 2018061900) {
+    if ($old_version < 2017112600 || $old_version === 2018061900) {
         $rs = $DB->get_recordset('local_webhooks_service', null, 'id', '*', 0, 0);
+
         foreach ($rs as $record) {
             if (!empty($record->events)) {
                 $record->events = unserialize(gzuncompress(base64_decode($record->events)));
-                // TODO: This method does not exist
-                // local_webhooks_update_record( $record );
+                // TODO: This method does not exist.
+                /* local_webhooks_update_record( $record ); */
             }
         }
+
         $rs->close();
         upgrade_plugin_savepoint(true, 2017112600, 'local', 'webhooks');
     }
 
     /* Update from version 4.0.0-rc.1 */
-    if ($oldversion === 2017122900) {
-    }
+
+    /* if ($old_version === 2017122900) {} */
 
     /* Update from version 4.0.0-rc.2 */
-    if ($oldversion === 2018022200) {
-    }
+
+    /* if ($old_version === 2018022200) {} */
 
     /* Update from version 4.0.0-rc.3 */
-    if ($oldversion === 2018022500) {
-    }
+
+    /* if ($old_version === 2018022500) {} */
 
     return true;
 }
