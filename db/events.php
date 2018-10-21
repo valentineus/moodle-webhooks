@@ -22,11 +22,11 @@
  * @package   local_webhooks
  */
 
-defined( "MOODLE_INTERNAL" ) || die();
+defined('MOODLE_INTERNAL') || die();
 
 $observers = array(
     array(
-        "callback"  => "\local_webhooks\\event_observer::observe_all",
-        "eventname" => "*"
-    )
+        'callback'  => '\local_webhooks\event_observer::observe_all',
+        'eventname' => '*',
+    ),
 );

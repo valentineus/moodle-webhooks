@@ -24,7 +24,7 @@
 
 namespace local_webhooks;
 
-defined( "MOODLE_INTERNAL" ) || die();
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * Defines event handlers.
@@ -40,9 +40,9 @@ class event_observer {
      *
      * @param object $event
      */
-    public static function observe_all( $event ) {
+    public static function observe_all($event) {
         $task = new \local_webhooks\task\process_events_task();
-        $task->set_custom_data( $event->get_data() );
-        \core\task\manager::queue_adhoc_task( $task );
+        $task->set_custom_data($event->get_data());
+        \core\task\manager::queue_adhoc_task($task);
     }
 }

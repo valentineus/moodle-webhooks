@@ -22,10 +22,10 @@
  * @package   local_webhooks
  */
 
-defined( "MOODLE_INTERNAL" ) || die();
+defined('MOODLE_INTERNAL') || die();
 
-define( "LW_TABLE_SERVICES", "local_webhooks_service" );
-define( "LW_TABLE_EVENTS", "local_webhooks_events" );
+define('LW_TABLE_SERVICES', 'local_webhooks_service');
+define('LW_TABLE_EVENTS', 'local_webhooks_events');
 
 /**
  * Class local_webhooks_api
@@ -39,20 +39,23 @@ class local_webhooks_api {
      * Get information about the service.
      *
      * @param int $serviceId
+     *
      * @return object
+     * @throws \dml_exception
+     * @throws \moodle_exception
      */
-    public static function get_service( $serviceId = 0 ) {
+    public static function get_service($serviceId = 0) {
         global $DB;
 
-        if ( empty( $serviceId ) || !is_numeric( $serviceId ) ) {
-            print_error( "unknowparamtype", "error", null, "serviceId" );
+        if (!is_numeric($serviceId) || $serviceId === 0) {
+            print_error('unknowparamtype', 'error', null, 'serviceId');
         }
 
-        $service = $DB->get_record( LW_TABLE_SERVICES, array( "id" => $serviceId ), "*", MUST_EXIST );
-        $events = $DB->get_records( LW_TABLE_EVENTS, array( "serviceid" => $serviceId ), "", "*", 0, 0 );
+        $service = $DB->get_record(LW_TABLE_SERVICES, array('id' => $serviceId), '*', MUST_EXIST);
+        $events = $DB->get_records(LW_TABLE_EVENTS, array('serviceid' => $serviceId), '', '*', 0, 0);
 
         $service->events = array();
-        foreach ( $events as $event ) {
+        foreach ($events as $event) {
             $service->events[] = $event->name;
         }
 
@@ -66,18 +69,20 @@ class local_webhooks_api {
      * @param array $conditions
      * @param int   $limitFrom
      * @param int   $limitNum
+     *
      * @return array
+     * @throws \dml_exception
      */
-    public static function get_services( $conditions = array(), $limitFrom = 0, $limitNum = 0 ) {
+    public static function get_services(array $conditions = array(), $limitFrom = 0, $limitNum = 0) {
         global $DB;
 
-        $services = $DB->get_records( LW_TABLE_SERVICES, $conditions, "", "*", $limitFrom, $limitNum );
+        $services = $DB->get_records(LW_TABLE_SERVICES, $conditions, '', '*', $limitFrom, $limitNum);
 
-        foreach ( $services as $service ) {
-            $events = $DB->get_records( LW_TABLE_EVENTS, array( "serviceid" => $service->id ), "", "*", 0, 0 );
+        foreach ($services as $service) {
+            $events = $DB->get_records(LW_TABLE_EVENTS, array('serviceid' => $service->id), '', '*', 0, 0);
 
             $service->events = array();
-            foreach ( $events as $event ) {
+            foreach ($events as $event) {
                 $service->events[] = $event->name;
             }
         }
@@ -89,20 +94,23 @@ class local_webhooks_api {
      * Get the list of services subscribed to the event.
      *
      * @param string $eventName
+     *
      * @return array
+     * @throws \dml_exception
+     * @throws \moodle_exception
      */
-    public static function get_services_by_event( $eventName = "" ) {
+    public static function get_services_by_event($eventName = '') {
         global $DB;
 
-        if ( empty( $eventName ) || !is_string( $eventName ) ) {
-            print_error( "unknowparamtype", "error", null, "eventName" );
+        if (!is_string($eventName) || $eventName === '') {
+            print_error('unknowparamtype', 'error', null, 'eventName');
         }
 
-        $events = $DB->get_records( LW_TABLE_EVENTS, array( "name" => $eventName ), "", "*", 0, 0 );
+        $events = $DB->get_records(LW_TABLE_EVENTS, array('name' => $eventName), '', '*', 0, 0);
 
         $services = array();
-        foreach ( $events as $event ) {
-            $services[] = local_webhooks_api::get_service( $event->serviceid );
+        foreach ($events as $event) {
+            $services[] = self::get_service($event->serviceid);
         }
 
         return $services;
@@ -112,18 +120,21 @@ class local_webhooks_api {
      * Create service data in the database.
      *
      * @param  array $service
+     *
      * @return int
+     * @throws \dml_exception
+     * @throws \moodle_exception
      */
-    public static function create_service( $service = array() ) {
+    public static function create_service(array $service = array()) {
         global $DB;
 
-        if ( empty( $service ) || !is_array( $service ) ) {
-            print_error( "unknowparamtype", "error", null, "service" );
+        if (!is_array($service) || count($service) === 0) {
+            print_error('unknowparamtype', 'error', null, 'service');
         }
 
-        $serviceId = $DB->insert_record( LW_TABLE_SERVICES, $service, true, false );
-        if ( $serviceId && !empty( $service[ "events" ] ) && is_array( $service[ "events" ] ) ) {
-            self::insert_events( $service[ "events" ], $serviceId );
+        $serviceId = $DB->insert_record(LW_TABLE_SERVICES, (object) $service, true, false);
+        if ($serviceId && !empty($service['events']) && is_array($service['events'])) {
+            self::insert_events($service['events'], $serviceId);
         }
 
         // TODO: Mark the log
@@ -135,39 +146,47 @@ class local_webhooks_api {
      * Delete the service data from the database.
      *
      * @param  int $serviceId
+     *
      * @return bool
+     * @throws \dml_exception
+     * @throws \moodle_exception
      */
-    public static function delete_service( $serviceId = 0 ) {
+    public static function delete_service($serviceId = 0) {
         global $DB;
 
-        if ( empty( $serviceId ) || !is_numeric( $serviceId ) ) {
-            print_error( "unknowparamtype", "error", null, "serviceId" );
+        if (!is_numeric($serviceId) || $serviceId === 0) {
+            print_error('unknowparamtype', 'error', null, 'serviceId');
         }
 
         // TODO: Mark the log
 
-        $DB->delete_records( LW_TABLE_EVENTS, array( "serviceid" => $serviceId ) );
-        return $DB->delete_records( LW_TABLE_SERVICES, array( "id" => $serviceId ) );
+        $DB->delete_records(LW_TABLE_EVENTS, array('serviceid' => $serviceId));
+
+        return $DB->delete_records(LW_TABLE_SERVICES, array('id' => $serviceId));
     }
 
     /**
      * Update the service data in the database.
      *
      * @param  array $service
+     *
      * @return bool
+     * @throws \dml_exception
+     * @throws \moodle_exception
      */
-    public static function update_service( $service = array() ) {
+    public static function update_service(array $service = array()) {
         global $DB;
 
-        if ( empty( $service ) || !is_array( $service ) || empty( $service[ "id" ] ) ) {
-            print_error( "unknowparamtype", "error", null, "service" );
+        if (!is_array($service) || count($service) === 0 || !isset($service['id'])) {
+            print_error('unknowparamtype', 'error', null, 'service');
         }
 
         // TODO: Add transactions for operations
-        $result = $DB->update_record( LW_TABLE_SERVICES, $service, false );
-        $DB->delete_records( LW_TABLE_EVENTS, array( "serviceid" => $service[ "id" ] ) );
-        if ( $result && !empty( $service[ "events" ] ) && is_array( $service[ "events" ] ) ) {
-            self::insert_events( $service[ "events" ], $service[ "id" ] );
+        $result = $DB->update_record(LW_TABLE_SERVICES, (object) $service, false);
+        $DB->delete_records(LW_TABLE_EVENTS, array('serviceid' => $service['id']));
+
+        if ($result && is_array($service['events']) && count($service) !== 0) {
+            self::insert_events($service['events'], $service['id']);
         }
 
         // TODO: Mark the log
@@ -180,15 +199,18 @@ class local_webhooks_api {
      *
      * @param array $events
      * @param int   $serviceId
+     *
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
-    protected static function insert_events( $events = array(), $serviceId = 0 ) {
+    protected static function insert_events(array $events = array(), $serviceId = 0) {
         global $DB;
 
         $conditions = array();
-        foreach ( $events as $eventName ) {
-            $conditions[] = array( "name" => $eventName, "serviceid" => $serviceId );
+        foreach ($events as $eventName) {
+            $conditions[] = array('name' => $eventName, 'serviceid' => $serviceId);
         }
 
-        $DB->insert_records( LW_TABLE_EVENTS, $conditions );
+        $DB->insert_records(LW_TABLE_EVENTS, $conditions);
     }
 }

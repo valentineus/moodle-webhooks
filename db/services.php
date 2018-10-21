@@ -22,6 +22,6 @@
  * @package   local_webhooks
  */
 
-defined( "MOODLE_INTERNAL" ) || die();
+defined('MOODLE_INTERNAL') || die();
 
 $functions = array();

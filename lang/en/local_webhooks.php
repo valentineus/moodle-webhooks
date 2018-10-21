@@ -22,4 +22,4 @@
  * @package   local_webhooks
  */
 
-$string[ "pluginname" ] = "WebHooks";
+$string['pluginname'] = 'WebHooks';

@@ -22,9 +22,9 @@
  * @package   local_webhooks
  */
 
-defined( "MOODLE_INTERNAL" ) || die();
+defined('MOODLE_INTERNAL') || die();
 
-require_once( $CFG->libdir . "/externallib.php" );
+require_once $CFG->libdir . '/externallib.php';
 
 /**
  * External functions.
