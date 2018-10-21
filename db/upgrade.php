@@ -17,35 +17,50 @@
 /**
  * Keeps track of upgrades to the 'local_webhooks' plugin.
  *
- * @package   local_webhooks
- * @copyright 2017 "Valentin Popov" <info@valentineus.link>
+ * @copyright 2018 'Valentin Popov' <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   local_webhooks
  */
 
-defined("MOODLE_INTERNAL") || die();
-
-require_once(__DIR__ . "/../lib.php");
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * Function to upgrade 'local_webhooks'.
  *
- * @param  number  $oldversion
+ * @param int $oldversion
+ *
  * @return boolean
+ * @throws \dml_exception
+ * @throws \downgrade_exception
+ * @throws \upgrade_exception
  */
-function xmldb_local_webhooks_upgrade($oldversion) {
-    global $CFG, $DB;
+function xmldb_local_webhooks_upgrade($oldversion = 0) {
+    global $DB;
 
-    /* Update from version 3.0.0 */
-    if ($oldversion < 2017112600) {
-        $rs = $DB->get_recordset("local_webhooks_service", null, "id", "*", 0, 0);
+    /* Update from versions 3.* */
+    if ($oldversion < 2017112600 || $oldversion === 2018061900) {
+        $rs = $DB->get_recordset('local_webhooks_service', null, 'id', '*', 0, 0);
         foreach ($rs as $record) {
             if (!empty($record->events)) {
                 $record->events = unserialize(gzuncompress(base64_decode($record->events)));
-                local_webhooks_update_record($record);
+                // TODO: This method does not exist
+                // local_webhooks_update_record( $record );
             }
         }
         $rs->close();
-        upgrade_plugin_savepoint(true, 2017112600, "local", "webhooks");
+        upgrade_plugin_savepoint(true, 2017112600, 'local', 'webhooks');
+    }
+
+    /* Update from version 4.0.0-rc.1 */
+    if ($oldversion === 2017122900) {
+    }
+
+    /* Update from version 4.0.0-rc.2 */
+    if ($oldversion === 2018022200) {
+    }
+
+    /* Update from version 4.0.0-rc.3 */
+    if ($oldversion === 2018022500) {
     }
 
     return true;
