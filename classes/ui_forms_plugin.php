@@ -36,10 +36,10 @@ require_once($CFG->libdir . '/formslib.php');
  */
 class local_webhooks_service_edit_form extends moodleform {
     /**
-     * @param string $base_url
+     * @param string $baseurl
      */
-    public function __construct($base_url) {
-        parent::__construct($base_url);
+    public function __construct($baseurl) {
+        parent::__construct($baseurl);
     }
 
     /**
@@ -48,55 +48,55 @@ class local_webhooks_service_edit_form extends moodleform {
      * @throws \coding_exception
      */
     protected function definition() {
-        $m_form =& $this->_form;
+        $mform =& $this->_form;
         $size = array('size' => 60);
 
         /* Form heading */
-        $m_form->addElement('header', 'edit-service-header-main', new lang_string('service', 'webservice'));
+        $mform->addElement('header', 'edit-service-header-main', new lang_string('service', 'webservice'));
 
         /* Name of the service */
-        $m_form->addElement('text', 'name', new lang_string('name', 'moodle'), $size);
-        $m_form->addRule('name', null, 'required');
-        $m_form->setType('name', PARAM_RAW);
+        $mform->addElement('text', 'name', new lang_string('name', 'moodle'), $size);
+        $mform->addRule('name', null, 'required');
+        $mform->setType('name', PARAM_RAW);
 
         /* Callback address */
-        $m_form->addElement('text', 'point', new lang_string('url', 'moodle'), $size);
-        $m_form->addRule('point', null, 'required');
-        $m_form->setType('point', PARAM_URL);
+        $mform->addElement('text', 'point', new lang_string('url', 'moodle'), $size);
+        $mform->addRule('point', null, 'required');
+        $mform->setType('point', PARAM_URL);
 
         /* Enabling the service */
-        $m_form->addElement('advcheckbox', 'status', new lang_string('enable', 'moodle'));
-        $m_form->setType('status', PARAM_BOOL);
-        $m_form->setDefault('status', 1);
-        $m_form->setAdvanced('status');
+        $mform->addElement('advcheckbox', 'status', new lang_string('enable', 'moodle'));
+        $mform->setType('status', PARAM_BOOL);
+        $mform->setDefault('status', 1);
+        $mform->setAdvanced('status');
 
         /* Token */
-        $m_form->addElement('text', 'token', new lang_string('token', 'webservice'), $size);
-        $m_form->addRule('token', null, 'required');
-        $m_form->setType('token', PARAM_RAW);
+        $mform->addElement('text', 'token', new lang_string('token', 'webservice'), $size);
+        $mform->addRule('token', null, 'required');
+        $mform->setType('token', PARAM_RAW);
 
         /* Content type */
-        $content_type = array(
+        $contenttype = array(
             'application/json'                  => 'application/json',
             'application/x-www-form-urlencoded' => 'application/x-www-form-urlencoded',
         );
 
-        $m_form->addElement('select', 'header', 'Content-Type', $content_type);
-        $m_form->setAdvanced('header');
+        $mform->addElement('select', 'header', 'Content-Type', $contenttype);
+        $mform->setAdvanced('header');
 
         /* Form heading */
-        $m_form->addElement('header', 'edit-service-header-event', new lang_string('edulevel', 'moodle'));
+        $mform->addElement('header', 'edit-service-header-event', new lang_string('edulevel', 'moodle'));
 
         /* List of events */
-        $event_list = report_eventlist_list_generator::get_all_events_list(true);
+        $eventlist = report_eventlist_list_generator::get_all_events_list(true);
 
         $events = array();
-        foreach ($event_list as $event) {
-            $events[$event['component']][] =& $m_form->createElement('checkbox', $event['eventname'], $event['eventname']);
+        foreach ($eventlist as $event) {
+            $events[$event['component']][] =& $mform->createElement('checkbox', $event['eventname'], $event['eventname']);
         }
 
         foreach ($events as $key => $event) {
-            $m_form->addGroup($event, 'events', $key, '<br />', true);
+            $mform->addGroup($event, 'events', $key, '<br />', true);
         }
 
         /* Control Panel */

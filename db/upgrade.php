@@ -27,18 +27,18 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Function to upgrade 'local_webhooks'.
  *
- * @param int $old_version
+ * @param int $oldversion
  *
  * @return boolean
  * @throws \dml_exception
  * @throws \downgrade_exception
  * @throws \upgrade_exception
  */
-function xmldb_local_webhooks_upgrade($old_version = 0) {
+function xmldb_local_webhooks_upgrade($oldversion = 0) {
     global $DB;
 
     /* Update from versions 3.* */
-    if ($old_version < 2017112600 || $old_version === 2018061900) {
+    if ($oldversion < 2017112600 || $oldversion === 2018061900) {
         $rs = $DB->get_recordset('local_webhooks_service', null, 'id', '*', 0, 0);
 
         foreach ($rs as $record) {
@@ -55,15 +55,15 @@ function xmldb_local_webhooks_upgrade($old_version = 0) {
 
     /* Update from version 4.0.0-rc.1 */
 
-    /* if ($old_version === 2017122900) {} */
+    /* if ($oldversion === 2017122900) {} */
 
     /* Update from version 4.0.0-rc.2 */
 
-    /* if ($old_version === 2018022200) {} */
+    /* if ($oldversion === 2018022200) {} */
 
     /* Update from version 4.0.0-rc.3 */
 
-    /* if ($old_version === 2018022500) {} */
+    /* if ($oldversion === 2018022500) {} */
 
     return true;
 }

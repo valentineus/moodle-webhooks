@@ -38,21 +38,21 @@ class local_webhooks_api {
     /**
      * Get information about the service.
      *
-     * @param int $service_id
+     * @param int $serviceid
      *
      * @return object
      * @throws \dml_exception
      * @throws \moodle_exception
      */
-    public static function get_service($service_id = 0) {
+    public static function get_service($serviceid = 0) {
         global $DB;
 
-        if (!is_numeric($service_id) || $service_id === 0) {
-            print_error('unknowparamtype', 'error', null, 'service_id');
+        if (!is_numeric($serviceid) || $serviceid === 0) {
+            print_error('unknowparamtype', 'error', null, 'serviceid');
         }
 
-        $service = $DB->get_record(LW_TABLE_SERVICES, array('id' => $service_id), '*', MUST_EXIST);
-        $events = $DB->get_records(LW_TABLE_EVENTS, array('serviceid' => $service_id), '', '*', 0, 0);
+        $service = $DB->get_record(LW_TABLE_SERVICES, array('id' => $serviceid), '*', MUST_EXIST);
+        $events = $DB->get_records(LW_TABLE_EVENTS, array('serviceid' => $serviceid), '', '*', 0, 0);
 
         $service->events = array();
         foreach ($events as $event) {
@@ -67,16 +67,16 @@ class local_webhooks_api {
      * By default, the entire list of services is given.
      *
      * @param array $conditions
-     * @param int   $limit_from
-     * @param int   $limit_num
+     * @param int   $limitfrom
+     * @param int   $limitnum
      *
      * @return array
      * @throws \dml_exception
      */
-    public static function get_services(array $conditions = array(), $limit_from = 0, $limit_num = 0) {
+    public static function get_services(array $conditions = array(), $limitfrom = 0, $limitnum = 0) {
         global $DB;
 
-        $services = $DB->get_records(LW_TABLE_SERVICES, $conditions, '', '*', $limit_from, $limit_num);
+        $services = $DB->get_records(LW_TABLE_SERVICES, $conditions, '', '*', $limitfrom, $limitnum);
 
         foreach ($services as $service) {
             $events = $DB->get_records(LW_TABLE_EVENTS, array('serviceid' => $service->id), '', '*', 0, 0);
@@ -93,20 +93,20 @@ class local_webhooks_api {
     /**
      * Get the list of services subscribed to the event.
      *
-     * @param string $event_name
+     * @param string $eventname
      *
      * @return array
      * @throws \dml_exception
      * @throws \moodle_exception
      */
-    public static function get_services_by_event($event_name = '') {
+    public static function get_services_by_event($eventname = '') {
         global $DB;
 
-        if (!is_string($event_name) || $event_name === '') {
-            print_error('unknowparamtype', 'error', null, 'event_name');
+        if (!is_string($eventname) || $eventname === '') {
+            print_error('unknowparamtype', 'error', null, 'eventname');
         }
 
-        $events = $DB->get_records(LW_TABLE_EVENTS, array('name' => $event_name), '', '*', 0, 0);
+        $events = $DB->get_records(LW_TABLE_EVENTS, array('name' => $eventname), '', '*', 0, 0);
 
         $services = array();
         foreach ($events as $event) {
@@ -132,37 +132,37 @@ class local_webhooks_api {
             print_error('unknowparamtype', 'error', null, 'service');
         }
 
-        $service_id = $DB->insert_record(LW_TABLE_SERVICES, (object) $service, true, false);
-        if ($service_id && !empty($service['events']) && is_array($service['events'])) {
-            self::insert_events($service['events'], $service_id);
+        $serviceid = $DB->insert_record(LW_TABLE_SERVICES, (object) $service, true, false);
+        if ($serviceid && !empty($service['events']) && is_array($service['events'])) {
+            self::insert_events($service['events'], $serviceid);
         }
 
         // TODO: Mark the log.
 
-        return (int) $service_id;
+        return (int) $serviceid;
     }
 
     /**
      * Delete the service data from the database.
      *
-     * @param  int $service_id
+     * @param  int $serviceid
      *
      * @return bool
      * @throws \dml_exception
      * @throws \moodle_exception
      */
-    public static function delete_service($service_id = 0) {
+    public static function delete_service($serviceid = 0) {
         global $DB;
 
-        if (!is_numeric($service_id) || $service_id === 0) {
-            print_error('unknowparamtype', 'error', null, 'service_id');
+        if (!is_numeric($serviceid) || $serviceid === 0) {
+            print_error('unknowparamtype', 'error', null, 'serviceid');
         }
 
         // TODO: Mark the log.
 
-        $DB->delete_records(LW_TABLE_EVENTS, array('serviceid' => $service_id));
+        $DB->delete_records(LW_TABLE_EVENTS, array('serviceid' => $serviceid));
 
-        return $DB->delete_records(LW_TABLE_SERVICES, array('id' => $service_id));
+        return $DB->delete_records(LW_TABLE_SERVICES, array('id' => $serviceid));
     }
 
     /**
@@ -198,17 +198,17 @@ class local_webhooks_api {
      * Save the list of events to the database.
      *
      * @param array $events
-     * @param int   $service_id
+     * @param int   $serviceid
      *
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    protected static function insert_events(array $events = array(), $service_id = 0) {
+    protected static function insert_events(array $events = array(), $serviceid = 0) {
         global $DB;
 
         $conditions = array();
-        foreach ($events as $event_name) {
-            $conditions[] = array('name' => $event_name, 'serviceid' => $service_id);
+        foreach ($events as $eventname) {
+            $conditions[] = array('name' => $eventname, 'serviceid' => $serviceid);
         }
 
         $DB->insert_records(LW_TABLE_EVENTS, $conditions);

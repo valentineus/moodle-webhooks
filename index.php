@@ -28,47 +28,47 @@ require_once($CFG->dirroot . '/local/webhooks/classes/ui_tables_plugin.php');
 require_once($CFG->dirroot . '/local/webhooks/lib.php');
 require_once($CFG->libdir . '/adminlib.php');
 
-$delete_id = optional_param('deleteid', 0, PARAM_INT);
-$hide_show_id = optional_param('hideshowid', 0, PARAM_INT);
+$deleteid = optional_param('deleteid', 0, PARAM_INT);
+$hideshowid = optional_param('hideshowid', 0, PARAM_INT);
 
-$edit_page = '/local/webhooks/service.php';
-$main_page = '/local/webhooks/index.php';
-$base_url = new moodle_url($main_page);
+$editpage = '/local/webhooks/service.php';
+$mainpage = '/local/webhooks/index.php';
+$baseurl = new moodle_url($mainpage);
 
-admin_externalpage_setup('local_webhooks', '', null, $base_url, array());
+admin_externalpage_setup('local_webhooks', '', null, $baseurl, array());
 $context = context_system::instance();
 
 /* Remove the service */
-if (!empty($delete_id) && confirm_sesskey()) {
-    local_webhooks_api::delete_service($delete_id);
+if (!empty($deleteid) && confirm_sesskey()) {
+    local_webhooks_api::delete_service($deleteid);
     redirect($PAGE->url, new lang_string('deleted', 'moodle'));
 }
 
 /* Disable / Enable the service */
-if (!empty($hide_show_id) && confirm_sesskey()) {
-    $service = local_webhooks_api::get_service($hide_show_id);
+if (!empty($hideshowid) && confirm_sesskey()) {
+    $service = local_webhooks_api::get_service($hideshowid);
     $service->status = !(bool) $service->status;
     local_webhooks_api::update_service((array) $service);
     redirect($PAGE->url, new lang_string('changessaved', 'moodle'));
 }
 
 /* The page title */
-$title_page = new lang_string('pluginname', 'local_webhooks');
-$PAGE->set_heading($title_page);
-$PAGE->set_title($title_page);
+$titlepage = new lang_string('pluginname', 'local_webhooks');
+$PAGE->set_heading($titlepage);
+$PAGE->set_title($titlepage);
 echo $OUTPUT->header();
 
 /* Displays the table */
 $table = new local_webhooks_services_table('local-webhooks-table');
-$table->define_baseurl($base_url);
+$table->define_baseurl($baseurl);
 $table->out(25, true);
 
 /* Separation */
 echo html_writer::empty_tag('br');
 
 /* Adds the add button */
-$add_service_url = new moodle_url($edit_page, array('sesskey' => sesskey()));
-echo $OUTPUT->single_button($add_service_url, new lang_string('add', 'moodle'));
+$addserviceurl = new moodle_url($editpage, array('sesskey' => sesskey()));
+echo $OUTPUT->single_button($addserviceurl, new lang_string('add', 'moodle'));
 
 /* Footer */
 echo $OUTPUT->footer();
