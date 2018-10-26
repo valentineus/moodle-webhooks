@@ -25,11 +25,93 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
+ * Create a table local_webhooks_events.
+ *
+ * @throws \ddl_exception
+ */
+function create_table_events() {
+    global $DB;
+
+    // Loads ddl manager and xmldb classes.
+    $dbman = $DB->get_manager();
+
+    // Define table local_webhooks_events to be created.
+    $table = new xmldb_table('local_webhooks_events');
+
+    // Adding fields to table local_webhooks_events.
+    $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+    $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+    $table->add_field('serviceid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+    // Adding keys to table local_webhooks_events.
+    $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+    // Conditionally launch create table for local_webhooks_events.
+    if (!$dbman->table_exists($table)) {
+        $dbman->create_table($table);
+    }
+}
+
+/**
+ * Delete table local_webhooks_service.
+ *
+ * @throws \ddl_exception
+ * @throws \ddl_table_missing_exception
+ */
+function drop_table_service() {
+    global $DB;
+
+    // Loads ddl manager and xmldb classes.
+    $dbman = $DB->get_manager();
+
+    // Define table local_webhooks_service to be dropped.
+    $table = new xmldb_table('local_webhooks_service');
+
+    // Conditionally launch drop table for local_webhooks_service.
+    if ($dbman->table_exists($table)) {
+        $dbman->drop_table($table);
+    }
+}
+
+/**
+ * Create a table local_webhooks_service.
+ *
+ * @throws \ddl_exception
+ */
+function create_table_service() {
+    global $DB;
+
+    // Loads ddl manager and xmldb classes.
+    $dbman = $DB->get_manager();
+
+    // Define table local_webhooks_service to be created.
+    $table = new xmldb_table('local_webhooks_service');
+
+    // Adding fields to table local_webhooks_service.
+    $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+    $table->add_field('header', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, 'application/json');
+    $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+    $table->add_field('point', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+    $table->add_field('status', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+    $table->add_field('token', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+
+    // Adding keys to table local_webhooks_service.
+    $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+    // Conditionally launch create table for local_webhooks_service.
+    if (!$dbman->table_exists($table)) {
+        $dbman->create_table($table);
+    }
+}
+
+/**
  * Function to upgrade 'local_webhooks'.
  *
  * @param int $oldversion
  *
- * @return boolean
+ * @return bool
+ * @throws \ddl_exception
+ * @throws \ddl_table_missing_exception
  * @throws \dml_exception
  * @throws \downgrade_exception
  * @throws \upgrade_exception
@@ -39,18 +121,53 @@ function xmldb_local_webhooks_upgrade($oldversion = 0) {
 
     /* Update from versions 3.* */
     if ($oldversion < 2017112600 || $oldversion === 2018061900) {
-        $rs = $DB->get_recordset('local_webhooks_service', null, 'id', '*', 0, 0);
+        $records = $DB->get_records('local_webhooks_service', null, 'id', '*', 0, 0);
 
-        foreach ($rs as $record) {
+        $services = array();
+
+        foreach ($records as $record) {
             if (!empty($record->events)) {
                 $record->events = unserialize(gzuncompress(base64_decode($record->events)));
-                // TODO: This method does not exist.
-                /* local_webhooks_update_record( $record ); */
+            }
+
+            $service = array(
+                'name'   => $record->title,
+                'point'  => $record->url,
+                'status' => (bool) $record->enable,
+                'token'  => $record->token,
+            );
+
+            if ($record->type === 'json') {
+                $service['header'] = 'application/json';
+            } else {
+                $service['header'] = 'application/x-www-form-urlencoded';
+            }
+
+            foreach ($record->events as $eventname => $eventStatus) {
+                if ((bool) $eventStatus) {
+                    $service['events'][] = $eventname;
+                }
+            }
+
+            $services[] = $service;
+        }
+
+        /* Update structure */
+        drop_table_service();
+        create_table_events();
+        create_table_service();
+
+        /* Saving records */
+        foreach ($services as $service) {
+            $serviceid = $DB->insert_record('local_webhooks_service', (object) $service, true, false);
+            if ($serviceid && is_array($service['events'])) {
+                foreach ($service['events'] as $eventname) {
+                    $DB->insert_record('local_webhooks_events', (object) array('name' => $eventname, 'serviceid' => $serviceid), true, false);
+                }
             }
         }
 
-        $rs->close();
-        upgrade_plugin_savepoint(true, 2017112600, 'local', 'webhooks');
+        upgrade_plugin_savepoint(true, 2018061900, 'local', 'webhooks');
     }
 
     /* Update from version 4.0.0-rc.1 */
