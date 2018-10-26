@@ -105,6 +105,26 @@ function create_table_service() {
 }
 
 /**
+ * Save data to database.
+ *
+ * @param $records
+ *
+ * @throws \dml_exception
+ */
+function save_records($records) {
+    global $DB;
+
+    foreach ($records as $record) {
+        $recordid = $DB->insert_record('local_webhooks_service', (object) $record, true, false);
+        if ($recordid && is_array($record['events'])) {
+            foreach ($record['events'] as $eventname) {
+                $DB->insert_record('local_webhooks_events', (object) array('name' => $eventname, 'serviceid' => $recordid), true, false);
+            }
+        }
+    }
+}
+
+/**
  * Function to upgrade 'local_webhooks'.
  *
  * @param int $oldversion
@@ -143,8 +163,8 @@ function xmldb_local_webhooks_upgrade($oldversion = 0) {
                 $service['header'] = 'application/x-www-form-urlencoded';
             }
 
-            foreach ($record->events as $eventname => $eventStatus) {
-                if ((bool) $eventStatus) {
+            foreach ($record->events as $eventname => $eventstatus) {
+                if ((bool) $eventstatus) {
                     $service['events'][] = $eventname;
                 }
             }
@@ -158,29 +178,54 @@ function xmldb_local_webhooks_upgrade($oldversion = 0) {
         create_table_service();
 
         /* Saving records */
-        foreach ($services as $service) {
-            $serviceid = $DB->insert_record('local_webhooks_service', (object) $service, true, false);
-            if ($serviceid && is_array($service['events'])) {
-                foreach ($service['events'] as $eventname) {
-                    $DB->insert_record('local_webhooks_events', (object) array('name' => $eventname, 'serviceid' => $serviceid), true, false);
-                }
-            }
-        }
+        save_records($services);
 
         upgrade_plugin_savepoint(true, 2018061900, 'local', 'webhooks');
     }
 
-    /* Update from version 4.0.0-rc.1 */
+    /* Update from version 4.0.0-rc.* */
+    if ($oldversion === 2017122900 || $oldversion === 2018022200 || $oldversion === 2018022500) {
+        $records = $DB->get_records('local_webhooks_service', null, 'id', '*', 0, 0);
 
-    /* if ($oldversion === 2017122900) {} */
+        $services = array();
 
-    /* Update from version 4.0.0-rc.2 */
+        foreach ($records as $record) {
+            if (!empty($record->events)) {
+                $record->events = unserialize($record->events);
+            }
 
-    /* if ($oldversion === 2018022200) {} */
+            $service = array(
+                'name'   => $record->title,
+                'point'  => $record->url,
+                'status' => (bool) $record->enable,
+                'token'  => $record->token,
+            );
 
-    /* Update from version 4.0.0-rc.3 */
+            if ($record->type === 'json') {
+                $service['header'] = 'application/json';
+            } else {
+                $service['header'] = 'application/x-www-form-urlencoded';
+            }
 
-    /* if ($oldversion === 2018022500) {} */
+            foreach ($record->events as $eventname => $eventstatus) {
+                if ((bool) $eventstatus) {
+                    $service['events'][] = $eventname;
+                }
+            }
+
+            $services[] = $service;
+        }
+
+        /* Update structure */
+        drop_table_service();
+        create_table_events();
+        create_table_service();
+
+        /* Saving records */
+        save_records($services);
+
+        upgrade_plugin_savepoint(true, 2018022500, 'local', 'webhooks');
+    }
 
     return true;
 }
