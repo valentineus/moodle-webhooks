@@ -118,7 +118,8 @@ function save_records($records) {
         $recordid = $DB->insert_record('local_webhooks_service', (object) $record, true, false);
         if ($recordid && is_array($record['events'])) {
             foreach ($record['events'] as $eventname) {
-                $DB->insert_record('local_webhooks_events', (object) array('name' => $eventname, 'serviceid' => $recordid), true, false);
+                $event = array('name' => $eventname, 'serviceid' => $recordid);
+                $DB->insert_record('local_webhooks_events', (object) $event, true, false);
             }
         }
     }
