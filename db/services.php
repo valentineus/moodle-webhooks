@@ -24,4 +24,28 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$functions = array();
+$functions = array(
+    'local_webhooks_get_service' => array(
+        'classname'   => 'local_webhooks_external',
+        'classpath'   => 'local/webhooks/externallib.php',
+        'description' => 'Get information about the service.',
+        'methodname'  => 'get_service',
+        'type'        => 'read',
+    ),
+
+    'local_webhooks_get_services' => array(
+        'classname'   => 'local_webhooks_external',
+        'classpath'   => 'local/webhooks/externallib.php',
+        'description' => 'Get a list of services.',
+        'methodname'  => 'get_services',
+        'type'        => 'read',
+    ),
+
+    'local_webhooks_get_services_by_event' => array(
+        'classname'   => 'local_webhooks_external',
+        'classpath'   => 'local/webhooks/externallib.php',
+        'description' => 'Get the list of services subscribed to the event.',
+        'methodname'  => 'get_services_by_event',
+        'type'        => 'read',
+    ),
+);
