@@ -155,4 +155,70 @@ class local_webhooks_external extends external_api {
             )
         );
     }
+
+    /**
+     * Returns description of method parameters.
+     *
+     * @return \external_function_parameters
+     *
+     * @since Moodle 2.2
+     * @since Moodle 2.9 Options available
+     */
+    public static function get_services_by_event_parameters() {
+        return new external_function_parameters(
+            array(
+                'eventname' => new external_value(PARAM_RAW, 'Event name.'),
+            )
+        );
+    }
+
+    /**
+     * Get the list of services subscribed to the event.
+     *
+     * @param $eventname
+     *
+     * @return array
+     *
+     * @since Moodle 2.2
+     * @since Moodle 2.9 Options available
+     *
+     * @throws \dml_exception
+     * @throws \invalid_parameter_exception
+     * @throws \moodle_exception
+     * @throws \restricted_context_exception
+     */
+    public static function get_services_by_event($eventname) {
+        $parameters = self::validate_parameters(self::get_services_by_event_parameters(), array('eventname' => $eventname));
+
+        $context = context_system::instance();
+        self::validate_context($context);
+
+        return local_webhooks_api::get_services_by_event($parameters['eventname']);
+    }
+
+    /**
+     * Returns description of method result value.
+     *
+     * @return \external_multiple_structure
+     *
+     * @since Moodle 2.2
+     * @since Moodle 2.9 Options available
+     */
+    public static function get_services_by_event_returns() {
+        return new external_multiple_structure(
+            new external_single_structure(
+                array(
+                    'id'     => new external_value(PARAM_INT, 'Service ID.'),
+                    'header' => new external_value(PARAM_RAW, 'Type of outgoing header.'),
+                    'name'   => new external_value(PARAM_RAW, 'Name of the service.'),
+                    'point'  => new external_value(PARAM_URL, 'Point of delivery of notifications.'),
+                    'status' => new external_value(PARAM_BOOL, 'Current status of the service.'),
+                    'token'  => new external_value(PARAM_RAW, 'Token for verification of requests.'),
+                    'events' => new external_multiple_structure(
+                        new external_value(PARAM_RAW, 'Event name.'), 'List of events.'
+                    ),
+                )
+            )
+        );
+    }
 }
