@@ -56,7 +56,7 @@ class local_webhooks_external extends external_api {
      *
      * @param $serviceid
      *
-     * @return array
+     * @return object
      *
      * @since Moodle 2.2
      * @since Moodle 2.9 Options available
@@ -72,7 +72,7 @@ class local_webhooks_external extends external_api {
         $context = context_system::instance();
         self::validate_context($context);
 
-        return (array) local_webhooks_api::get_service($parameters['serviceid']);
+        return local_webhooks_api::get_service($parameters['serviceid']);
     }
 
     /**
