@@ -52,11 +52,36 @@ if ($mform->is_cancelled()) {
 $servicerecord = new stdClass();
 if ($editing = (bool) $serviceid) {
     $servicerecord = local_webhooks_get_record($serviceid);
+
+    if (is_array($servicerecord->events)) {
+        $events = array();
+
+        /* Escaping event names */
+        foreach ($servicerecord->events as $eventname => $eventstatus) {
+            $eventname = base64_encode($eventname);
+            $events[$eventname] = $eventstatus;
+        }
+
+        $servicerecord->events = $events;
+    }
+
     $mform->set_data($servicerecord);
 }
 
 /* Processing of received data */
 if ($data = $mform->get_data()) {
+    if (is_array($data->events)) {
+        $events = array();
+
+        /* Deciphering event names */
+        foreach ($data->events as $eventname => $eventstatus) {
+            $eventname = (string) base64_decode($eventname);
+            $events[$eventname] = $eventstatus;
+        }
+
+        $data->events = $events;
+    }
+
     if ($editing) {
         $data->id = $serviceid;
         local_webhooks_update_record($data, false);
