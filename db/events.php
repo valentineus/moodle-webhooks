@@ -26,10 +26,10 @@ defined('MOODLE_INTERNAL') || die();
 
 $observers = array(
     array(
-        "callback"    => "\local_webhooks\\handler::events",
-        "eventname"   => "*",
-        "includefile" => null,
-        "internal"    => true,
-        "priority"    => 200
-    )
+        'callback'    => '\local_webhooks\handler::events',
+        'eventname'   => '*',
+        'includefile' => null,
+        'internal'    => true,
+        'priority'    => 200,
+    ),
 );

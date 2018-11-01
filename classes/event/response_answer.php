@@ -26,40 +26,48 @@ namespace local_webhooks\event;
 
 defined('MOODLE_INTERNAL') || die();
 
+use core\event\base;
+use lang_string;
+use moodle_url;
+
 /**
  * Defines how to work with events.
  *
  * @copyright 2017 "Valentin Popov" <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class response_answer extends \core\event\base {
-    /**
-     * Init method.
-     */
-    protected function init() {
-        $this->data["crud"]        = "r";
-        $this->data["edulevel"]    = self::LEVEL_OTHER;
-        $this->data["objecttable"] = "local_webhooks_service";
-    }
-
+class response_answer extends base {
     /**
      * Return localised event name.
+     *
+     * @throws \coding_exception
      */
     public static function get_name() {
-        return new \lang_string("answer", "moodle");
+        return new lang_string('answer', 'moodle');
     }
 
     /**
      * Returns description of what happened.
      */
     public function get_description() {
-        return $this->other["status"];
+        return $this->other['status'];
     }
 
     /**
      * Get URL related to the action.
+     *
+     * @throws \moodle_exception
      */
     public function get_url() {
-        return new \moodle_url("/local/webhooks/editservice.php", array("serviceid" => $this->objectid));
+        return new moodle_url('/local/webhooks/editservice.php', array('serviceid' => $this->objectid));
+    }
+
+    /**
+     * Init method.
+     */
+    protected function init() {
+        $this->data['crud'] = 'r';
+        $this->data['edulevel'] = self::LEVEL_OTHER;
+        $this->data['objecttable'] = 'local_webhooks_service';
     }
 }

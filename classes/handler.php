@@ -26,10 +26,15 @@ namespace local_webhooks;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__ . "/../lib.php");
-require_once(__DIR__ . "/../locallib.php");
+global $CFG;
 
-require_once($CFG->libdir . "/filelib.php");
+require_once(__DIR__ . '/../lib.php');
+require_once(__DIR__ . '/../locallib.php');
+
+require_once($CFG->libdir . '/filelib.php');
+
+use curl;
+use local_webhooks_events;
 
 /**
  * Defines how to work with events.
@@ -42,6 +47,9 @@ class handler {
      * External handler.
      *
      * @param object $event
+     *
+     * @throws \dml_exception
+     * @throws \coding_exception
      */
     public static function events($event) {
         $data = $event->get_data();
@@ -58,20 +66,21 @@ class handler {
      *
      * @param array  $data
      * @param object $callback
+     *
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
     private static function handler_callback($data, $callback) {
         global $CFG;
 
-        if (boolval($callback->enable)) {
-            if (!empty($callback->events[$data["eventname"]])) {
-                $urlparse = parse_url($CFG->wwwroot);
+        if ((bool) $callback->enable && !empty($callback->events[$data['eventname']])) {
+            $urlparse = parse_url($CFG->wwwroot);
 
-                $data["host"] = $urlparse['host'];
-                $data["token"] = $callback->token;
-                $data["extra"] = $callback->other;
+            $data['host'] = $urlparse['host'];
+            $data['token'] = $callback->token;
+            $data['extra'] = $callback->other;
 
-                self::send($data, $callback);
-            }
+            self::send($data, $callback);
         }
     }
 
@@ -80,14 +89,19 @@ class handler {
      *
      * @param array  $data
      * @param object $callback
+     *
+     * @return array
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
     private static function send($data, $callback) {
-        $curl = new \curl();
-        $curl->setHeader(array("Content-Type: application/" . $callback->type));
+        $curl = new curl();
+        $curl->setHeader(array('Content-Type: application/' . $callback->type));
         $curl->post($callback->url, json_encode($data));
 
         $response = $curl->getResponse();
-        \local_webhooks_events::response_answer($callback->id, $response);
+        local_webhooks_events::response_answer($callback->id, $response);
+
         return $response;
     }
 }

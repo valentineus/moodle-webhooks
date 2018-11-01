@@ -22,18 +22,18 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__ . "/../../config.php");
-require_once(__DIR__ . "/classes/service_form.php");
-require_once(__DIR__ . "/lib.php");
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/classes/service_form.php');
+require_once(__DIR__ . '/lib.php');
 
-require_once($CFG->libdir . "/adminlib.php");
+require_once($CFG->libdir . '/adminlib.php');
 
 /* Link generation */
-$baseurl        = new moodle_url("/local/webhooks/restorebackup.php");
-$managerservice = new moodle_url("/local/webhooks/index.php");
+$baseurl = new moodle_url('/local/webhooks/restorebackup.php');
+$managerservice = new moodle_url('/local/webhooks/index.php');
 
 /* Configure the context of the page */
-admin_externalpage_setup("local_webhooks", "", null, $baseurl, array());
+admin_externalpage_setup('local_webhooks', '', null, $baseurl);
 $context = context_system::instance();
 
 /* Create an editing form */
@@ -46,13 +46,13 @@ if ($mform->is_cancelled()) {
 
 /* Processing the received file */
 if ($data = $mform->get_data()) {
-    $content = $mform->get_file_content("backupfile");
+    $content = $mform->get_file_content('backupfile');
     local_webhooks_restore_backup($content);
-    redirect($managerservice, new lang_string("restorefinished", "moodle"));
+    redirect($managerservice, new lang_string('restorefinished', 'moodle'));
 }
 
 /* The page title */
-$titlepage = new lang_string("backup", "moodle");
+$titlepage = new lang_string('backup', 'moodle');
 $PAGE->navbar->add($titlepage);
 $PAGE->set_heading($titlepage);
 $PAGE->set_title($titlepage);

@@ -33,14 +33,17 @@ defined('MOODLE_INTERNAL') || die();
 class local_webhooks_events {
     /**
      * Call the event when creating a backup.
+     *
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
     public static function backup_performed() {
         $context = context_system::instance();
 
         $event = local_webhooks\event\backup_performed::create(
             array(
-                "context"  => $context,
-                "objectid" => 0
+                'context'  => $context,
+                'objectid' => 0,
             )
         );
 
@@ -49,14 +52,17 @@ class local_webhooks_events {
 
     /**
      * Call the event when restoring from a backup.
+     *
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
     public static function backup_restored() {
         $context = context_system::instance();
 
         $event = local_webhooks\event\backup_restored::create(
             array(
-                "context"  => $context,
-                "objectid" => 0
+                'context'  => $context,
+                'objectid' => 0,
             )
         );
 
@@ -66,22 +72,25 @@ class local_webhooks_events {
     /**
      * Call event when the response is received from the service
      *
-     * @param number $objectid Service ID
-     * @param array  $response Server response
+     * @param int   $objectid Service ID
+     * @param array $response Server response
+     *
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
-    public static function response_answer($objectid = 0, $response = array()) {
+    public static function response_answer($objectid = 0, array $response = array()) {
         $context = context_system::instance();
 
-        $status = "Error sending request";
-        if (!empty($response["HTTP/1.1"])) {
-            $status = $response["HTTP/1.1"];
+        $status = 'Error sending request';
+        if (!empty($response['HTTP/1.1'])) {
+            $status = $response['HTTP/1.1'];
         }
 
         $event = local_webhooks\event\response_answer::create(
             array(
-                "context"  => $context,
-                "objectid" => $objectid,
-                "other"    => array("status" => $status)
+                'context'  => $context,
+                'objectid' => $objectid,
+                'other'    => array('status' => $status),
             )
         );
 
@@ -91,16 +100,16 @@ class local_webhooks_events {
     /**
      * Call the event when the service is added.
      *
-     * @param number $objectid Service ID
+     * @param int $objectid Service ID
+     *
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
     public static function service_added($objectid = 0) {
         $context = context_system::instance();
 
         $event = local_webhooks\event\service_added::create(
-            array(
-                "context"  => $context,
-                "objectid" => $objectid
-            )
+            compact('context', 'objectid')
         );
 
         $event->trigger();
@@ -109,16 +118,16 @@ class local_webhooks_events {
     /**
      * Call the event when the service is deleted.
      *
-     * @param number $objectid Service ID
+     * @param int $objectid Service ID
+     *
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
     public static function service_deleted($objectid = 0) {
         $context = context_system::instance();
 
         $event = local_webhooks\event\service_deleted::create(
-            array(
-                "context"  => $context,
-                "objectid" => $objectid
-            )
+            compact('context', 'objectid')
         );
 
         $event->trigger();
@@ -127,16 +136,16 @@ class local_webhooks_events {
     /**
      * Call event when the service is updated.
      *
-     * @param number $objectid Service ID
+     * @param int $objectid Service ID
+     *
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
     public static function service_updated($objectid = 0) {
         $context = context_system::instance();
 
         $event = local_webhooks\event\service_updated::create(
-            array(
-                "context"  => $context,
-                "objectid" => $objectid
-            )
+            compact('context', 'objectid')
         );
 
         $event->trigger();

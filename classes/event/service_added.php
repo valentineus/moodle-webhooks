@@ -26,40 +26,50 @@ namespace local_webhooks\event;
 
 defined('MOODLE_INTERNAL') || die();
 
+use core\event\base;
+use lang_string;
+use moodle_url;
+
 /**
  * Defines how to work with events.
  *
  * @copyright 2017 "Valentin Popov" <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class service_added extends \core\event\base {
-    /**
-     * Init method.
-     */
-    protected function init() {
-        $this->data["crud"]        = "c";
-        $this->data["edulevel"]    = self::LEVEL_OTHER;
-        $this->data["objecttable"] = "local_webhooks_service";
-    }
-
+class service_added extends base {
     /**
      * Return localised event name.
+     *
+     * @throws \coding_exception
      */
     public static function get_name() {
-        return new \lang_string("create", "moodle");
+        return new lang_string('create', 'moodle');
     }
 
     /**
      * Returns description of what happened.
+     *
+     * @throws \coding_exception
      */
     public function get_description() {
-        return new \lang_string("eventwebserviceservicecreated", "webservice");
+        return new lang_string('eventwebserviceservicecreated', 'webservice');
     }
 
     /**
      * Get URL related to the action.
+     *
+     * @throws \moodle_exception
      */
     public function get_url() {
-        return new \moodle_url("/local/webhooks/editservice.php", array("serviceid" => $this->objectid));
+        return new moodle_url('/local/webhooks/editservice.php', array('serviceid' => $this->objectid));
+    }
+
+    /**
+     * Init method.
+     */
+    protected function init() {
+        $this->data['crud'] = 'c';
+        $this->data['edulevel'] = self::LEVEL_OTHER;
+        $this->data['objecttable'] = 'local_webhooks_service';
     }
 }

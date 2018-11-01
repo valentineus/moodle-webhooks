@@ -22,22 +22,22 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__ . "/../../config.php");
-require_once(__DIR__ . "/classes/service_form.php");
-require_once(__DIR__ . "/lib.php");
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/classes/service_form.php');
+require_once(__DIR__ . '/lib.php');
 
-require_once($CFG->libdir . "/adminlib.php");
+require_once($CFG->libdir . '/adminlib.php');
 
 /* Optional parameters */
-$serviceid = optional_param("serviceid", 0, PARAM_INT);
+$serviceid = optional_param('serviceid', 0, PARAM_INT);
 
 /* Link generation */
-$urlparameters  = array("serviceid" => $serviceid);
-$baseurl        = new moodle_url("/local/webhooks/editservice.php", $urlparameters);
-$managerservice = new moodle_url("/local/webhooks/index.php");
+$urlparameters = array('serviceid' => $serviceid);
+$baseurl = new moodle_url('/local/webhooks/editservice.php', $urlparameters);
+$managerservice = new moodle_url('/local/webhooks/index.php');
 
 /* Configure the context of the page */
-admin_externalpage_setup("local_webhooks", "", null, $baseurl, array());
+admin_externalpage_setup('local_webhooks', '', null, $baseurl);
 $context = context_system::instance();
 
 /* Create an editing form */
@@ -50,7 +50,7 @@ if ($mform->is_cancelled()) {
 
 /* Getting the data */
 $servicerecord = new stdClass();
-if ($editing = boolval($serviceid)) {
+if ($editing = (bool) $serviceid) {
     $servicerecord = local_webhooks_get_record($serviceid);
     $mform->set_data($servicerecord);
 }
@@ -60,15 +60,15 @@ if ($data = $mform->get_data()) {
     if ($editing) {
         $data->id = $serviceid;
         local_webhooks_update_record($data, false);
-        redirect($managerservice, new lang_string("eventwebserviceserviceupdated", "webservice"));
+        redirect($managerservice, new lang_string('eventwebserviceserviceupdated', 'webservice'));
     } else {
-        local_webhooks_update_record($data, true);
-        redirect($managerservice, new lang_string("eventwebserviceservicecreated", "webservice"));
+        local_webhooks_update_record($data);
+        redirect($managerservice, new lang_string('eventwebserviceservicecreated', 'webservice'));
     }
 }
 
 /* The page title */
-$titlepage = new lang_string("externalservice", "webservice");
+$titlepage = new lang_string('externalservice', 'webservice');
 $PAGE->navbar->add($titlepage);
 $PAGE->set_heading($titlepage);
 $PAGE->set_title($titlepage);
