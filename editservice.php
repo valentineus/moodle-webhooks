@@ -50,7 +50,7 @@ if ($mform->is_cancelled()) {
 
 /* Getting the data */
 $servicerecord = new stdClass();
-if ($editing = (bool) $serviceid) {
+if (($editing = (bool) $serviceid) === true) {
     $servicerecord = local_webhooks_get_record($serviceid);
 
     if (is_array($servicerecord->events)) {
@@ -69,7 +69,7 @@ if ($editing = (bool) $serviceid) {
 }
 
 /* Processing of received data */
-if ($data = $mform->get_data()) {
+if (!empty($data = $mform->get_data())) {
     if (is_array($data->events)) {
         $events = array();
 

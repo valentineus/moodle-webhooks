@@ -54,7 +54,7 @@ class handler {
     public static function events($event) {
         $data = $event->get_data();
 
-        if ($callbacks = local_webhooks_get_list_records()) {
+        if (!empty($callbacks = local_webhooks_get_list_records())) {
             foreach ($callbacks as $callback) {
                 self::handler_callback($data, $callback);
             }
