@@ -34,13 +34,6 @@ require_once($CFG->libdir . '/formslib.php');
  */
 class service_edit_form extends moodleform {
     /**
-     * @param string $baseurl
-     */
-    public function __construct($baseurl) {
-        parent::__construct($baseurl);
-    }
-
-    /**
      * Defines the standard structure of the form.
      *
      * @throws \coding_exception
@@ -113,13 +106,6 @@ class service_edit_form extends moodleform {
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class service_backup_form extends moodleform {
-    /**
-     * @param string $baseurl
-     */
-    public function __construct($baseurl) {
-        parent::__construct($baseurl);
-    }
-
     /**
      * Defines the standard structure of the form.
      *

@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-/** @var \admin_root $ADMIN */
+/* @var \admin_root $ADMIN */
 
 if ($hassiteconfig) {
     $ADMIN->add(
