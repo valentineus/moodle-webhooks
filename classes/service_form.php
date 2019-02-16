@@ -27,6 +27,33 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/formslib.php');
 
 /**
+ * Description of the form of restoration.
+ *
+ * @copyright 2017 "Valentin Popov" <info@valentineus.link>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class service_backup_form extends moodleform {
+    /**
+     * Defines the standard structure of the form.
+     *
+     * @throws \coding_exception
+     */
+    protected function definition() {
+        $mform =& $this->_form;
+
+        /* Form heading */
+        $mform->addElement('header', 'editserviceheader', new lang_string('restore', 'moodle'));
+
+        /* Download the file */
+        $mform->addElement('filepicker', 'backupfile', new lang_string('file', 'moodle'));
+        $mform->addRule('backupfile', null, 'required');
+
+        /* Control Panel */
+        $this->add_action_buttons(true, new lang_string('restore', 'moodle'));
+    }
+}
+
+/**
  * Description editing form definition.
  *
  * @copyright 2017 "Valentin Popov" <info@valentineus.link>
@@ -40,7 +67,7 @@ class service_edit_form extends moodleform {
      */
     protected function definition() {
         $mform =& $this->_form;
-        $size = array('size' => 60);
+        $size = [ 'size' => 60 ];
 
         /* Form heading */
         $mform->addElement('header', 'editserviceheader', new lang_string('service', 'webservice'));
@@ -71,7 +98,7 @@ class service_edit_form extends moodleform {
         $mform->setAdvanced('other');
 
         /* Content type */
-        $contenttype = array('json' => 'application/json', 'x-www-form-urlencoded' => 'application/x-www-form-urlencoded');
+        $contenttype = [ 'json' => 'application/json', 'x-www-form-urlencoded' => 'application/x-www-form-urlencoded' ];
         $mform->addElement('select', 'type', 'Content type', $contenttype);
         $mform->setAdvanced('type');
 
@@ -80,13 +107,13 @@ class service_edit_form extends moodleform {
 
         /* List of events */
         $eventlist = report_eventlist_list_generator::get_all_events_list();
-        $events = array();
+        $events = [];
 
         /* Formation of the list of elements */
         foreach ($eventlist as $event) {
             /* Escaping event names */
-            $eventname = base64_encode($event['eventname']);
-            $events[$event['component']][] =& $mform->createElement('checkbox', $eventname, $event['eventname']);
+            $eventname = base64_encode($event[ 'eventname' ]);
+            $events[ $event[ 'component' ] ][] =& $mform->createElement('checkbox', $eventname, $event[ 'eventname' ]);
         }
 
         /* Displays groups of items */
@@ -96,32 +123,5 @@ class service_edit_form extends moodleform {
 
         /* Control Panel */
         $this->add_action_buttons();
-    }
-}
-
-/**
- * Description of the form of restoration.
- *
- * @copyright 2017 "Valentin Popov" <info@valentineus.link>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-class service_backup_form extends moodleform {
-    /**
-     * Defines the standard structure of the form.
-     *
-     * @throws \coding_exception
-     */
-    protected function definition() {
-        $mform =& $this->_form;
-
-        /* Form heading */
-        $mform->addElement('header', 'editserviceheader', new lang_string('restore', 'moodle'));
-
-        /* Download the file */
-        $mform->addElement('filepicker', 'backupfile', new lang_string('file', 'moodle'));
-        $mform->addRule('backupfile', null, 'required');
-
-        /* Control Panel */
-        $this->add_action_buttons(true, new lang_string('restore', 'moodle'));
     }
 }
