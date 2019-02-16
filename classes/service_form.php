@@ -113,7 +113,7 @@ class service_edit_form extends moodleform {
         foreach ($eventlist as $event) {
             /* Escaping event names */
             $eventname = base64_encode($event[ 'eventname' ]);
-            $events[ $event[ 'component' ] ][] =& $mform->createElement('checkbox', $eventname, $event[ 'eventname' ]);
+            $events[ $event[ 'component' ] ][] =& $mform->createElement('checkbox', $eventname, $event[ 'eventname' ], $event[ 'eventname' ]);
         }
 
         /* Displays groups of items */
