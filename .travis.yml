@@ -4,10 +4,13 @@ sudo: true
 addons:
   firefox: "latest-esr"
   postgresql: "9.6"
+
   apt:
     packages:
-      - "oracle-java8-installer"
-      - "oracle-java8-set-default"
+      - "mysql-client-5.6"
+      - "mysql-client-core-5.6"
+      - "mysql-server-5.6"
+      - "openjdk-8-jre-headless"
 
 cache:
   directories:
@@ -15,13 +18,17 @@ cache:
     - "$HOME/.npm"
 
 php:
-  - 7.0
-  - 7.1
-  - 7.2
+  - "7.0"
+  - "7.1"
+  - "7.2"
 
 env:
   global:
+    - MOODLE_BRANCH=MOODLE_33_STABLE
+    - MOODLE_BRANCH=MOODLE_34_STABLE
     - MOODLE_BRANCH=MOODLE_35_STABLE
+    - MOODLE_BRANCH=MOODLE_36_STABLE
+
   matrix:
     - DB=mysqli
     - DB=pgsql
@@ -49,23 +56,3 @@ script:
   - moodle-plugin-ci grunt
   - moodle-plugin-ci phpunit
   - moodle-plugin-ci behat
-
-jobs:
-  include:
-    - stage: deploy
-      php: 7.2
-
-      before_deploy:
-        - cd "$TRAVIS_REPO_SLUG"
-        - git stash --all
-        - /bin/sh build.sh
-
-      deploy:
-        api_key: $GITHUB_PROJECT_TOKEN
-        email: "info@valentineus.link"
-        file: "build/*.zip"
-        file_glob: true
-        provider: releases
-        skip_cleanup: true
-        on:
-          tags: true
