@@ -18,17 +18,18 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
-require_once($CFG->dirroot . '/local/webhooks/lib.php');
+require_once($CFG->dirroot . '/local/webhooks/classes/local/api.php');
 
-use local_webhooks\local\local_webhooks_record as stdRecord;
+use local_webhooks\local\api;
+use local_webhooks\local\record;
 
 /**
- * Class local_webhooks_lib_testcase
+ * Class local_webhooks_api_testcase.
  *
  * @copyright 2019 'Valentin Popov' <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class local_webhooks_lib_testcase extends advanced_testcase {
+final class local_webhooks_api_testcase extends advanced_testcase {
     /**
      * Testing creation of the service.
      *
@@ -42,7 +43,7 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
 
         $this->resetAfterTest();
 
-        $record = new stdRecord();
+        $record = new record();
         $record->header = 'application/json';
         $record->name = 'Example name';
         $record->point = 'http://example.org/';
@@ -55,7 +56,7 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
             '\core\event\course_viewed',
         ];
 
-        $record->id = local_webhooks_api::create_service($record);
+        $record->id = api::create_service($record);
 
         $events = $DB->get_records(LW_TABLE_EVENTS);
         $services = $DB->get_records(LW_TABLE_SERVICES);
@@ -90,7 +91,7 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
 
         $this->resetAfterTest();
 
-        $record = new stdRecord();
+        $record = new record();
         $record->header = 'application/json';
         $record->name = 'Example name';
         $record->point = 'http://example.org/';
@@ -103,8 +104,8 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
             '\core\event\course_viewed',
         ];
 
-        $record->id = local_webhooks_api::create_service($record);
-        self::assertTrue(local_webhooks_api::delete_service($record->id));
+        $record->id = api::create_service($record);
+        self::assertTrue(api::delete_service($record->id));
         self::assertCount(0, $DB->get_records(LW_TABLE_EVENTS));
         self::assertCount(0, $DB->get_records(LW_TABLE_SERVICES));
     }
@@ -118,7 +119,7 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
     public function test_get_service() {
         $this->resetAfterTest();
 
-        $record = new stdRecord();
+        $record = new record();
         $record->header = 'application/json';
         $record->name = 'Example name';
         $record->point = 'http://example.org/';
@@ -131,8 +132,8 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
             '\core\event\course_viewed',
         ];
 
-        $record->id = local_webhooks_api::create_service($record);
-        $service = local_webhooks_api::get_service($record->id);
+        $record->id = api::create_service($record);
+        $service = api::get_service($record->id);
 
         self::assertEquals($record->header, $service->header);
         self::assertEquals($record->id, $service->id);
@@ -157,7 +158,7 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
     public function test_get_services() {
         $this->resetAfterTest();
 
-        $record = new stdRecord();
+        $record = new record();
         $record->header = 'application/json';
         $record->name = 'Example name';
         $record->point = 'http://example.org/';
@@ -173,10 +174,10 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
         $ids = [];
         $total = random_int(5, 20);
         for ($i = 0; $i < $total; $i++) {
-            $ids[] = local_webhooks_api::create_service($record);
+            $ids[] = api::create_service($record);
         }
 
-        $services = local_webhooks_api::get_services();
+        $services = api::get_services();
         self::assertCount(count($ids), $services);
 
         foreach ($services as $service) {
@@ -204,7 +205,7 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
     public function test_get_services_by_event() {
         $this->resetAfterTest();
 
-        $record = new stdRecord();
+        $record = new record();
         $record->header = 'application/json';
         $record->name = 'Example name';
         $record->point = 'http://example.org/';
@@ -220,11 +221,11 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
         $ids = [];
         $total = random_int(5, 20);
         for ($i = 0; $i < $total; $i++) {
-            $ids[] = local_webhooks_api::create_service($record);
+            $ids[] = api::create_service($record);
         }
 
         $eventname = $record->events[random_int(1, count($record->events) - 1)];
-        $services = local_webhooks_api::get_services_by_event($eventname);
+        $services = api::get_services_by_event($eventname);
         self::assertCount(count($ids), $services);
 
         foreach ($services as $service) {
@@ -252,7 +253,7 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
     public function test_get_services_with_conditions() {
         $this->resetAfterTest();
 
-        $record = new stdRecord();
+        $record = new record();
         $record->header = 'application/json';
         $record->status = true;
         $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
@@ -267,15 +268,15 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
         for ($i = 0; $i < $total; $i++) {
             $record->name = 'Example name #' . $i;
             $record->point = 'http://example.org/test_' . $i;
-            local_webhooks_api::create_service($record);
+            api::create_service($record);
         }
 
-        self::assertCount(1, local_webhooks_api::get_services([
+        self::assertCount(1, api::get_services([
             'name' => 'Example name #' . random_int(1, $total),
         ]));
 
-        $limit = random_int(1, $total);
-        self::assertCount($limit, local_webhooks_api::get_services([], 1, $limit));
+        $limit = intdiv($total, 2);
+        self::assertCount($limit, api::get_services([], 1, $limit));
     }
 
     /**
@@ -291,7 +292,7 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
 
         $this->resetAfterTest();
 
-        $record1 = new stdRecord();
+        $record1 = new record();
         $record1->header = 'application/json';
         $record1->name = 'Example name';
         $record1->point = 'http://example.org/';
@@ -304,7 +305,7 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
             '\core\event\course_viewed',
         ];
 
-        $record2 = new stdRecord();
+        $record2 = new record();
         $record2->header = 'application/x-www-form-urlencoded';
         $record2->name = 'New name';
         $record2->point = 'http://domain.local/example';
@@ -316,8 +317,8 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
             '\core\event\calendar_event_updated',
         ];
 
-        $record2->id = local_webhooks_api::create_service($record1);
-        self::assertTrue(local_webhooks_api::update_service($record2));
+        $record2->id = api::create_service($record1);
+        self::assertTrue(api::update_service($record2));
 
         $events = $DB->get_records(LW_TABLE_EVENTS);
         $services = $DB->get_records(LW_TABLE_SERVICES);

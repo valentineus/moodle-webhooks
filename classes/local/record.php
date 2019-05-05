@@ -26,9 +26,9 @@ use function defined;
  *
  * @copyright 2019 'Valentin Popov' <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @package   local_webhooks\local\local_webhooks_record
+ * @package   local_webhooks\local
  */
-final class local_webhooks_record extends stdClass {
+final class record extends stdClass {
     /**
      * List of some events.
      *
