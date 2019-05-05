@@ -22,6 +22,10 @@ require_once($CFG->dirroot . '/local/webhooks/lib.php');
 
 /**
  * Class local_webhooks_lib_testcase
+ *
+ * @copyright 2019 'Valentin Popov' <info@valentineus.link>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   local_webhooks
  */
 final class local_webhooks_lib_testcase extends advanced_testcase {
     /**
@@ -56,7 +60,6 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
         $events = $DB->get_records(LW_TABLE_EVENTS);
         $services = $DB->get_records(LW_TABLE_SERVICES);
 
-        // Check the table of services.
         self::assertCount(1, $services);
         $service = array_shift($services);
 
@@ -67,9 +70,7 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
         self::assertEquals($data['token'], $service->token);
         self::assertEquals($serviceid, $service->id);
 
-        // Check the table of events.
         self::assertCount(count($data['events']), $events);
-
         foreach ($events as $event) {
             self::assertEquals($serviceid, $event->serviceid);
             self::assertContains($event->name, $data['events']);
@@ -103,15 +104,37 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
             'token'  => '967b2286-0874-4938-b088-efdbcf8a79bc',
         ];
 
-        // Creating a service.
         $serviceid = local_webhooks_api::create_service($data);
+        self::assertTrue(local_webhooks_api::delete_service($serviceid));
+        self::assertCount(0, $DB->get_records(LW_TABLE_EVENTS));
+        self::assertCount(0, $DB->get_records(LW_TABLE_SERVICES));
+    }
 
-        $events = $DB->get_records(LW_TABLE_EVENTS);
-        $services = $DB->get_records(LW_TABLE_SERVICES);
+    /**
+     * Testing get to a service.
+     *
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     */
+    public function test_get_service() {
+        $this->resetAfterTest();
 
-        // Check the table of services.
-        self::assertCount(1, $services);
-        $service = array_shift($services);
+        $data = [
+            'events' => [
+                '\core\event\course_created',
+                '\core\event\course_deleted',
+                '\core\event\course_updated',
+                '\core\event\course_viewed',
+            ],
+            'header' => 'application/json',
+            'name'   => 'Example name',
+            'point'  => 'http://example.org/',
+            'status' => 1,
+            'token'  => '967b2286-0874-4938-b088-efdbcf8a79bc',
+        ];
+
+        $serviceid = local_webhooks_api::create_service($data);
+        $service = local_webhooks_api::get_service($serviceid);
 
         self::assertEquals($data['header'], $service->header);
         self::assertEquals($data['name'], $service->name);
@@ -120,18 +143,145 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
         self::assertEquals($data['token'], $service->token);
         self::assertEquals($serviceid, $service->id);
 
-        // Check the table of events.
-        self::assertCount(count($data['events']), $events);
+        self::assertInternalType('array', $service->events);
+        self::assertCount(count($data['events']), $service->events);
+        foreach ($service->events as $event) {
+            self::assertContains($event, $data['events']);
+        }
+    }
 
-        foreach ($events as $event) {
-            self::assertEquals($serviceid, $event->serviceid);
-            self::assertContains($event->name, $data['events']);
+    /**
+     * Testing get to the list services.
+     *
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     */
+    public function test_get_services() {
+        $this->resetAfterTest();
+
+        $data = [
+            'events' => [
+                '\core\event\course_created',
+                '\core\event\course_deleted',
+                '\core\event\course_updated',
+                '\core\event\course_viewed',
+            ],
+            'header' => 'application/json',
+            'name'   => 'Example name',
+            'point'  => 'http://example.org/',
+            'status' => 1,
+            'token'  => '967b2286-0874-4938-b088-efdbcf8a79bc',
+        ];
+
+        $ids = [];
+        $total = random_int(5, 20);
+        for ($i = 0; $i < $total; $i++) {
+            $ids[] = local_webhooks_api::create_service($data);
         }
 
-        // Deleting a service.
-        self::assertTrue(local_webhooks_api::delete_service($serviceid));
-        self::assertCount(0, $DB->get_records(LW_TABLE_EVENTS));
-        self::assertCount(0, $DB->get_records(LW_TABLE_SERVICES));
+        $services = local_webhooks_api::get_services();
+        self::assertCount(count($ids), $services);
+
+        foreach ($services as $service) {
+            self::assertContains($service->id, $ids);
+            self::assertEquals($data['header'], $service->header);
+            self::assertEquals($data['name'], $service->name);
+            self::assertEquals($data['point'], $service->point);
+            self::assertEquals($data['status'], $service->status);
+            self::assertEquals($data['token'], $service->token);
+
+            self::assertInternalType('array', $service->events);
+            self::assertCount(count($data['events']), $service->events);
+            foreach ($service->events as $event) {
+                self::assertContains($event, $data['events']);
+            }
+        }
+    }
+
+    /**
+     * Testing get to the list services by event name.
+     *
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     */
+    public function test_get_services_by_event() {
+        $this->resetAfterTest();
+
+        $data = [
+            'events' => [
+                '\core\event\course_created',
+                '\core\event\course_deleted',
+                '\core\event\course_updated',
+                '\core\event\course_viewed',
+            ],
+            'header' => 'application/json',
+            'name'   => 'Example name',
+            'point'  => 'http://example.org/',
+            'status' => 1,
+            'token'  => '967b2286-0874-4938-b088-efdbcf8a79bc',
+        ];
+
+        $ids = [];
+        $total = random_int(5, 20);
+        for ($i = 0; $i < $total; $i++) {
+            $ids[] = local_webhooks_api::create_service($data);
+        }
+
+        $eventname = $data['events'][random_int(1, count($data['events']) - 1)];
+        $services = local_webhooks_api::get_services_by_event($eventname);
+        self::assertCount(count($ids), $services);
+
+        foreach ($services as $service) {
+            self::assertContains($service->id, $ids);
+            self::assertEquals($data['header'], $service->header);
+            self::assertEquals($data['name'], $service->name);
+            self::assertEquals($data['point'], $service->point);
+            self::assertEquals($data['status'], $service->status);
+            self::assertEquals($data['token'], $service->token);
+
+            self::assertInternalType('array', $service->events);
+            self::assertCount(count($data['events']), $service->events);
+            foreach ($service->events as $event) {
+                self::assertContains($event, $data['events']);
+            }
+        }
+    }
+
+    /**
+     * Testing get to the list services with conditions.
+     *
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     */
+    public function test_get_services_with_conditions() {
+        $this->resetAfterTest();
+
+        $data = [
+            'events' => [
+                '\core\event\course_created',
+                '\core\event\course_deleted',
+                '\core\event\course_updated',
+                '\core\event\course_viewed',
+            ],
+            'header' => 'application/json',
+            'status' => 1,
+            'token'  => '967b2286-0874-4938-b088-efdbcf8a79bc',
+        ];
+
+        $total = random_int(5, 20);
+        for ($i = 0; $i < $total; $i++) {
+            local_webhooks_api::create_service(array_merge($data, [
+                'name'  => 'Example name #' . $i,
+                'point' => 'http://example.org/test_' . $i,
+            ]));
+        }
+
+        self::assertCount(1, local_webhooks_api::get_services([
+            'name' => 'Example name #' . random_int(1, $total),
+        ]));
+
+        $limit = random_int(1, $total);
+        self::assertCount($limit, local_webhooks_api::get_services([], 1, $limit));
     }
 
     /**
@@ -174,37 +324,12 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
             'token'  => 'add62250-2f03-49a9-97c4-6cd73a79e83b',
         ];
 
-        // Creating a service.
         $serviceid = local_webhooks_api::create_service($data1);
-        $events = $DB->get_records(LW_TABLE_EVENTS);
-        $services = $DB->get_records(LW_TABLE_SERVICES);
-
-        // Check the table of services.
-        self::assertCount(1, $services);
-        $service = array_shift($services);
-
-        self::assertEquals($data1['header'], $service->header);
-        self::assertEquals($data1['name'], $service->name);
-        self::assertEquals($data1['point'], $service->point);
-        self::assertEquals($data1['status'], (int) $service->status);
-        self::assertEquals($data1['token'], $service->token);
-        self::assertEquals($serviceid, $service->id);
-
-        // Check the table of events.
-        self::assertCount(count($data1['events']), $events);
-
-        foreach ($events as $event) {
-            self::assertEquals($serviceid, $event->serviceid);
-            self::assertContains($event->name, $data1['events']);
-        }
-
-        // Updating a service.
         self::assertTrue(local_webhooks_api::update_service(array_merge($data2, ['id' => $serviceid])));
 
         $events = $DB->get_records(LW_TABLE_EVENTS);
         $services = $DB->get_records(LW_TABLE_SERVICES);
 
-        // Check the table of services.
         self::assertCount(1, $services);
         $service = array_shift($services);
 
@@ -215,9 +340,7 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
         self::assertEquals($data2['token'], $service->token);
         self::assertEquals($serviceid, $service->id);
 
-        // Check the table of events.
         self::assertCount(count($data2['events']), $events);
-
         foreach ($events as $event) {
             self::assertEquals($serviceid, $event->serviceid);
             self::assertContains($event->name, $data2['events']);
