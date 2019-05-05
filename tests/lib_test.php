@@ -20,12 +20,13 @@ global $CFG;
 
 require_once($CFG->dirroot . '/local/webhooks/lib.php');
 
+use local_webhooks\local\local_webhooks_record as stdRecord;
+
 /**
  * Class local_webhooks_lib_testcase
  *
  * @copyright 2019 'Valentin Popov' <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @package   local_webhooks
  */
 final class local_webhooks_lib_testcase extends advanced_testcase {
     /**
@@ -41,21 +42,20 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
 
         $this->resetAfterTest();
 
-        $data = [
-            'events' => [
-                '\core\event\course_created',
-                '\core\event\course_deleted',
-                '\core\event\course_updated',
-                '\core\event\course_viewed',
-            ],
-            'header' => 'application/json',
-            'name'   => 'Example name',
-            'point'  => 'http://example.org/',
-            'status' => 1,
-            'token'  => '967b2286-0874-4938-b088-efdbcf8a79bc',
+        $record = new stdRecord();
+        $record->header = 'application/json';
+        $record->name = 'Example name';
+        $record->point = 'http://example.org/';
+        $record->status = true;
+        $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
+        $record->events = [
+            '\core\event\course_created',
+            '\core\event\course_deleted',
+            '\core\event\course_updated',
+            '\core\event\course_viewed',
         ];
 
-        $serviceid = local_webhooks_api::create_service($data);
+        $record->id = local_webhooks_api::create_service($record);
 
         $events = $DB->get_records(LW_TABLE_EVENTS);
         $services = $DB->get_records(LW_TABLE_SERVICES);
@@ -63,17 +63,17 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
         self::assertCount(1, $services);
         $service = array_shift($services);
 
-        self::assertEquals($data['header'], $service->header);
-        self::assertEquals($data['name'], $service->name);
-        self::assertEquals($data['point'], $service->point);
-        self::assertEquals($data['status'], (int) $service->status);
-        self::assertEquals($data['token'], $service->token);
-        self::assertEquals($serviceid, $service->id);
+        self::assertEquals($record->header, $service->header);
+        self::assertEquals($record->id, $service->id);
+        self::assertEquals($record->name, $service->name);
+        self::assertEquals($record->point, $service->point);
+        self::assertEquals($record->status, (bool) $service->status);
+        self::assertEquals($record->token, $service->token);
 
-        self::assertCount(count($data['events']), $events);
+        self::assertCount(count($record->events), $events);
         foreach ($events as $event) {
-            self::assertEquals($serviceid, $event->serviceid);
-            self::assertContains($event->name, $data['events']);
+            self::assertContains($event->name, $record->events);
+            self::assertEquals($record->id, $event->serviceid);
         }
     }
 
@@ -90,22 +90,21 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
 
         $this->resetAfterTest();
 
-        $data = [
-            'events' => [
-                '\core\event\course_created',
-                '\core\event\course_deleted',
-                '\core\event\course_updated',
-                '\core\event\course_viewed',
-            ],
-            'header' => 'application/json',
-            'name'   => 'Example name',
-            'point'  => 'http://example.org/',
-            'status' => 1,
-            'token'  => '967b2286-0874-4938-b088-efdbcf8a79bc',
+        $record = new stdRecord();
+        $record->header = 'application/json';
+        $record->name = 'Example name';
+        $record->point = 'http://example.org/';
+        $record->status = true;
+        $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
+        $record->events = [
+            '\core\event\course_created',
+            '\core\event\course_deleted',
+            '\core\event\course_updated',
+            '\core\event\course_viewed',
         ];
 
-        $serviceid = local_webhooks_api::create_service($data);
-        self::assertTrue(local_webhooks_api::delete_service($serviceid));
+        $record->id = local_webhooks_api::create_service($record);
+        self::assertTrue(local_webhooks_api::delete_service($record->id));
         self::assertCount(0, $DB->get_records(LW_TABLE_EVENTS));
         self::assertCount(0, $DB->get_records(LW_TABLE_SERVICES));
     }
@@ -119,34 +118,33 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
     public function test_get_service() {
         $this->resetAfterTest();
 
-        $data = [
-            'events' => [
-                '\core\event\course_created',
-                '\core\event\course_deleted',
-                '\core\event\course_updated',
-                '\core\event\course_viewed',
-            ],
-            'header' => 'application/json',
-            'name'   => 'Example name',
-            'point'  => 'http://example.org/',
-            'status' => 1,
-            'token'  => '967b2286-0874-4938-b088-efdbcf8a79bc',
+        $record = new stdRecord();
+        $record->header = 'application/json';
+        $record->name = 'Example name';
+        $record->point = 'http://example.org/';
+        $record->status = true;
+        $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
+        $record->events = [
+            '\core\event\course_created',
+            '\core\event\course_deleted',
+            '\core\event\course_updated',
+            '\core\event\course_viewed',
         ];
 
-        $serviceid = local_webhooks_api::create_service($data);
-        $service = local_webhooks_api::get_service($serviceid);
+        $record->id = local_webhooks_api::create_service($record);
+        $service = local_webhooks_api::get_service($record->id);
 
-        self::assertEquals($data['header'], $service->header);
-        self::assertEquals($data['name'], $service->name);
-        self::assertEquals($data['point'], $service->point);
-        self::assertEquals($data['status'], (int) $service->status);
-        self::assertEquals($data['token'], $service->token);
-        self::assertEquals($serviceid, $service->id);
+        self::assertEquals($record->header, $service->header);
+        self::assertEquals($record->id, $service->id);
+        self::assertEquals($record->name, $service->name);
+        self::assertEquals($record->point, $service->point);
+        self::assertEquals($record->status, (bool) $service->status);
+        self::assertEquals($record->token, $service->token);
 
         self::assertInternalType('array', $service->events);
-        self::assertCount(count($data['events']), $service->events);
+        self::assertCount(count($record->events), $service->events);
         foreach ($service->events as $event) {
-            self::assertContains($event, $data['events']);
+            self::assertContains($event, $record->events);
         }
     }
 
@@ -159,24 +157,23 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
     public function test_get_services() {
         $this->resetAfterTest();
 
-        $data = [
-            'events' => [
-                '\core\event\course_created',
-                '\core\event\course_deleted',
-                '\core\event\course_updated',
-                '\core\event\course_viewed',
-            ],
-            'header' => 'application/json',
-            'name'   => 'Example name',
-            'point'  => 'http://example.org/',
-            'status' => 1,
-            'token'  => '967b2286-0874-4938-b088-efdbcf8a79bc',
+        $record = new stdRecord();
+        $record->header = 'application/json';
+        $record->name = 'Example name';
+        $record->point = 'http://example.org/';
+        $record->status = true;
+        $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
+        $record->events = [
+            '\core\event\course_created',
+            '\core\event\course_deleted',
+            '\core\event\course_updated',
+            '\core\event\course_viewed',
         ];
 
         $ids = [];
         $total = random_int(5, 20);
         for ($i = 0; $i < $total; $i++) {
-            $ids[] = local_webhooks_api::create_service($data);
+            $ids[] = local_webhooks_api::create_service($record);
         }
 
         $services = local_webhooks_api::get_services();
@@ -184,16 +181,16 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
 
         foreach ($services as $service) {
             self::assertContains($service->id, $ids);
-            self::assertEquals($data['header'], $service->header);
-            self::assertEquals($data['name'], $service->name);
-            self::assertEquals($data['point'], $service->point);
-            self::assertEquals($data['status'], $service->status);
-            self::assertEquals($data['token'], $service->token);
+            self::assertEquals($record->header, $service->header);
+            self::assertEquals($record->name, $service->name);
+            self::assertEquals($record->point, $service->point);
+            self::assertEquals($record->status, $service->status);
+            self::assertEquals($record->token, $service->token);
 
             self::assertInternalType('array', $service->events);
-            self::assertCount(count($data['events']), $service->events);
+            self::assertCount(count($record->events), $service->events);
             foreach ($service->events as $event) {
-                self::assertContains($event, $data['events']);
+                self::assertContains($event, $record->events);
             }
         }
     }
@@ -207,42 +204,41 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
     public function test_get_services_by_event() {
         $this->resetAfterTest();
 
-        $data = [
-            'events' => [
-                '\core\event\course_created',
-                '\core\event\course_deleted',
-                '\core\event\course_updated',
-                '\core\event\course_viewed',
-            ],
-            'header' => 'application/json',
-            'name'   => 'Example name',
-            'point'  => 'http://example.org/',
-            'status' => 1,
-            'token'  => '967b2286-0874-4938-b088-efdbcf8a79bc',
+        $record = new stdRecord();
+        $record->header = 'application/json';
+        $record->name = 'Example name';
+        $record->point = 'http://example.org/';
+        $record->status = true;
+        $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
+        $record->events = [
+            '\core\event\course_created',
+            '\core\event\course_deleted',
+            '\core\event\course_updated',
+            '\core\event\course_viewed',
         ];
 
         $ids = [];
         $total = random_int(5, 20);
         for ($i = 0; $i < $total; $i++) {
-            $ids[] = local_webhooks_api::create_service($data);
+            $ids[] = local_webhooks_api::create_service($record);
         }
 
-        $eventname = $data['events'][random_int(1, count($data['events']) - 1)];
+        $eventname = $record->events[random_int(1, count($record->events) - 1)];
         $services = local_webhooks_api::get_services_by_event($eventname);
         self::assertCount(count($ids), $services);
 
         foreach ($services as $service) {
             self::assertContains($service->id, $ids);
-            self::assertEquals($data['header'], $service->header);
-            self::assertEquals($data['name'], $service->name);
-            self::assertEquals($data['point'], $service->point);
-            self::assertEquals($data['status'], $service->status);
-            self::assertEquals($data['token'], $service->token);
+            self::assertEquals($record->header, $service->header);
+            self::assertEquals($record->name, $service->name);
+            self::assertEquals($record->point, $service->point);
+            self::assertEquals($record->status, $service->status);
+            self::assertEquals($record->token, $service->token);
 
             self::assertInternalType('array', $service->events);
-            self::assertCount(count($data['events']), $service->events);
+            self::assertCount(count($record->events), $service->events);
             foreach ($service->events as $event) {
-                self::assertContains($event, $data['events']);
+                self::assertContains($event, $record->events);
             }
         }
     }
@@ -256,24 +252,22 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
     public function test_get_services_with_conditions() {
         $this->resetAfterTest();
 
-        $data = [
-            'events' => [
-                '\core\event\course_created',
-                '\core\event\course_deleted',
-                '\core\event\course_updated',
-                '\core\event\course_viewed',
-            ],
-            'header' => 'application/json',
-            'status' => 1,
-            'token'  => '967b2286-0874-4938-b088-efdbcf8a79bc',
+        $record = new stdRecord();
+        $record->header = 'application/json';
+        $record->status = true;
+        $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
+        $record->events = [
+            '\core\event\course_created',
+            '\core\event\course_deleted',
+            '\core\event\course_updated',
+            '\core\event\course_viewed',
         ];
 
         $total = random_int(5, 20);
         for ($i = 0; $i < $total; $i++) {
-            local_webhooks_api::create_service(array_merge($data, [
-                'name'  => 'Example name #' . $i,
-                'point' => 'http://example.org/test_' . $i,
-            ]));
+            $record->name = 'Example name #' . $i;
+            $record->point = 'http://example.org/test_' . $i;
+            local_webhooks_api::create_service($record);
         }
 
         self::assertCount(1, local_webhooks_api::get_services([
@@ -297,35 +291,33 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
 
         $this->resetAfterTest();
 
-        $data1 = [
-            'events' => [
-                '\core\event\course_created',
-                '\core\event\course_deleted',
-                '\core\event\course_updated',
-                '\core\event\course_viewed',
-            ],
-            'header' => 'application/json',
-            'name'   => 'Example name',
-            'point'  => 'http://example.org/',
-            'status' => 1,
-            'token'  => '967b2286-0874-4938-b088-efdbcf8a79bc',
+        $record1 = new stdRecord();
+        $record1->header = 'application/json';
+        $record1->name = 'Example name';
+        $record1->point = 'http://example.org/';
+        $record1->status = true;
+        $record1->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
+        $record1->events = [
+            '\core\event\course_created',
+            '\core\event\course_deleted',
+            '\core\event\course_updated',
+            '\core\event\course_viewed',
         ];
 
-        $data2 = [
-            'events' => [
-                '\core\event\calendar_event_created' => '1',
-                '\core\event\calendar_event_deleted' => '1',
-                '\core\event\calendar_event_updated' => '1',
-            ],
-            'header' => 'application/x-www-form-urlencoded',
-            'name'   => 'New name',
-            'point'  => 'http://domain.local/example',
-            'status' => 0,
-            'token'  => 'add62250-2f03-49a9-97c4-6cd73a79e83b',
+        $record2 = new stdRecord();
+        $record2->header = 'application/x-www-form-urlencoded';
+        $record2->name = 'New name';
+        $record2->point = 'http://domain.local/example';
+        $record2->status = false;
+        $record2->token = 'add62250-2f03-49a9-97c4-6cd73a79e83b';
+        $record2->events = [
+            '\core\event\calendar_event_created',
+            '\core\event\calendar_event_deleted',
+            '\core\event\calendar_event_updated',
         ];
 
-        $serviceid = local_webhooks_api::create_service($data1);
-        self::assertTrue(local_webhooks_api::update_service(array_merge($data2, ['id' => $serviceid])));
+        $record2->id = local_webhooks_api::create_service($record1);
+        self::assertTrue(local_webhooks_api::update_service($record2));
 
         $events = $DB->get_records(LW_TABLE_EVENTS);
         $services = $DB->get_records(LW_TABLE_SERVICES);
@@ -333,17 +325,17 @@ final class local_webhooks_lib_testcase extends advanced_testcase {
         self::assertCount(1, $services);
         $service = array_shift($services);
 
-        self::assertEquals($data2['header'], $service->header);
-        self::assertEquals($data2['name'], $service->name);
-        self::assertEquals($data2['point'], $service->point);
-        self::assertEquals($data2['status'], (int) $service->status);
-        self::assertEquals($data2['token'], $service->token);
-        self::assertEquals($serviceid, $service->id);
+        self::assertEquals($record2->header, $service->header);
+        self::assertEquals($record2->id, $service->id);
+        self::assertEquals($record2->name, $service->name);
+        self::assertEquals($record2->point, $service->point);
+        self::assertEquals($record2->status, (bool) $service->status);
+        self::assertEquals($record2->token, $service->token);
 
-        self::assertCount(count($data2['events']), $events);
+        self::assertCount(count($record2->events), $events);
         foreach ($events as $event) {
-            self::assertEquals($serviceid, $event->serviceid);
-            self::assertContains($event->name, $data2['events']);
+            self::assertContains($event->name, $record2->events);
+            self::assertEquals($record2->id, $event->serviceid);
         }
     }
 }
