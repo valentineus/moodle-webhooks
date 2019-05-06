@@ -64,7 +64,7 @@ final class local_webhooks_task_testcase extends advanced_testcase {
         $record->status = false;
         $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
 
-        $record->id = api::create_service($record);
+        api::create_service($record);
 
         $task = new notify();
         $task->set_custom_data(['eventname' => '\core\event\course_viewed']);
@@ -107,5 +107,92 @@ final class local_webhooks_task_testcase extends advanced_testcase {
         self::assertEquals($record->events[0], $element['data']['eventname']);
         self::assertEquals($record->id, $element['service']->id);
         self::assertEquals($record->token, $element['data']['token']);
+    }
+
+    /**
+     * Testing count creating tasks.
+     *
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    public function test_observer_multiple() {
+        $generator = self::getDataGenerator();
+        curl::mock_response('{}');
+        $this->resetAfterTest();
+
+        $record = new record();
+        $record->events = ['\core\event\course_created'];
+        $record->header = 'application/json';
+        $record->name = 'Example name';
+        $record->point = 'http://example.org/';
+        $record->status = true;
+        $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
+
+        api::create_service($record);
+
+        $total = random_int(5, 20);
+        for ($i = 0; $i < $total; $i++) {
+            $generator->create_course();
+        }
+
+        $debug = [];
+        foreach (manager::get_adhoc_tasks(notify::class) as $event) {
+            if (!is_object($event)) {
+                continue;
+            }
+
+            /** @var \local_webhooks\task\notify $event */
+            $event->execute();
+
+            if (isset($event->debug) && is_array($event->debug)) {
+                $debug[] = array_merge(...$event->debug);
+            }
+        }
+
+        self::assertCount($total, $debug);
+    }
+
+    /**
+     * Testing structure a creating task.
+     *
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    public function test_observer_single() {
+        $generator = self::getDataGenerator();
+        curl::mock_response('{}');
+        $this->resetAfterTest();
+
+        $record = new record();
+        $record->events = ['\core\event\course_created'];
+        $record->header = 'application/json';
+        $record->name = 'Example name';
+        $record->point = 'http://example.org/';
+        $record->status = true;
+        $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
+
+        api::create_service($record);
+
+        $course = $generator->create_course();
+
+        $debug = [];
+        foreach (manager::get_adhoc_tasks(notify::class) as $event) {
+            if (!is_object($event)) {
+                continue;
+            }
+
+            /** @var \local_webhooks\task\notify $event */
+            $event->execute();
+
+            if (isset($event->debug) && is_array($event->debug)) {
+                $debug[] = array_merge(...$event->debug);
+            }
+        }
+
+        self::assertCount(1, $debug);
+        $element = array_shift($debug);
+
+        self::assertInternalType('array', $element['data']);
+        self::assertEquals($course->id, $element['data']['courseid']);
     }
 }

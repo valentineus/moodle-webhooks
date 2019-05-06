@@ -17,16 +17,15 @@
 /**
  * Registration of observers for events.
  *
- * @copyright 2018 'Valentin Popov' <info@valentineus.link>
+ * @copyright 2019 'Valentin Popov' <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @package   local_webhooks
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$observers = array(
-    array(
-        'callback'  => '\local_webhooks\event_observer::observe_all',
+$observers = [
+    [
+        'callback'  => '\local_webhooks\event\observer::handler',
         'eventname' => '*',
-    ),
-);
+    ],
+];

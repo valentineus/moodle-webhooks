@@ -79,7 +79,7 @@ final class notify extends adhoc_task {
     public function post(record $service, array $data) {
         $curl = new curl();
         $curl->setHeader(['Content-Type: ' . $service->header]);
-        $curl->post($service->point, $data);
+        $curl->post($service->point, json_encode($data));
 
         if (defined('PHPUNIT_TEST') && PHPUNIT_TEST) {
             $this->debug = array_merge($this->debug ?? [], [

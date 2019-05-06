@@ -14,35 +14,31 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Handlers of observers for events.
- *
- * @copyright 2018 'Valentin Popov' <info@valentineus.link>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @package   local_webhooks
- */
-
-namespace local_webhooks;
+namespace local_webhooks\event;
 
 defined('MOODLE_INTERNAL') || die();
 
+use core\event\base as event;
+use core\task\manager;
+use local_webhooks\task\notify;
+use function defined;
+
 /**
- * Defines event handlers.
+ * Class observer.
  *
- * @copyright 2018 'Valentin Popov' <info@valentineus.link>
+ * @copyright 2019 'Valentin Popov' <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @package   local_webhooks
+ * @package   local_webhooks\event
  */
-class event_observer {
+final class observer {
     /**
-     * Handler of all the events.
-     * Each event is put into the job queue.
+     * Main handler for events.
      *
-     * @param object $event
+     * @param \core\event\base $event
      */
-    public static function observe_all($event) {
-        $task = new \local_webhooks\task\process_events_task();
+    public static function handler(event $event) {
+        $task = new notify();
         $task->set_custom_data($event->get_data());
-        \core\task\manager::queue_adhoc_task($task);
+        manager::queue_adhoc_task($task);
     }
 }
