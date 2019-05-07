@@ -26,11 +26,15 @@ global $CFG;
 require_once($CFG->dirroot . '/local/webhooks/classes/local/record.php');
 
 use coding_exception;
+use core_component;
+use ReflectionClass;
 use function define;
 use function defined;
 use function is_array;
 use function is_int;
 use function is_object;
+use function is_string;
+use function strlen;
 
 /**
  * The main class for the plugin.
@@ -81,6 +85,16 @@ final class api {
         $DB->delete_records(LW_TABLE_EVENTS, ['serviceid' => $id]);
 
         return $DB->delete_records(LW_TABLE_SERVICES, ['id' => $id]);
+    }
+
+    /**
+     * Get an event's list.
+     *
+     * @return array
+     * @throws \ReflectionException
+     */
+    public static function get_events(): array {
+        return array_merge(self::get_core_events_list(), self::get_non_core_event_list());
     }
 
     /**
@@ -194,5 +208,134 @@ final class api {
         }
 
         return $result;
+    }
+
+    /**
+     * Get a system's events list.
+     *
+     * @return array
+     * @throws \ReflectionException
+     */
+    private static function get_core_events_list(): array {
+        global $CFG;
+
+        $debugdeveloper = $CFG->debugdeveloper;
+        $debugdisplay = $CFG->debugdisplay;
+        $debuglevel = $CFG->debug;
+
+        $CFG->debug = 0;
+        $CFG->debugdeveloper = false;
+        $CFG->debugdisplay = false;
+
+        $directory = $CFG->libdir . '/classes/event';
+        $files = self::get_file_list($directory);
+
+        if (isset($files['unknown_logged'])) {
+            unset($files['unknown_logged']);
+        }
+
+        $events = [];
+        foreach ($files as $file => $location) {
+            $name = '\\core\\event\\' . $file;
+
+            if (method_exists($name, 'get_static_info')) {
+                $class = new ReflectionClass($name);
+
+                if ($file !== 'manager' && !$class->isAbstract()) {
+                    $events[$name] = $name::get_static_info();
+                }
+            }
+        }
+
+        $CFG->debug = $debuglevel;
+        $CFG->debugdeveloper = $debugdeveloper;
+        $CFG->debugdisplay = $debugdisplay;
+
+        return $events;
+    }
+
+    /**
+     * Get a file's list in the directory.
+     *
+     * @param string $directory
+     *
+     * @return array
+     */
+    private static function get_file_list(string $directory): array {
+        global $CFG;
+
+        $root = $CFG->dirroot;
+
+        $files = [];
+        if (is_dir($directory) && is_readable($directory)) {
+            $handle = opendir($directory);
+
+            if ($handle) {
+                foreach (scandir($directory, SCANDIR_SORT_NONE) as $file) {
+                    if (!is_string($file)) {
+                        continue;
+                    }
+
+                    if ($file !== '.' && $file !== '..' && strrpos($directory, $root) !== false) {
+                        $location = substr($directory, strlen($root));
+                        $eventname = substr($file, 0, -4);
+
+                        if (is_string($eventname)) {
+                            $files[$eventname] = $location . '/' . $file;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $files;
+    }
+
+    /**
+     * Get a plugins' events list.
+     *
+     * @return array
+     * @throws \ReflectionException
+     */
+    private static function get_non_core_event_list(): array {
+        global $CFG;
+
+        $debugdeveloper = $CFG->debugdeveloper;
+        $debugdisplay = $CFG->debugdisplay;
+        $debuglevel = $CFG->debug;
+
+        $CFG->debug = 0;
+        $CFG->debugdeveloper = false;
+        $CFG->debugdisplay = false;
+
+        $events = [];
+        foreach (core_component::get_plugin_types() as $type => $unused) {
+            foreach (core_component::get_plugin_list($type) as $plugin => $directory) {
+                $directory .= '/classes/event';
+                $files = self::get_file_list($directory);
+
+                if (isset($files['unknown_logged'])) {
+                    unset($files['unknown_logged']);
+                }
+
+                foreach ($files as $file => $location) {
+                    $name = '\\' . $type . '_' . $plugin . '\\event\\' . $file;
+
+                    if (method_exists($name, 'get_static_info')) {
+                        $class = new ReflectionClass($name);
+
+                        if ($type . '_' . $plugin !== 'logstore_legacy' && !$class->isAbstract()) {
+                            $events[$name] = $name::get_static_info();
+                        }
+                    }
+                }
+            }
+        }
+
+        $CFG->debug = $debuglevel;
+        $CFG->debugdeveloper = $debugdeveloper;
+        $CFG->debugdisplay = $debugdisplay;
+
+        return $events;
     }
 }

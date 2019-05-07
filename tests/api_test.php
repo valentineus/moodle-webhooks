@@ -111,7 +111,32 @@ final class local_webhooks_api_testcase extends advanced_testcase {
     }
 
     /**
+     * Testing get an event's list.
+     *
+     * @group local_webhooks
+     *
+     * @throws \ReflectionException
+     */
+    public function test_get_events() {
+        $this->resetAfterTest();
+
+        $events = api::get_events();
+
+        self::assertNotCount(0, $events);
+
+        foreach ($events as $name => $event) {
+            self::assertInternalType('array', $event);
+
+            self::assertEquals([
+                'eventname', 'component', 'target', 'action', 'crud', 'edulevel', 'objecttable',
+            ], array_keys($event));
+        }
+    }
+
+    /**
      * Testing get to a service.
+     *
+     * @group local_webhooks
      *
      * @throws \dml_exception
      * @throws \moodle_exception
@@ -151,6 +176,8 @@ final class local_webhooks_api_testcase extends advanced_testcase {
 
     /**
      * Testing get to the list services.
+     *
+     * @group local_webhooks
      *
      * @throws \dml_exception
      * @throws \moodle_exception
@@ -199,6 +226,8 @@ final class local_webhooks_api_testcase extends advanced_testcase {
     /**
      * Testing get to the list services by event name.
      *
+     * @group local_webhooks
+     *
      * @throws \dml_exception
      * @throws \moodle_exception
      */
@@ -235,6 +264,8 @@ final class local_webhooks_api_testcase extends advanced_testcase {
 
     /**
      * Testing get to the list services with conditions.
+     *
+     * @group local_webhooks
      *
      * @throws \dml_exception
      * @throws \moodle_exception
