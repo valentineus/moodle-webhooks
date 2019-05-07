@@ -292,7 +292,7 @@ final class local_webhooks_api_testcase extends advanced_testcase {
         }
 
         self::assertCount(1, api::get_services([
-            'name' => 'Example name #' . random_int(5, $total),
+            'point' => 'http://example.org/test_' . random_int(1, 5),
         ]));
 
         $limit = intdiv($total, 2);
