@@ -230,17 +230,6 @@ final class local_webhooks_api_testcase extends advanced_testcase {
 
         foreach ($services as $service) {
             self::assertContains($service->id, $ids);
-            self::assertEquals($record->header, $service->header);
-            self::assertEquals($record->name, $service->name);
-            self::assertEquals($record->point, $service->point);
-            self::assertEquals($record->status, $service->status);
-            self::assertEquals($record->token, $service->token);
-
-            self::assertInternalType('array', $service->events);
-            self::assertCount(count($record->events), $service->events);
-            foreach ($service->events as $event) {
-                self::assertContains($event, $record->events);
-            }
         }
     }
 
@@ -272,7 +261,7 @@ final class local_webhooks_api_testcase extends advanced_testcase {
         }
 
         self::assertCount(1, api::get_services([
-            'name' => 'Example name #' . random_int(1, $total),
+            'name' => 'Example name #' . random_int(5, $total),
         ]));
 
         $limit = intdiv($total, 2);

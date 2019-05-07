@@ -150,6 +150,21 @@ function save_records(array $records) {
 function xmldb_local_webhooks_upgrade(int $oldversion) {
     global $DB;
 
+    /* Update from versions 0.* */
+    if (in_array($oldversion, [2017101900, 2017102500, 2017102600, 2017102610, 2017102620, 2017102630], true)) {
+        upgrade_plugin_savepoint(true, 2019040100, 'local', 'webhooks');
+    }
+
+    /* Update from versions 1.* */
+    if (in_array($oldversion, [2017102700, 2017102900, 2017102910], true)) {
+        upgrade_plugin_savepoint(true, 2019040100, 'local', 'webhooks');
+    }
+
+    /* Update from versions 2.* */
+    if (in_array($oldversion, [2017111800, 2017111810], true)) {
+        upgrade_plugin_savepoint(true, 2019040100, 'local', 'webhooks');
+    }
+
     /* Update from versions 3.* */
     if (in_array($oldversion, [2017112600, 2018061900, 2018061910, 2018061920], true)) {
         $records = $DB->get_records('local_webhooks_service', null, 'id');
@@ -201,6 +216,11 @@ function xmldb_local_webhooks_upgrade(int $oldversion) {
         /* Saving records */
         save_records($services);
 
+        upgrade_plugin_savepoint(true, 2019040100, 'local', 'webhooks');
+    }
+
+    /* Update from versions 4.* */
+    if (in_array($oldversion, [2017122900, 2018022500], true)) {
         upgrade_plugin_savepoint(true, 2019040100, 'local', 'webhooks');
     }
 

@@ -23,15 +23,15 @@ php:
   - "7.2"
 
 env:
-  global:
-    - MOODLE_BRANCH=MOODLE_33_STABLE
-    - MOODLE_BRANCH=MOODLE_34_STABLE
-    - MOODLE_BRANCH=MOODLE_35_STABLE
-    - MOODLE_BRANCH=MOODLE_36_STABLE
-
   matrix:
-    - DB=mysqli
-    - DB=pgsql
+    - MOODLE_BRANCH=MOODLE_31_STABLE DB=mysqli
+    - MOODLE_BRANCH=MOODLE_31_STABLE DB=pgsql
+    - MOODLE_BRANCH=MOODLE_34_STABLE DB=mysqli
+    - MOODLE_BRANCH=MOODLE_34_STABLE DB=pgsql
+    - MOODLE_BRANCH=MOODLE_35_STABLE DB=mysqli
+    - MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
+    - MOODLE_BRANCH=MOODLE_36_STABLE DB=mysqli
+    - MOODLE_BRANCH=MOODLE_36_STABLE DB=pgsql
 
 before_install:
   - phpenv config-rm xdebug.ini

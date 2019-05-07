@@ -36,6 +36,9 @@ final class local_webhooks_task_testcase extends advanced_testcase {
      * Testing add a task to the queue.
      */
     public function test_add_task() {
+        global $DB;
+
+        $DB->delete_records('task_adhoc');
         $this->resetAfterTest();
 
         manager::queue_adhoc_task(new notify());
@@ -53,6 +56,9 @@ final class local_webhooks_task_testcase extends advanced_testcase {
      * @throws \dml_exception
      */
     public function test_execute_disabled() {
+        global $DB;
+
+        $DB->delete_records('task_adhoc');
         curl::mock_response('{}');
         $this->resetAfterTest();
 
@@ -80,6 +86,9 @@ final class local_webhooks_task_testcase extends advanced_testcase {
      * @throws \dml_exception
      */
     public function test_execute_enabled() {
+        global $DB;
+
+        $DB->delete_records('task_adhoc');
         curl::mock_response('{}');
         $this->resetAfterTest();
 
@@ -116,9 +125,13 @@ final class local_webhooks_task_testcase extends advanced_testcase {
      * @throws \dml_exception
      */
     public function test_observer_multiple() {
-        $generator = self::getDataGenerator();
+        global $DB;
+
+        $DB->delete_records('task_adhoc');
         curl::mock_response('{}');
         $this->resetAfterTest();
+
+        $generator = self::getDataGenerator();
 
         $record = new record();
         $record->events = ['\core\event\course_created'];
@@ -159,9 +172,13 @@ final class local_webhooks_task_testcase extends advanced_testcase {
      * @throws \dml_exception
      */
     public function test_observer_single() {
-        $generator = self::getDataGenerator();
+        global $DB;
+
+        $DB->delete_records('task_adhoc');
         curl::mock_response('{}');
         $this->resetAfterTest();
+
+        $generator = self::getDataGenerator();
 
         $record = new record();
         $record->events = ['\core\event\course_created'];
