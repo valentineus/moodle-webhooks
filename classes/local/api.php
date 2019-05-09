@@ -126,17 +126,18 @@ final class api {
     /**
      * Get list records from the database.
      *
-     * @param array|null $conditions
-     * @param int|null   $limitfrom
-     * @param int|null   $limitnum
+     * @param array|null  $conditions
+     * @param string|null $sort
+     * @param int|null    $from
+     * @param int|null    $limit
      *
-     * @return \local_webhooks\local\record[]
+     * @return array
      * @throws \dml_exception
      */
-    public static function get_services(array $conditions = null, int $limitfrom = null, int $limitnum = null): array {
+    public static function get_services(array $conditions = null, string $sort = null, int $from = null, int $limit = null): array {
         global $DB;
 
-        $records = $DB->get_records(LW_TABLE_SERVICES, $conditions ?? [], '', '*', $limitfrom ?? 0, $limitnum ?? 0);
+        $records = $DB->get_records(LW_TABLE_SERVICES, $conditions ?? [], $sort ?? '', '*', $from ?? 0, $limit ?? 0);
 
         $services = [];
         foreach ($records as $record) {

@@ -291,12 +291,19 @@ final class local_webhooks_api_testcase extends advanced_testcase {
             api::create_service($record);
         }
 
+        // Testing condition fields.
         self::assertCount(1, api::get_services([
             'point' => 'http://example.org/test_' . random_int(1, 5),
         ]));
 
+        // Testing limit fields.
         $limit = intdiv($total, 2);
-        self::assertCount($limit, api::get_services([], 1, $limit));
+        self::assertCount($limit, api::get_services([], null, 1, $limit));
+
+        // Testing sort fields.
+        $service1 = api::get_services(null, 'id asc')[0];
+        $service2 = api::get_services(null, 'id desc')[0];
+        self::assertNotEquals($service1->id, $service2->id);
     }
 
     /**
