@@ -188,6 +188,18 @@ final class api {
     }
 
     /**
+     * Get a total count of existing records.
+     *
+     * @return int
+     * @throws \dml_exception
+     */
+    public static function get_total_count(): int {
+        global $DB;
+
+        return $DB->count_records(LW_TABLE_SERVICES);
+    }
+
+    /**
      * Update an existing record in the database.
      *
      * @param \local_webhooks\local\record $service

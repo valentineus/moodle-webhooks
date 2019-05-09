@@ -307,6 +307,36 @@ final class local_webhooks_api_testcase extends advanced_testcase {
     }
 
     /**
+     * Testing get a total count of existing records.
+     *
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    public function test_total() {
+        $this->resetAfterTest();
+
+        $record = new record();
+        $record->header = 'application/json';
+        $record->status = true;
+        $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
+        $record->events = [
+            '\core\event\course_created',
+            '\core\event\course_deleted',
+            '\core\event\course_updated',
+            '\core\event\course_viewed',
+        ];
+
+        $total = random_int(5, 20);
+        for ($i = 0; $i < $total; $i++) {
+            $record->name = 'Example name #' . $i;
+            $record->point = 'http://example.org/test_' . $i;
+            api::create_service($record);
+        }
+
+        self::assertEquals($total, api::get_total_count());
+    }
+
+    /**
      * Testing of the service update.
      *
      * @group local_webhooks
