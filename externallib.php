@@ -14,211 +14,69 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * This file defines the plugin's external functions.
- *
- * @copyright 2018 'Valentin Popov' <info@valentineus.link>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @package   local_webhooks
- */
-
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/local/webhooks/lib.php');
+global $CFG;
+
+require_once($CFG->dirroot . '/local/webhooks/classes/local/api.php');
 require_once($CFG->libdir . '/externallib.php');
 
+use local_webhooks\local\api;
+
 /**
- * External functions.
+ * WebHooks external functions.
  *
- * @copyright 2018 'Valentin Popov' <info@valentineus.link>
+ * @copyright 2019 'Valentin Popov' <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @package   local_webhooks
  */
-class local_webhooks_external extends external_api {
+final class local_webhooks_external extends external_api {
+    /**
+     * Testing get to a service.
+     *
+     * @param int $serviceid Service's ID.
+     *
+     * @return \local_webhooks\local\record
+     *
+     * @throws \dml_exception
+     * @throws \invalid_parameter_exception
+     * @throws \restricted_context_exception
+     */
+    public static function get_service(int $serviceid) {
+        $parameters = self::validate_parameters(self::get_service_parameters(), ['serviceid' => $serviceid]);
+
+        $context = context_system::instance();
+        self::validate_context($context);
+
+        return api::get_service($parameters['serviceid']);
+    }
+
     /**
      * Returns description of method parameters.
      *
      * @return \external_function_parameters
-     *
-     * @since Moodle 2.2
-     * @since Moodle 2.9 Options available
      */
     public static function get_service_parameters() {
-        return new external_function_parameters(
-            array(
-                'serviceid' => new external_value(PARAM_INT, 'Service ID.'),
-            )
-        );
+        return new external_function_parameters([
+            'serviceid' => new external_value(PARAM_INT, 'The service\'s ID.'),
+        ]);
     }
 
     /**
-     * Get information about the service.
-     *
-     * @param $serviceid
-     *
-     * @return object
-     *
-     * @since Moodle 2.2
-     * @since Moodle 2.9 Options available
-     *
-     * @throws \dml_exception
-     * @throws \invalid_parameter_exception
-     * @throws \moodle_exception
-     * @throws \restricted_context_exception
-     */
-    public static function get_service($serviceid) {
-        $parameters = self::validate_parameters(self::get_service_parameters(), array('serviceid' => $serviceid));
-
-        $context = context_system::instance();
-        self::validate_context($context);
-
-        return local_webhooks_api::get_service($parameters['serviceid']);
-    }
-
-    /**
-     * Returns description of method result value.
+     * Returns description of method parameters.
      *
      * @return \external_single_structure
-     *
-     * @since Moodle 2.2
-     * @since Moodle 2.9 Options available
      */
     public static function get_service_returns() {
-        return new external_single_structure(
-            array(
-                'id'     => new external_value(PARAM_INT, 'Service ID.'),
-                'header' => new external_value(PARAM_RAW, 'Type of outgoing header.'),
-                'name'   => new external_value(PARAM_RAW, 'Name of the service.'),
-                'point'  => new external_value(PARAM_URL, 'Point of delivery of notifications.'),
-                'status' => new external_value(PARAM_BOOL, 'Current status of the service.'),
-                'token'  => new external_value(PARAM_RAW, 'Token for verification of requests.'),
-                'events' => new external_multiple_structure(
-                    new external_value(PARAM_RAW, 'Event name.'), 'List of events.'
-                ),
-            )
-        );
-    }
-
-    /**
-     * Returns description of method parameters.
-     *
-     * @return \external_function_parameters
-     *
-     * @since Moodle 2.2
-     * @since Moodle 2.9 Options available
-     */
-    public static function get_services_parameters() {
-        return new external_function_parameters(array());
-    }
-
-    /**
-     * Get a list of services.
-     *
-     * @return array
-     *
-     * @since Moodle 2.2
-     * @since Moodle 2.9 Options available
-     *
-     * @throws \dml_exception
-     * @throws \invalid_parameter_exception
-     * @throws \restricted_context_exception
-     */
-    public static function get_services() {
-        $context = context_system::instance();
-        self::validate_context($context);
-
-        return local_webhooks_api::get_services();
-    }
-
-    /**
-     * Returns description of method result value.
-     *
-     * @return \external_multiple_structure
-     *
-     * @since Moodle 2.2
-     * @since Moodle 2.9 Options available
-     */
-    public static function get_services_returns() {
-        return new external_multiple_structure(
-            new external_single_structure(
-                array(
-                    'id'     => new external_value(PARAM_INT, 'Service ID.'),
-                    'header' => new external_value(PARAM_RAW, 'Type of outgoing header.'),
-                    'name'   => new external_value(PARAM_RAW, 'Name of the service.'),
-                    'point'  => new external_value(PARAM_URL, 'Point of delivery of notifications.'),
-                    'status' => new external_value(PARAM_BOOL, 'Current status of the service.'),
-                    'token'  => new external_value(PARAM_RAW, 'Token for verification of requests.'),
-                    'events' => new external_multiple_structure(
-                        new external_value(PARAM_RAW, 'Event name.'), 'List of events.'
-                    ),
-                )
-            )
-        );
-    }
-
-    /**
-     * Returns description of method parameters.
-     *
-     * @return \external_function_parameters
-     *
-     * @since Moodle 2.2
-     * @since Moodle 2.9 Options available
-     */
-    public static function get_services_by_event_parameters() {
-        return new external_function_parameters(
-            array(
-                'eventname' => new external_value(PARAM_RAW, 'Event name.'),
-            )
-        );
-    }
-
-    /**
-     * Get the list of services subscribed to the event.
-     *
-     * @param $eventname
-     *
-     * @return array
-     *
-     * @since Moodle 2.2
-     * @since Moodle 2.9 Options available
-     *
-     * @throws \dml_exception
-     * @throws \invalid_parameter_exception
-     * @throws \moodle_exception
-     * @throws \restricted_context_exception
-     */
-    public static function get_services_by_event($eventname) {
-        $parameters = self::validate_parameters(self::get_services_by_event_parameters(), array('eventname' => $eventname));
-
-        $context = context_system::instance();
-        self::validate_context($context);
-
-        return local_webhooks_api::get_services_by_event($parameters['eventname']);
-    }
-
-    /**
-     * Returns description of method result value.
-     *
-     * @return \external_multiple_structure
-     *
-     * @since Moodle 2.2
-     * @since Moodle 2.9 Options available
-     */
-    public static function get_services_by_event_returns() {
-        return new external_multiple_structure(
-            new external_single_structure(
-                array(
-                    'id'     => new external_value(PARAM_INT, 'Service ID.'),
-                    'header' => new external_value(PARAM_RAW, 'Type of outgoing header.'),
-                    'name'   => new external_value(PARAM_RAW, 'Name of the service.'),
-                    'point'  => new external_value(PARAM_URL, 'Point of delivery of notifications.'),
-                    'status' => new external_value(PARAM_BOOL, 'Current status of the service.'),
-                    'token'  => new external_value(PARAM_RAW, 'Token for verification of requests.'),
-                    'events' => new external_multiple_structure(
-                        new external_value(PARAM_RAW, 'Event name.'), 'List of events.'
-                    ),
-                )
-            )
-        );
+        return new external_single_structure([
+            'header' => new external_value(PARAM_RAW, 'The request\'s header or type'),
+            'id'     => new external_value(PARAM_INT, 'The service\'s ID.'),
+            'name'   => new external_value(PARAM_RAW, 'The service\'s name.'),
+            'point'  => new external_value(PARAM_URL, 'The service\'s endpoint.'),
+            'status' => new external_value(PARAM_BOOL, 'The service\'s status.'),
+            'token'  => new external_value(PARAM_RAW, 'The service\'s secret key.'),
+            'events' => new external_multiple_structure(
+                new external_value(PARAM_RAW, 'The event\'s name.'), 'The service\'s list events.'
+            ),
+        ]);
     }
 }
