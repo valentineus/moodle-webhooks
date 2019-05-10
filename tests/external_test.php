@@ -142,6 +142,34 @@ final class local_webhooks_external_testcase extends externallib_advanced_testca
     }
 
     /**
+     * Testing external function get the event's list.
+     *
+     * @throws \ReflectionException
+     * @throws \dml_exception
+     * @throws \invalid_parameter_exception
+     * @throws \invalid_response_exception
+     * @throws \restricted_context_exception
+     */
+    public function test_get_events() {
+        $this->resetAfterTest();
+        self::setAdminUser();
+
+        $return = local_webhooks_external::get_events();
+        $return = external_api::clean_returnvalue(local_webhooks_external::get_events_returns(), $return);
+
+        self::assertInternalType('array', $return);
+        self::assertCount(count(api::get_events()), $return);
+
+        foreach ($return as $item) {
+            self::assertInternalType('array', $item);
+
+            self::assertEquals([
+                'action', 'component', 'crud', 'edulevel', 'eventname', 'objecttable', 'target',
+            ], array_keys($item));
+        }
+    }
+
+    /**
      * Testing external get record's data.
      *
      * @throws \ReflectionException

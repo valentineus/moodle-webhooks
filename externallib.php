@@ -131,6 +131,51 @@ final class local_webhooks_external extends external_api {
     }
 
     /**
+     * Get the event's list.
+     *
+     * @return array
+     *
+     * @throws \ReflectionException
+     * @throws \dml_exception
+     * @throws \invalid_parameter_exception
+     * @throws \restricted_context_exception
+     */
+    public static function get_events(): array {
+        $context = context_system::instance();
+        self::validate_context($context);
+
+        return api::get_events();
+    }
+
+    /**
+     * Returns description of the method parameters.
+     *
+     * @return \external_function_parameters
+     */
+    public static function get_events_parameters(): external_function_parameters {
+        return new external_function_parameters([], '');
+    }
+
+    /**
+     * Returns description of the method result value.
+     *
+     * @return \external_multiple_structure
+     */
+    public static function get_events_returns(): external_multiple_structure {
+        return new external_multiple_structure(
+            new external_single_structure([
+                'action'      => new external_value(PARAM_ALPHANUMEXT, ''),
+                'component'   => new external_value(PARAM_COMPONENT, ''),
+                'crud'        => new external_value(PARAM_ALPHA, ''),
+                'edulevel'    => new external_value(PARAM_INT, ''),
+                'eventname'   => new external_value(PARAM_RAW, ''),
+                'objecttable' => new external_value(PARAM_RAW, ''),
+                'target'      => new external_value(PARAM_RAW, ''),
+            ], ''), ''
+        );
+    }
+
+    /**
      * Get data by service.
      *
      * @param int $serviceid
@@ -252,7 +297,7 @@ final class local_webhooks_external extends external_api {
                 'point'  => new external_value(PARAM_URL, 'The service\'s endpoint.'),
                 'status' => new external_value(PARAM_BOOL, 'The service\'s status.'),
                 'token'  => new external_value(PARAM_RAW, 'The service\'s secret key.'),
-            ], '')
+            ], ''), ''
         );
     }
 }
