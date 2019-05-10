@@ -216,7 +216,7 @@ final class api {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public static function update_service(record $service): bool {
+    public static function set_service(record $service): bool {
         global $DB;
 
         $result = $DB->update_record(LW_TABLE_SERVICES, $service);

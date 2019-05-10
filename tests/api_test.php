@@ -326,7 +326,7 @@ final class local_webhooks_api_testcase extends advanced_testcase {
         $record2 = self::get_random_record();
 
         $record2->id = api::add_service($record1);
-        self::assertTrue(api::update_service($record2));
+        self::assertTrue(api::set_service($record2));
 
         $events = $DB->get_records(LW_TABLE_EVENTS);
         $services = $DB->get_records(LW_TABLE_SERVICES);
