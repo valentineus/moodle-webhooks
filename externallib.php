@@ -45,17 +45,13 @@ final class local_webhooks_external extends external_api {
      */
     public static function add_service(array $conditions): int {
         $parameters = self::validate_parameters(self::add_service_parameters(), [
-            'events' => $conditions['events'],
-            'header' => $conditions['header'],
-            'name'   => $conditions['name'],
-            'point'  => $conditions['point'],
-            'status' => $conditions['status'],
-            'token'  => $conditions['token'],
+            'record' => array_filter($conditions),
         ]);
 
         $context = context_system::instance();
         self::validate_context($context);
 
+        $parameters = array_filter($parameters['record']);
         $record = new record($parameters);
 
         return api::add_service($record);
@@ -68,14 +64,16 @@ final class local_webhooks_external extends external_api {
      */
     public static function add_service_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'events' => new external_multiple_structure(
-                new external_value(PARAM_RAW, 'The event\'s name.'), 'The service\'s list events.'
-            ),
-            'header' => new external_value(PARAM_RAW, 'The request\'s header or type'),
-            'name'   => new external_value(PARAM_RAW, 'The service\'s name.'),
-            'point'  => new external_value(PARAM_URL, 'The service\'s endpoint.'),
-            'status' => new external_value(PARAM_BOOL, 'The service\'s status.'),
-            'token'  => new external_value(PARAM_RAW, 'The service\'s secret key.'),
+            'record' => new external_single_structure([
+                'events' => new external_multiple_structure(
+                    new external_value(PARAM_RAW, 'The event\'s name.'), 'The service\'s list events.', false
+                ),
+                'header' => new external_value(PARAM_RAW, 'The request\'s header or type', false, 'application/json'),
+                'name'   => new external_value(PARAM_RAW, 'The service\'s name.'),
+                'point'  => new external_value(PARAM_URL, 'The service\'s endpoint.'),
+                'status' => new external_value(PARAM_BOOL, 'The service\'s status.', false, true),
+                'token'  => new external_value(PARAM_RAW, 'The service\'s secret key.'),
+            ], ''),
         ], '');
     }
 
@@ -299,5 +297,70 @@ final class local_webhooks_external extends external_api {
                 'token'  => new external_value(PARAM_RAW, 'The service\'s secret key.'),
             ], ''), ''
         );
+    }
+
+    /**
+     * Update the existing service.
+     *
+     * @param array $conditions
+     *
+     * @return bool
+     *
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \invalid_parameter_exception
+     * @throws \restricted_context_exception
+     */
+    public static function set_service(array $conditions): bool {
+        $conditions = array_filter($conditions);
+        $conditions['events'] = $conditions['events'] ?? [];
+
+        $parameters = self::validate_parameters(self::set_service_parameters(), [
+            'record' => $conditions,
+        ]);
+
+        $context = context_system::instance();
+        self::validate_context($context);
+
+        $parameters = array_filter($parameters['record']);
+        $record = api::get_service($parameters['id']);
+
+        foreach ($parameters as $index => $value) {
+            if (property_exists($record, $index)) {
+                $record->$index = $value;
+            }
+        }
+
+        return api::set_service($record);
+    }
+
+    /**
+     * Returns description of the method parameters.
+     *
+     * @return \external_function_parameters
+     */
+    public static function set_service_parameters(): external_function_parameters {
+        return new external_function_parameters([
+            'record' => new external_single_structure([
+                'events' => new external_multiple_structure(
+                    new external_value(PARAM_RAW, 'The event\'s name.'), 'The service\'s list events.', false
+                ),
+                'header' => new external_value(PARAM_RAW, 'The request\'s header or type', false),
+                'id'     => new external_value(PARAM_INT, 'The service\'s ID.'),
+                'name'   => new external_value(PARAM_RAW, 'The service\'s name.', false),
+                'point'  => new external_value(PARAM_URL, 'The service\'s endpoint.', false),
+                'status' => new external_value(PARAM_BOOL, 'The service\'s status.', false),
+                'token'  => new external_value(PARAM_RAW, 'The service\'s secret key.', false),
+            ], ''),
+        ], '');
+    }
+
+    /**
+     * Returns description of the method result value.
+     *
+     * @return \external_value
+     */
+    public static function set_service_returns(): external_value {
+        return new external_value(PARAM_BOOL, '');
     }
 }

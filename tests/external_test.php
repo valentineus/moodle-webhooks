@@ -311,4 +311,76 @@ final class local_webhooks_external_testcase extends externallib_advanced_testca
 
         self::assertNotEquals($service1['id'], $service2['id']);
     }
+
+    /**
+     * Testing full update parameters of the service.
+     *
+     * @throws \ReflectionException
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \invalid_parameter_exception
+     * @throws \restricted_context_exception
+     */
+    public function test_updating_full() {
+        $this->resetAfterTest();
+        self::setAdminUser();
+
+        $record = self::get_random_record();
+        $record2 = self::get_random_record();
+        $record2->id = api::add_service($record);
+
+        $return = local_webhooks_external::set_service((array) $record2);
+        $return = external_api::validate_parameters(local_webhooks_external::set_service_returns(), $return);
+        self::assertInternalType('bool', $return);
+
+        $service = api::get_service($record2->id);
+        self::assertEquals($record2->id, $service->id);
+        self::assertEquals($record2->header, $service->header);
+        self::assertEquals($record2->name, $service->name);
+        self::assertEquals($record2->point, $service->point);
+        self::assertEquals($record2->status, $service->status);
+        self::assertEquals($record2->token, $service->token);
+
+        self::assertInternalType('array', $service->events);
+        self::assertCount(count($record2->events), $service->events);
+        foreach ($service->events as $event) {
+            self::assertContains($event, $record2->events);
+        }
+    }
+
+    /**
+     * Testing selective update parameters of the service.
+     *
+     * @throws \ReflectionException
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \invalid_parameter_exception
+     * @throws \restricted_context_exception
+     */
+    public function test_updating_short() {
+        $this->resetAfterTest();
+        self::setAdminUser();
+
+        $record = self::get_random_record();
+        $record2 = self::get_random_record();
+        $record->id = api::add_service($record);
+
+        $return = local_webhooks_external::set_service(['id' => $record->id, 'name' => $record2->name, 'point' => $record2->point]);
+        $return = external_api::validate_parameters(local_webhooks_external::set_service_returns(), $return);
+        self::assertInternalType('bool', $return);
+
+        $service = api::get_service($record->id);
+        self::assertEquals($record->header, $service->header);
+        self::assertEquals($record->id, $service->id);
+        self::assertEquals($record->status, $service->status);
+        self::assertEquals($record->token, $service->token);
+        self::assertEquals($record2->name, $service->name);
+        self::assertEquals($record2->point, $service->point);
+
+        self::assertInternalType('array', $service->events);
+        self::assertCount(count($record->events), $service->events);
+        foreach ($service->events as $event) {
+            self::assertContains($event, $record->events);
+        }
+    }
 }
