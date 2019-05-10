@@ -20,6 +20,7 @@ global $CFG;
 
 require_once($CFG->dirroot . '/local/webhooks/classes/local/api.php');
 
+use core\event\course_created;
 use core\task\manager;
 use local_webhooks\local\api;
 use local_webhooks\local\record;
@@ -32,6 +33,26 @@ use local_webhooks\task\notify;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class local_webhooks_task_testcase extends advanced_testcase {
+    const EVENTNAME = '\\' . course_created::class;
+
+    /**
+     * Generate a random record.
+     *
+     * @return \local_webhooks\local\record
+     */
+    private static function get_random_record(): record {
+        $record = new record();
+
+        $record->events = [self::EVENTNAME];
+        $record->header = 'application/json';
+        $record->name = uniqid('', false);
+        $record->point = 'http://example.org/' . urlencode($record->name);
+        $record->status = true;
+        $record->token = generate_uuid();
+
+        return $record;
+    }
+
     /**
      * Testing add a task to the queue.
      */
@@ -43,10 +64,10 @@ final class local_webhooks_task_testcase extends advanced_testcase {
 
         manager::queue_adhoc_task(new notify());
 
-        $tasks = manager::get_adhoc_tasks('\local_webhooks\task\notify');
+        $tasks = manager::get_adhoc_tasks(notify::class);
 
         self::assertCount(1, $tasks);
-        self::assertInstanceOf('\local_webhooks\task\notify', array_shift($tasks));
+        self::assertInstanceOf(notify::class, array_shift($tasks));
     }
 
     /**
@@ -62,18 +83,12 @@ final class local_webhooks_task_testcase extends advanced_testcase {
         curl::mock_response('{}');
         $this->resetAfterTest();
 
-        $record = new record();
-        $record->events = ['\core\event\course_viewed'];
-        $record->header = 'application/json';
-        $record->name = 'Example name';
-        $record->point = 'http://example.org/';
+        $record = self::get_random_record();
         $record->status = false;
-        $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
-
-        api::create_service($record);
+        $record->id = api::add_service($record);
 
         $task = new notify();
-        $task->set_custom_data(['eventname' => '\core\event\course_viewed']);
+        $task->set_custom_data(['eventname' => self::EVENTNAME]);
         $task->execute();
 
         self::assertNull($task->debug);
@@ -92,18 +107,11 @@ final class local_webhooks_task_testcase extends advanced_testcase {
         curl::mock_response('{}');
         $this->resetAfterTest();
 
-        $record = new record();
-        $record->events = ['\core\event\course_viewed'];
-        $record->header = 'application/json';
-        $record->name = 'Example name';
-        $record->point = 'http://example.org/';
-        $record->status = true;
-        $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
-
-        $record->id = api::create_service($record);
+        $record = self::get_random_record();
+        $record->id = api::add_service($record);
 
         $task = new notify();
-        $task->set_custom_data(['eventname' => '\core\event\course_viewed']);
+        $task->set_custom_data(['eventname' => self::EVENTNAME]);
         $task->execute();
 
         self::assertCount(1, $task->debug);
@@ -133,15 +141,8 @@ final class local_webhooks_task_testcase extends advanced_testcase {
 
         $generator = self::getDataGenerator();
 
-        $record = new record();
-        $record->events = ['\core\event\course_created'];
-        $record->header = 'application/json';
-        $record->name = 'Example name';
-        $record->point = 'http://example.org/';
-        $record->status = true;
-        $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
-
-        api::create_service($record);
+        $record = self::get_random_record();
+        $record->id = api::add_service($record);
 
         $total = random_int(5, 20);
         for ($i = 0; $i < $total; $i++) {
@@ -150,11 +151,9 @@ final class local_webhooks_task_testcase extends advanced_testcase {
 
         $debug = [];
         foreach (manager::get_adhoc_tasks(notify::class) as $event) {
-            if (!is_object($event)) {
-                continue;
-            }
-
+            self::assertInstanceOf(notify::class, $event);
             /** @var \local_webhooks\task\notify $event */
+
             $event->execute();
 
             if (isset($event->debug) && is_array($event->debug)) {
@@ -180,25 +179,16 @@ final class local_webhooks_task_testcase extends advanced_testcase {
 
         $generator = self::getDataGenerator();
 
-        $record = new record();
-        $record->events = ['\core\event\course_created'];
-        $record->header = 'application/json';
-        $record->name = 'Example name';
-        $record->point = 'http://example.org/';
-        $record->status = true;
-        $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
-
-        api::create_service($record);
+        $record = self::get_random_record();
+        $record->id = api::add_service($record);
 
         $course = $generator->create_course();
 
         $debug = [];
         foreach (manager::get_adhoc_tasks(notify::class) as $event) {
-            if (!is_object($event)) {
-                continue;
-            }
-
+            self::assertInstanceOf(notify::class, $event);
             /** @var \local_webhooks\task\notify $event */
+
             $event->execute();
 
             if (isset($event->debug) && is_array($event->debug)) {

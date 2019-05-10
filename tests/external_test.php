@@ -32,28 +32,56 @@ use local_webhooks\local\record;
  */
 final class local_webhooks_external_testcase extends externallib_advanced_testcase {
     /**
+     * Generate random an event's list.
+     *
+     * @return array
+     *
+     * @throws \ReflectionException
+     */
+    private static function get_random_events(): array {
+        $result = array_rand(api::get_events(), random_int(2, 10));
+
+        return is_array($result) ? $result : [];
+    }
+
+    /**
+     * Generate a random record.
+     *
+     * @return \local_webhooks\local\record
+     *
+     * @throws \ReflectionException
+     */
+    private static function get_random_record(): record {
+        $record = new record();
+
+        $record->events = self::get_random_events();
+        $record->header = 'application/json';
+        $record->name = uniqid('', false);
+        $record->point = 'http://example.org/' . urlencode($record->name);
+        $record->status = true;
+        $record->token = generate_uuid();
+
+        return $record;
+    }
+
+    /**
      * Testing external get record's data.
      *
      * @throws \ReflectionException
      * @throws \coding_exception
      * @throws \dml_exception
+     * @throws \invalid_parameter_exception
      * @throws \invalid_response_exception
+     * @throws \restricted_context_exception
      */
     public function test_get_service() {
         self::setAdminUser();
 
         $this->resetAfterTest();
 
-        $record = new record();
-        $record->events = array_rand(api::get_events(), random_int(2, 10));
-        $record->header = 'application/json';
-        $record->name = 'Example name';
-        $record->point = 'http://example.org/';
-        $record->status = true;
-        $record->token = generate_uuid();
-
         // Creating a new record.
-        $record->id = api::create_service($record);
+        $record = self::get_random_record();
+        $record->id = api::add_service($record);
 
         $return = local_webhooks_external::get_service($record->id);
         $return = external_api::clean_returnvalue(local_webhooks_external::get_service_returns(), $return);
@@ -70,7 +98,6 @@ final class local_webhooks_external_testcase extends externallib_advanced_testca
         // Testing an event's list.
         self::assertInternalType('array', $return['events']);
         self::assertNotCount(0, $return['events']);
-
         foreach ($return['events'] as $event) {
             self::assertContains($event, $record->events);
         }
