@@ -276,9 +276,11 @@ final class local_webhooks_api_testcase extends advanced_testcase {
     public function test_get_services_with_conditions() {
         $this->resetAfterTest();
 
-        $total = random_int(5, 20);
-
         $records = [];
+        $total = random_int(5, 20);
+        $limit = intdiv($total, 2);
+
+        // Creating some records.
         for ($i = 0; $i < $total; $i++) {
             $record = self::get_random_record();
             $record->id = api::add_service($record);
@@ -292,7 +294,6 @@ final class local_webhooks_api_testcase extends advanced_testcase {
         ]));
 
         // Testing limit fields.
-        $limit = intdiv($total, 2);
         self::assertCount($limit, api::get_services([], null, 1, $limit));
 
         // Testing sort fields.

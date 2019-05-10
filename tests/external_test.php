@@ -102,4 +102,111 @@ final class local_webhooks_external_testcase extends externallib_advanced_testca
             self::assertContains($event, $record->events);
         }
     }
+
+    /**
+     * Testing external get the record's list.
+     *
+     * @throws \ReflectionException
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \invalid_parameter_exception
+     * @throws \invalid_response_exception
+     * @throws \restricted_context_exception
+     */
+    public function test_get_services() {
+        self::setAdminUser();
+
+        $this->resetAfterTest();
+
+        $records = [];
+        $total = random_int(5, 10);
+
+        // Creating some records.
+        for ($i = 0; $i < $total; $i++) {
+            $record = self::get_random_record();
+            $record->id = api::add_service($record);
+            $records[$record->id] = $record;
+        }
+
+        self::assertEquals(count($records), api::get_total_count());
+
+        $return = local_webhooks_external::get_services();
+        $return = external_api::clean_returnvalue(local_webhooks_external::get_services_returns(), $return);
+
+        // Testing received item's list.
+        self::assertInternalType('array', $return);
+        self::assertCount(count($records), $return);
+
+        foreach ($return as $item) {
+            self::assertInternalType('array', $item);
+
+            $record = $records[$item['id']];
+
+            self::assertEquals($record->header, $item['header']);
+            self::assertEquals($record->id, $item['id']);
+            self::assertEquals($record->name, $item['name']);
+            self::assertEquals($record->point, $item['point']);
+            self::assertEquals($record->status, (int) $item['status']);
+            self::assertEquals($record->token, $item['token']);
+
+            self::assertInternalType('array', $item['events']);
+            self::assertNotCount(0, $item['events']);
+            foreach ($item['events'] as $event) {
+                self::assertContains($event, $record->events);
+            }
+        }
+    }
+
+    /**
+     * Testing external get to the list services with conditions.
+     *
+     * @throws \ReflectionException
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \invalid_parameter_exception
+     * @throws \invalid_response_exception
+     * @throws \restricted_context_exception
+     */
+    public function test_get_services_with_conditions() {
+        self::setAdminUser();
+
+        $this->resetAfterTest();
+
+        $records = [];
+        $total = random_int(5, 10);
+        $limit = intdiv($total, 2);
+
+        // Creating some records.
+        for ($i = 0; $i < $total; $i++) {
+            $record = self::get_random_record();
+            $record->id = api::add_service($record);
+            $records[$record->id] = $record;
+        }
+
+        self::assertEquals(count($records), api::get_total_count());
+
+        // Testing condition fields.
+        $record = $records[array_rand($records, 1)];
+        $return = local_webhooks_external::get_services(['point' => $record->point]);
+        $return = external_api::clean_returnvalue(local_webhooks_external::get_services_returns(), $return);
+
+        self::assertCount(1, $return);
+        self::assertEquals($return[0]['id'], $record->id);
+
+        // Testing limit fields.
+        $return = local_webhooks_external::get_services(null, null, 1, $limit);
+        $return = external_api::clean_returnvalue(local_webhooks_external::get_services_returns(), $return);
+        self::assertCount($limit, $return);
+
+        // Testing sort fields.
+        $return = local_webhooks_external::get_services(null, 'id asc');
+        $return = external_api::clean_returnvalue(local_webhooks_external::get_services_returns(), $return);
+        $service1 = array_shift($return);
+
+        $return = local_webhooks_external::get_services(null, 'id desc');
+        $return = external_api::clean_returnvalue(local_webhooks_external::get_services_returns(), $return);
+        $service2 = array_shift($return);
+
+        self::assertNotEquals($service1['id'], $service2['id']);
+    }
 }

@@ -22,6 +22,7 @@ require_once($CFG->dirroot . '/local/webhooks/classes/local/api.php');
 require_once($CFG->libdir . '/externallib.php');
 
 use local_webhooks\local\api;
+use local_webhooks\local\record;
 
 /**
  * WebHooks external functions.
@@ -31,7 +32,7 @@ use local_webhooks\local\api;
  */
 final class local_webhooks_external extends external_api {
     /**
-     * Testing get to a service.
+     * Get data by service.
      *
      * @param int $serviceid Service's ID.
      *
@@ -41,7 +42,7 @@ final class local_webhooks_external extends external_api {
      * @throws \invalid_parameter_exception
      * @throws \restricted_context_exception
      */
-    public static function get_service(int $serviceid) {
+    public static function get_service(int $serviceid): record {
         $parameters = self::validate_parameters(self::get_service_parameters(), ['serviceid' => $serviceid]);
 
         $context = context_system::instance();
@@ -55,10 +56,10 @@ final class local_webhooks_external extends external_api {
      *
      * @return \external_function_parameters
      */
-    public static function get_service_parameters() {
+    public static function get_service_parameters(): external_function_parameters {
         return new external_function_parameters([
             'serviceid' => new external_value(PARAM_INT, 'The service\'s ID.'),
-        ]);
+        ], '');
     }
 
     /**
@@ -66,17 +67,91 @@ final class local_webhooks_external extends external_api {
      *
      * @return \external_single_structure
      */
-    public static function get_service_returns() {
+    public static function get_service_returns(): external_single_structure {
         return new external_single_structure([
+            'events' => new external_multiple_structure(
+                new external_value(PARAM_RAW, 'The event\'s name.'), 'The service\'s list events.'
+            ),
             'header' => new external_value(PARAM_RAW, 'The request\'s header or type'),
             'id'     => new external_value(PARAM_INT, 'The service\'s ID.'),
             'name'   => new external_value(PARAM_RAW, 'The service\'s name.'),
             'point'  => new external_value(PARAM_URL, 'The service\'s endpoint.'),
             'status' => new external_value(PARAM_BOOL, 'The service\'s status.'),
             'token'  => new external_value(PARAM_RAW, 'The service\'s secret key.'),
-            'events' => new external_multiple_structure(
-                new external_value(PARAM_RAW, 'The event\'s name.'), 'The service\'s list events.'
-            ),
+        ], '');
+    }
+
+    /**
+     * Get the service's list.
+     *
+     * @param array|null  $conditions
+     * @param string|null $sort
+     * @param int|null    $from
+     * @param int|null    $limit
+     *
+     * @return array
+     *
+     * @throws \dml_exception
+     * @throws \invalid_parameter_exception
+     * @throws \restricted_context_exception
+     */
+    public static function get_services(array $conditions = null, string $sort = null, int $from = null, int $limit = null): array {
+        $parameters = self::validate_parameters(self::get_services_parameters(), [
+            'conditions' => $conditions ?? [],
+            'from'       => $from,
+            'limit'      => $limit,
+            'sort'       => $sort,
         ]);
+
+        $context = context_system::instance();
+        self::validate_context($context);
+
+        return api::get_services(
+            array_filter($parameters['conditions']),
+            $parameters['sort'],
+            $parameters['from'],
+            $parameters['limit']
+        );
+    }
+
+    /**
+     * Returns description of method parameters.
+     *
+     * @return \external_function_parameters
+     */
+    public static function get_services_parameters(): external_function_parameters {
+        return new external_function_parameters([
+            'conditions' => new external_single_structure([
+                'header' => new external_value(PARAM_RAW, 'The request\'s header or type', false),
+                'name'   => new external_value(PARAM_RAW, 'The service\'s name.', false),
+                'point'  => new external_value(PARAM_URL, 'The service\'s endpoint.', false),
+                'status' => new external_value(PARAM_BOOL, 'The service\'s status.', false),
+                'token'  => new external_value(PARAM_RAW, 'The service\'s secret key.', false),
+            ], '', false),
+            'sort'       => new external_value(PARAM_RAW, '', false),
+            'from'       => new external_value(PARAM_INT, '', false),
+            'limit'      => new external_value(PARAM_INT, '', false),
+        ], '');
+    }
+
+    /**
+     * Returns description of method parameters.
+     *
+     * @return \external_multiple_structure
+     */
+    public static function get_services_returns(): external_multiple_structure {
+        return new external_multiple_structure(
+            new external_single_structure([
+                'events' => new external_multiple_structure(
+                    new external_value(PARAM_RAW, 'The event\'s name.'), 'The service\'s list events.'
+                ),
+                'header' => new external_value(PARAM_RAW, 'The request\'s header or type'),
+                'id'     => new external_value(PARAM_INT, 'The service\'s ID.'),
+                'name'   => new external_value(PARAM_RAW, 'The service\'s name.'),
+                'point'  => new external_value(PARAM_URL, 'The service\'s endpoint.'),
+                'status' => new external_value(PARAM_BOOL, 'The service\'s status.'),
+                'token'  => new external_value(PARAM_RAW, 'The service\'s secret key.'),
+            ], '')
+        );
     }
 }
