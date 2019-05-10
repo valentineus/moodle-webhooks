@@ -234,8 +234,6 @@ final class local_webhooks_api_testcase extends advanced_testcase {
     /**
      * Testing get to the list services by event name.
      *
-     * @todo  It's no testing all conditional.
-     *
      * @group local_webhooks
      *
      * @throws \dml_exception
@@ -246,18 +244,20 @@ final class local_webhooks_api_testcase extends advanced_testcase {
         $this->resetAfterTest();
 
         $eventname = generate_uuid();
+        $limit = random_int(1, 5);
         $total = random_int(5, 20);
 
         $ids = [];
 
         for ($i = 0; $i < $total; $i++) {
             $record = self::get_random_record();
-            $record->events[] = $eventname;
+            $record->events[] = $i < $limit ? $eventname : '';
             $ids[] = api::add_service($record);
         }
 
+        self::assertEquals(count($ids), api::get_total_count());
         $services = api::get_services_by_event($eventname);
-        self::assertCount(count($ids), $services);
+        self::assertCount($limit, $services);
 
         foreach ($services as $service) {
             self::assertContains($service->id, $ids);
