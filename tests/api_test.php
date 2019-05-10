@@ -52,6 +52,7 @@ final class local_webhooks_api_testcase extends advanced_testcase {
      */
     private static function get_random_record(): record {
         $record = new record();
+
         $record->events = self::get_random_events();
         $record->header = 'application/json';
         $record->name = uniqid('', false);
@@ -102,8 +103,6 @@ final class local_webhooks_api_testcase extends advanced_testcase {
     /**
      * Test deletion of the service.
      *
-     * @todo  It's no testing all conditional.
-     *
      * @group local_webhooks
      *
      * @throws \dml_exception
@@ -115,12 +114,26 @@ final class local_webhooks_api_testcase extends advanced_testcase {
 
         $this->resetAfterTest();
 
+        // Testing correct delete record of the database.
         $record = self::get_random_record();
         $record->id = api::add_service($record);
 
         self::assertTrue(api::del_service($record->id));
         self::assertCount(0, $DB->get_records(LW_TABLE_EVENTS));
         self::assertCount(0, $DB->get_records(LW_TABLE_SERVICES));
+
+        // Testing correct delete record of the record's list.
+        $ids = [];
+        $total = random_int(5, 20);
+
+        for ($i = 0; $i < $total; $i++) {
+            $record = self::get_random_record();
+            $ids[] = api::add_service($record);
+        }
+
+        self::assertEquals(count($ids), api::get_total_count());
+        self::assertTrue(api::del_service($ids[array_rand($ids, 1)]));
+        self::assertEquals(count($ids) - 1, api::get_total_count());
     }
 
     /**
