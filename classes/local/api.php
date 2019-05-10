@@ -81,7 +81,7 @@ final class api {
      *
      * @throws \dml_exception
      */
-    public static function delete_service(int $id): bool {
+    public static function del_service(int $id): bool {
         global $DB;
 
         $DB->delete_records(LW_TABLE_EVENTS, ['serviceid' => $id]);
