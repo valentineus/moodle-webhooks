@@ -20,6 +20,10 @@ defined('MOODLE_INTERNAL') || die();
 
 use stdClass;
 use function defined;
+use function is_array;
+use function is_bool;
+use function is_int;
+use function is_string;
 
 /**
  * It's a class description record.
@@ -77,4 +81,45 @@ final class record extends stdClass {
      * @var string
      */
     public $token;
+
+    /**
+     * Classes constructor.
+     *
+     * @param array|null $conditions
+     */
+    public function __construct(array $conditions = null) {
+        if (isset($conditions['events']) && is_array($conditions['events'])) {
+            $this->events = [];
+
+            foreach ($conditions['events'] as $event) {
+                if (is_string($event)) {
+                    $this->events[] = $event;
+                }
+            }
+        }
+
+        if (isset($conditions['header']) && is_string($conditions['header'])) {
+            $this->header = $conditions['header'];
+        }
+
+        if (isset($conditions['id']) && is_int($conditions['id'])) {
+            $this->id = $conditions['id'];
+        }
+
+        if (isset($conditions['name']) && is_string($conditions['name'])) {
+            $this->name = $conditions['name'];
+        }
+
+        if (isset($conditions['point']) && is_string($conditions['point'])) {
+            $this->point = $conditions['point'];
+        }
+
+        if (isset($conditions['status']) && is_bool($conditions['status'])) {
+            $this->status = $conditions['status'];
+        }
+
+        if (isset($conditions['token']) && is_string($conditions['token'])) {
+            $this->token = $conditions['token'];
+        }
+    }
 }

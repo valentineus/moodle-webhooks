@@ -65,6 +65,42 @@ final class local_webhooks_external_testcase extends externallib_advanced_testca
     }
 
     /**
+     * Testing external add service.
+     *
+     * @throws \ReflectionException
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \invalid_parameter_exception
+     * @throws \invalid_response_exception
+     * @throws \restricted_context_exception
+     */
+    public function test_adding() {
+        $this->resetAfterTest();
+        self::setAdminUser();
+
+        $record = self::get_random_record();
+        $return = local_webhooks_external::add_service((array) $record);
+        $return = external_api::clean_returnvalue(local_webhooks_external::add_service_returns(), $return);
+
+        self::assertInternalType('integer', $return);
+        self::assertEquals(1, api::get_total_count());
+
+        $service = api::get_service($return);
+        self::assertEquals($record->header, $service->header);
+        self::assertEquals($record->name, $service->name);
+        self::assertEquals($record->point, $service->point);
+        self::assertEquals($record->status, $service->status);
+        self::assertEquals($record->token, $service->token);
+        self::assertEquals($return, $service->id);
+
+        self::assertInternalType('array', $service->events);
+        self::assertCount(count($record->events), $service->events);
+        foreach ($service->events as $event) {
+            self::assertContains($event, $record->events);
+        }
+    }
+
+    /**
      * Testing the external delete service.
      *
      * @throws \ReflectionException

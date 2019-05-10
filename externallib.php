@@ -32,6 +32,63 @@ use local_webhooks\local\record;
  */
 final class local_webhooks_external extends external_api {
     /**
+     * Add a new service.
+     *
+     * @param array $conditions
+     *
+     * @return int
+     *
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \invalid_parameter_exception
+     * @throws \restricted_context_exception
+     */
+    public static function add_service(array $conditions): int {
+        $parameters = self::validate_parameters(self::add_service_parameters(), [
+            'events' => $conditions['events'],
+            'header' => $conditions['header'],
+            'name'   => $conditions['name'],
+            'point'  => $conditions['point'],
+            'status' => $conditions['status'],
+            'token'  => $conditions['token'],
+        ]);
+
+        $context = context_system::instance();
+        self::validate_context($context);
+
+        $record = new record($parameters);
+
+        return api::add_service($record);
+    }
+
+    /**
+     * Returns description of the method parameters.
+     *
+     * @return \external_function_parameters
+     */
+    public static function add_service_parameters(): external_function_parameters {
+        return new external_function_parameters([
+            'events' => new external_multiple_structure(
+                new external_value(PARAM_RAW, 'The event\'s name.'), 'The service\'s list events.'
+            ),
+            'header' => new external_value(PARAM_RAW, 'The request\'s header or type'),
+            'name'   => new external_value(PARAM_RAW, 'The service\'s name.'),
+            'point'  => new external_value(PARAM_URL, 'The service\'s endpoint.'),
+            'status' => new external_value(PARAM_BOOL, 'The service\'s status.'),
+            'token'  => new external_value(PARAM_RAW, 'The service\'s secret key.'),
+        ], '');
+    }
+
+    /**
+     * Returns description of the method result value.
+     *
+     * @return \external_value
+     */
+    public static function add_service_returns(): external_value {
+        return new external_value(PARAM_INT, 'The service\'s ID.');
+    }
+
+    /**
      * Delete the existing service.
      *
      * @param int $serviceid
