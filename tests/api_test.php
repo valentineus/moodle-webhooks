@@ -122,10 +122,10 @@ final class local_webhooks_api_testcase extends advanced_testcase {
         self::assertCount(0, $DB->get_records(LW_TABLE_EVENTS));
         self::assertCount(0, $DB->get_records(LW_TABLE_SERVICES));
 
-        // Testing correct delete record of the record's list.
         $ids = [];
         $total = random_int(5, 20);
 
+        // Testing correct delete record of the record's list.
         for ($i = 0; $i < $total; $i++) {
             $record = self::get_random_record();
             $ids[] = api::add_service($record);

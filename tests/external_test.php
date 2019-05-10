@@ -65,6 +65,47 @@ final class local_webhooks_external_testcase extends externallib_advanced_testca
     }
 
     /**
+     * Testing the external delete service.
+     *
+     * @throws \ReflectionException
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \invalid_parameter_exception
+     * @throws \invalid_response_exception
+     * @throws \restricted_context_exception
+     */
+    public function test_deleting() {
+        $this->resetAfterTest();
+        self::setAdminUser();
+
+        // Testing correct delete record of the database.
+        $record = self::get_random_record();
+        $record->id = api::add_service($record);
+
+        $return = local_webhooks_external::del_service($record->id);
+        $return = external_api::clean_returnvalue(local_webhooks_external::del_service_returns(), $return);
+
+        self::assertEquals(0, api::get_total_count());
+        self::assertInternalType('bool', $return);
+
+        $ids = [];
+        $total = random_int(5, 20);
+
+        // Testing correct delete record of the record's list.
+        for ($i = 0; $i < $total; $i++) {
+            $record = self::get_random_record();
+            $ids[] = api::add_service($record);
+        }
+
+        self::assertEquals(count($ids), api::get_total_count());
+        $return = local_webhooks_external::del_service($ids[array_rand($ids, 1)]);
+        $return = external_api::clean_returnvalue(local_webhooks_external::del_service_returns(), $return);
+
+        self::assertEquals(count($ids) - 1, api::get_total_count());
+        self::assertInternalType('bool', $return);
+    }
+
+    /**
      * Testing external get record's data.
      *
      * @throws \ReflectionException
@@ -75,9 +116,8 @@ final class local_webhooks_external_testcase extends externallib_advanced_testca
      * @throws \restricted_context_exception
      */
     public function test_get_service() {
-        self::setAdminUser();
-
         $this->resetAfterTest();
+        self::setAdminUser();
 
         // Creating a new record.
         $record = self::get_random_record();
@@ -114,9 +154,8 @@ final class local_webhooks_external_testcase extends externallib_advanced_testca
      * @throws \restricted_context_exception
      */
     public function test_get_services() {
-        self::setAdminUser();
-
         $this->resetAfterTest();
+        self::setAdminUser();
 
         $records = [];
         $total = random_int(5, 10);
@@ -168,9 +207,8 @@ final class local_webhooks_external_testcase extends externallib_advanced_testca
      * @throws \restricted_context_exception
      */
     public function test_get_services_with_conditions() {
-        self::setAdminUser();
-
         $this->resetAfterTest();
+        self::setAdminUser();
 
         $records = [];
         $total = random_int(5, 10);

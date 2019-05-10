@@ -32,9 +32,51 @@ use local_webhooks\local\record;
  */
 final class local_webhooks_external extends external_api {
     /**
+     * Delete the existing service.
+     *
+     * @param int $serviceid
+     *
+     * @return bool
+     *
+     * @throws \dml_exception
+     * @throws \invalid_parameter_exception
+     * @throws \restricted_context_exception
+     */
+    public static function del_service(int $serviceid): bool {
+        $parameters = self::validate_parameters(self::del_service_parameters(), [
+            'serviceid' => $serviceid,
+        ]);
+
+        $context = context_system::instance();
+        self::validate_context($context);
+
+        return api::del_service($parameters['serviceid']);
+    }
+
+    /**
+     * Returns description of the method parameters.
+     *
+     * @return \external_function_parameters
+     */
+    public static function del_service_parameters(): external_function_parameters {
+        return new external_function_parameters([
+            'serviceid' => new external_value(PARAM_INT, 'The service\'s ID.'),
+        ], '');
+    }
+
+    /**
+     * Returns description of the method result value.
+     *
+     * @return \external_value
+     */
+    public static function del_service_returns(): external_value {
+        return new external_value(PARAM_BOOL, 'The result operation.');
+    }
+
+    /**
      * Get data by service.
      *
-     * @param int $serviceid Service's ID.
+     * @param int $serviceid
      *
      * @return \local_webhooks\local\record
      *
@@ -43,7 +85,9 @@ final class local_webhooks_external extends external_api {
      * @throws \restricted_context_exception
      */
     public static function get_service(int $serviceid): record {
-        $parameters = self::validate_parameters(self::get_service_parameters(), ['serviceid' => $serviceid]);
+        $parameters = self::validate_parameters(self::get_service_parameters(), [
+            'serviceid' => $serviceid,
+        ]);
 
         $context = context_system::instance();
         self::validate_context($context);
@@ -52,7 +96,7 @@ final class local_webhooks_external extends external_api {
     }
 
     /**
-     * Returns description of method parameters.
+     * Returns description of the method parameters.
      *
      * @return \external_function_parameters
      */
@@ -63,7 +107,7 @@ final class local_webhooks_external extends external_api {
     }
 
     /**
-     * Returns description of method parameters.
+     * Returns description of the method result value.
      *
      * @return \external_single_structure
      */
@@ -115,7 +159,7 @@ final class local_webhooks_external extends external_api {
     }
 
     /**
-     * Returns description of method parameters.
+     * Returns description of the method parameters.
      *
      * @return \external_function_parameters
      */
@@ -135,7 +179,7 @@ final class local_webhooks_external extends external_api {
     }
 
     /**
-     * Returns description of method parameters.
+     * Returns description of the method result value.
      *
      * @return \external_multiple_structure
      */
