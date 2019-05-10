@@ -24,12 +24,44 @@ use local_webhooks\local\api;
 use local_webhooks\local\record;
 
 /**
- * Class local_webhooks_api_testcase.
+ * Testing the API plugin class.
  *
  * @copyright 2019 'Valentin Popov' <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class local_webhooks_api_testcase extends advanced_testcase {
+    /**
+     * Generate random an event's list.
+     *
+     * @return array
+     *
+     * @throws \ReflectionException
+     */
+    private static function get_random_events(): array {
+        $result = array_rand(api::get_events(), random_int(2, 10));
+
+        return is_array($result) ? $result : [];
+    }
+
+    /**
+     * Generate a random record.
+     *
+     * @return \local_webhooks\local\record
+     *
+     * @throws \ReflectionException
+     */
+    private static function get_random_record(): record {
+        $record = new record();
+        $record->events = self::get_random_events();
+        $record->header = 'application/json';
+        $record->name = uniqid('', false);
+        $record->point = 'http://example.org/' . urlencode($record->name);
+        $record->status = true;
+        $record->token = generate_uuid();
+
+        return $record;
+    }
+
     /**
      * Testing creation of the service.
      *
@@ -37,26 +69,15 @@ final class local_webhooks_api_testcase extends advanced_testcase {
      *
      * @throws \dml_exception
      * @throws \moodle_exception
+     * @throws \ReflectionException
      */
     public function test_adding() {
         global $DB;
 
         $this->resetAfterTest();
 
-        $record = new record();
-        $record->header = 'application/json';
-        $record->name = 'Example name';
-        $record->point = 'http://example.org/';
-        $record->status = true;
-        $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
-        $record->events = [
-            '\core\event\course_created',
-            '\core\event\course_deleted',
-            '\core\event\course_updated',
-            '\core\event\course_viewed',
-        ];
-
-        $record->id = api::create_service($record);
+        $record = self::get_random_record();
+        $record->id = api::add_service($record);
 
         $events = $DB->get_records(LW_TABLE_EVENTS);
         $services = $DB->get_records(LW_TABLE_SERVICES);
@@ -81,30 +102,22 @@ final class local_webhooks_api_testcase extends advanced_testcase {
     /**
      * Test deletion of the service.
      *
+     * @todo  It's no testing all conditional.
+     *
      * @group local_webhooks
      *
      * @throws \dml_exception
      * @throws \moodle_exception
+     * @throws \ReflectionException
      */
     public function test_deleting() {
         global $DB;
 
         $this->resetAfterTest();
 
-        $record = new record();
-        $record->header = 'application/json';
-        $record->name = 'Example name';
-        $record->point = 'http://example.org/';
-        $record->status = true;
-        $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
-        $record->events = [
-            '\core\event\course_created',
-            '\core\event\course_deleted',
-            '\core\event\course_updated',
-            '\core\event\course_viewed',
-        ];
+        $record = self::get_random_record();
+        $record->id = api::add_service($record);
 
-        $record->id = api::create_service($record);
         self::assertTrue(api::delete_service($record->id));
         self::assertCount(0, $DB->get_records(LW_TABLE_EVENTS));
         self::assertCount(0, $DB->get_records(LW_TABLE_SERVICES));
@@ -140,24 +153,13 @@ final class local_webhooks_api_testcase extends advanced_testcase {
      *
      * @throws \dml_exception
      * @throws \moodle_exception
+     * @throws \ReflectionException
      */
     public function test_get_service() {
         $this->resetAfterTest();
 
-        $record = new record();
-        $record->header = 'application/json';
-        $record->name = 'Example name';
-        $record->point = 'http://example.org/';
-        $record->status = true;
-        $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
-        $record->events = [
-            '\core\event\course_created',
-            '\core\event\course_deleted',
-            '\core\event\course_updated',
-            '\core\event\course_viewed',
-        ];
-
-        $record->id = api::create_service($record);
+        $record = self::get_random_record();
+        $record->id = api::add_service($record);
         $service = api::get_service($record->id);
 
         self::assertEquals($record->header, $service->header);
@@ -181,35 +183,28 @@ final class local_webhooks_api_testcase extends advanced_testcase {
      *
      * @throws \dml_exception
      * @throws \moodle_exception
+     * @throws \ReflectionException
      */
     public function test_get_services() {
         $this->resetAfterTest();
 
-        $record = new record();
-        $record->header = 'application/json';
-        $record->name = 'Example name';
-        $record->point = 'http://example.org/';
-        $record->status = true;
-        $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
-        $record->events = [
-            '\core\event\course_created',
-            '\core\event\course_deleted',
-            '\core\event\course_updated',
-            '\core\event\course_viewed',
-        ];
-
-        $ids = [];
+        $records = [];
         $total = random_int(5, 20);
+
         for ($i = 0; $i < $total; $i++) {
-            $ids[] = api::create_service($record);
+            $record = self::get_random_record();
+            $record->id = api::add_service($record);
+            $records[$record->id] = $record;
         }
 
         $services = api::get_services();
-        self::assertCount(count($ids), $services);
+        self::assertCount(count($records), $services);
 
         foreach ($services as $service) {
-            self::assertContains($service->id, $ids);
+            $record = $records[$service->id];
+
             self::assertEquals($record->header, $service->header);
+            self::assertEquals($record->id, $service->id);
             self::assertEquals($record->name, $service->name);
             self::assertEquals($record->point, $service->point);
             self::assertEquals($record->status, $service->status);
@@ -226,34 +221,28 @@ final class local_webhooks_api_testcase extends advanced_testcase {
     /**
      * Testing get to the list services by event name.
      *
+     * @todo  It's no testing all conditional.
+     *
      * @group local_webhooks
      *
      * @throws \dml_exception
      * @throws \moodle_exception
+     * @throws \ReflectionException
      */
     public function test_get_services_by_event() {
         $this->resetAfterTest();
 
-        $record = new record();
-        $record->header = 'application/json';
-        $record->name = 'Example name';
-        $record->point = 'http://example.org/';
-        $record->status = true;
-        $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
-        $record->events = [
-            '\core\event\course_created',
-            '\core\event\course_deleted',
-            '\core\event\course_updated',
-            '\core\event\course_viewed',
-        ];
+        $eventname = generate_uuid();
+        $total = random_int(5, 20);
 
         $ids = [];
-        $total = random_int(5, 20);
+
         for ($i = 0; $i < $total; $i++) {
-            $ids[] = api::create_service($record);
+            $record = self::get_random_record();
+            $record->events[] = $eventname;
+            $ids[] = api::add_service($record);
         }
 
-        $eventname = $record->events[random_int(1, count($record->events) - 1)];
         $services = api::get_services_by_event($eventname);
         self::assertCount(count($ids), $services);
 
@@ -269,31 +258,24 @@ final class local_webhooks_api_testcase extends advanced_testcase {
      *
      * @throws \dml_exception
      * @throws \moodle_exception
+     * @throws \ReflectionException
      */
     public function test_get_services_with_conditions() {
         $this->resetAfterTest();
 
-        $record = new record();
-        $record->header = 'application/json';
-        $record->status = true;
-        $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
-        $record->events = [
-            '\core\event\course_created',
-            '\core\event\course_deleted',
-            '\core\event\course_updated',
-            '\core\event\course_viewed',
-        ];
-
         $total = random_int(5, 20);
+
+        $records = [];
         for ($i = 0; $i < $total; $i++) {
-            $record->name = 'Example name #' . $i;
-            $record->point = 'http://example.org/test_' . $i;
-            api::create_service($record);
+            $record = self::get_random_record();
+            $record->id = api::add_service($record);
+            $records[] = $record;
         }
 
         // Testing condition fields.
+        $record = $records[array_rand($records, 1)];
         self::assertCount(1, api::get_services([
-            'point' => 'http://example.org/test_' . random_int(1, 5),
+            'point' => $record->point,
         ]));
 
         // Testing limit fields.
@@ -311,26 +293,16 @@ final class local_webhooks_api_testcase extends advanced_testcase {
      *
      * @throws \coding_exception
      * @throws \dml_exception
+     * @throws \ReflectionException
      */
     public function test_total() {
         $this->resetAfterTest();
 
-        $record = new record();
-        $record->header = 'application/json';
-        $record->status = true;
-        $record->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
-        $record->events = [
-            '\core\event\course_created',
-            '\core\event\course_deleted',
-            '\core\event\course_updated',
-            '\core\event\course_viewed',
-        ];
-
         $total = random_int(5, 20);
+
         for ($i = 0; $i < $total; $i++) {
-            $record->name = 'Example name #' . $i;
-            $record->point = 'http://example.org/test_' . $i;
-            api::create_service($record);
+            $record = self::get_random_record();
+            api::add_service($record);
         }
 
         self::assertEquals($total, api::get_total_count());
@@ -343,38 +315,17 @@ final class local_webhooks_api_testcase extends advanced_testcase {
      *
      * @throws \dml_exception
      * @throws \moodle_exception
+     * @throws \ReflectionException
      */
     public function test_updating() {
         global $DB;
 
         $this->resetAfterTest();
 
-        $record1 = new record();
-        $record1->header = 'application/json';
-        $record1->name = 'Example name';
-        $record1->point = 'http://example.org/';
-        $record1->status = true;
-        $record1->token = '967b2286-0874-4938-b088-efdbcf8a79bc';
-        $record1->events = [
-            '\core\event\course_created',
-            '\core\event\course_deleted',
-            '\core\event\course_updated',
-            '\core\event\course_viewed',
-        ];
+        $record1 = self::get_random_record();
+        $record2 = self::get_random_record();
 
-        $record2 = new record();
-        $record2->header = 'application/x-www-form-urlencoded';
-        $record2->name = 'New name';
-        $record2->point = 'http://domain.local/example';
-        $record2->status = false;
-        $record2->token = 'add62250-2f03-49a9-97c4-6cd73a79e83b';
-        $record2->events = [
-            '\core\event\calendar_event_created',
-            '\core\event\calendar_event_deleted',
-            '\core\event\calendar_event_updated',
-        ];
-
-        $record2->id = api::create_service($record1);
+        $record2->id = api::add_service($record1);
         self::assertTrue(api::update_service($record2));
 
         $events = $DB->get_records(LW_TABLE_EVENTS);

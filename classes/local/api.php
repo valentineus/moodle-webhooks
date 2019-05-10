@@ -50,10 +50,11 @@ final class api {
      * @param \local_webhooks\local\record $record
      *
      * @return int
+     *
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public static function create_service(record $record): int {
+    public static function add_service(record $record): int {
         global $DB;
 
         $id = $DB->insert_record(LW_TABLE_SERVICES, $record);
@@ -77,6 +78,7 @@ final class api {
      * @param int $id
      *
      * @return bool
+     *
      * @throws \dml_exception
      */
     public static function delete_service(int $id): bool {
@@ -91,6 +93,7 @@ final class api {
      * Get an event's list.
      *
      * @return array
+     *
      * @throws \ReflectionException
      */
     public static function get_events(): array {
@@ -103,6 +106,7 @@ final class api {
      * @param int $id
      *
      * @return \local_webhooks\local\record
+     *
      * @throws \dml_exception
      */
     public static function get_service(int $id): record {
@@ -132,6 +136,7 @@ final class api {
      * @param int|null    $limit
      *
      * @return array
+     *
      * @throws \dml_exception
      */
     public static function get_services(array $conditions = null, string $sort = null, int $from = null, int $limit = null): array {
@@ -168,6 +173,7 @@ final class api {
      * @param string $name
      *
      * @return \local_webhooks\local\record[]
+     *
      * @throws \dml_exception
      */
     public static function get_services_by_event(string $name): array {
@@ -191,6 +197,7 @@ final class api {
      * Get a total count of existing records.
      *
      * @return int
+     *
      * @throws \dml_exception
      */
     public static function get_total_count(): int {
@@ -205,6 +212,7 @@ final class api {
      * @param \local_webhooks\local\record $service
      *
      * @return bool
+     *
      * @throws \coding_exception
      * @throws \dml_exception
      */
@@ -227,6 +235,7 @@ final class api {
      * Get a system's events list.
      *
      * @return array
+     *
      * @throws \ReflectionException
      */
     private static function get_core_events_list(): array {
@@ -308,6 +317,7 @@ final class api {
      * Get a plugins' events list.
      *
      * @return array
+     *
      * @throws \ReflectionException
      */
     private static function get_non_core_event_list(): array {
