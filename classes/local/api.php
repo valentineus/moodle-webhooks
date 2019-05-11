@@ -250,14 +250,14 @@ final class api {
         $CFG->debugdisplay = false;
 
         $directory = $CFG->libdir . '/classes/event';
+        $events = [];
         $files = self::get_file_list($directory);
 
         if (isset($files['unknown_logged'])) {
             unset($files['unknown_logged']);
         }
 
-        $events = [];
-        foreach ($files as $file => $location) {
+        foreach (array_keys($files) as $file) {
             $name = '\\core\\event\\' . $file;
 
             if (method_exists($name, 'get_static_info')) {
@@ -286,18 +286,14 @@ final class api {
     private static function get_file_list(string $directory): array {
         global $CFG;
 
+        $files = [];
         $root = $CFG->dirroot;
 
-        $files = [];
         if (is_dir($directory) && is_readable($directory)) {
             $handle = opendir($directory);
 
             if ($handle) {
                 foreach (scandir($directory, SCANDIR_SORT_NONE) as $file) {
-                    if (!is_string($file)) {
-                        continue;
-                    }
-
                     if ($file !== '.' && $file !== '..' && strrpos($directory, $root) !== false) {
                         $location = substr($directory, strlen($root));
                         $eventname = substr($file, 0, -4);
@@ -332,7 +328,8 @@ final class api {
         $CFG->debugdisplay = false;
 
         $events = [];
-        foreach (core_component::get_plugin_types() as $type => $unused) {
+
+        foreach (array_keys(core_component::get_plugin_types()) as $type) {
             foreach (core_component::get_plugin_list($type) as $plugin => $directory) {
                 $directory .= '/classes/event';
                 $files = self::get_file_list($directory);
@@ -341,7 +338,7 @@ final class api {
                     unset($files['unknown_logged']);
                 }
 
-                foreach ($files as $file => $location) {
+                foreach (array_keys($files) as $file) {
                     $name = '\\' . $type . '_' . $plugin . '\\event\\' . $file;
 
                     if (method_exists($name, 'get_static_info')) {

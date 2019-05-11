@@ -150,7 +150,7 @@ final class local_webhooks_api_testcase extends advanced_testcase {
 
         self::assertNotCount(0, $events);
 
-        foreach ($events as $name => $event) {
+        foreach ($events as $event) {
             self::assertInternalType('array', $event);
 
             self::assertEquals([
