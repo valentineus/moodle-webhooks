@@ -17,35 +17,58 @@
 /**
  * This file registers the plugin's external functions.
  *
- * @copyright 2018 'Valentin Popov' <info@valentineus.link>
+ * @copyright 2019 'Valentin Popov' <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @package   local_webhooks
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$functions = array(
-    'local_webhooks_get_service' => array(
+$functions = [
+    'local_webhooks_add_service' => [
         'classname'   => 'local_webhooks_external',
         'classpath'   => 'local/webhooks/externallib.php',
-        'description' => 'Get information about the service.',
+        'description' => 'Add a new service.',
+        'methodname'  => 'add_service',
+        'type'        => 'write',
+    ],
+
+    'local_webhooks_del_service' => [
+        'classname'   => 'local_webhooks_external',
+        'classpath'   => 'local/webhooks/externallib.php',
+        'description' => 'Delete the existing service.',
+        'methodname'  => 'del_service',
+        'type'        => 'write',
+    ],
+
+    'local_webhooks_get_events' => [
+        'classname'   => 'local_webhooks_external',
+        'classpath'   => 'local/webhooks/externallib.php',
+        'description' => 'Get the event\'s list.',
+        'methodname'  => 'get_events',
+        'type'        => 'read',
+    ],
+
+    'local_webhooks_get_service' => [
+        'classname'   => 'local_webhooks_external',
+        'classpath'   => 'local/webhooks/externallib.php',
+        'description' => 'Get data by service.',
         'methodname'  => 'get_service',
         'type'        => 'read',
-    ),
+    ],
 
-    'local_webhooks_get_services' => array(
+    'local_webhooks_get_services' => [
         'classname'   => 'local_webhooks_external',
         'classpath'   => 'local/webhooks/externallib.php',
-        'description' => 'Get a list of services.',
+        'description' => 'Get the service\'s list.',
         'methodname'  => 'get_services',
         'type'        => 'read',
-    ),
+    ],
 
-    'local_webhooks_get_services_by_event' => array(
+    'local_webhooks_set_service' => [
         'classname'   => 'local_webhooks_external',
         'classpath'   => 'local/webhooks/externallib.php',
-        'description' => 'Get the list of services subscribed to the event.',
-        'methodname'  => 'get_services_by_event',
-        'type'        => 'read',
-    ),
-);
+        'description' => 'Update the existing service.',
+        'methodname'  => 'set_service',
+        'type'        => 'write',
+    ],
+];

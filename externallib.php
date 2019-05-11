@@ -73,8 +73,8 @@ final class local_webhooks_external extends external_api {
                 'point'  => new external_value(PARAM_URL, 'The service\'s endpoint.'),
                 'status' => new external_value(PARAM_BOOL, 'The service\'s status.', false, true),
                 'token'  => new external_value(PARAM_RAW, 'The service\'s secret key.'),
-            ], ''),
-        ], '');
+            ], 'The new service\'s data.'),
+        ]);
     }
 
     /**
@@ -116,7 +116,7 @@ final class local_webhooks_external extends external_api {
     public static function del_service_parameters(): external_function_parameters {
         return new external_function_parameters([
             'serviceid' => new external_value(PARAM_INT, 'The service\'s ID.'),
-        ], '');
+        ]);
     }
 
     /**
@@ -151,7 +151,7 @@ final class local_webhooks_external extends external_api {
      * @return \external_function_parameters
      */
     public static function get_events_parameters(): external_function_parameters {
-        return new external_function_parameters([], '');
+        return new external_function_parameters([]);
     }
 
     /**
@@ -162,14 +162,14 @@ final class local_webhooks_external extends external_api {
     public static function get_events_returns(): external_multiple_structure {
         return new external_multiple_structure(
             new external_single_structure([
-                'action'      => new external_value(PARAM_ALPHANUMEXT, ''),
-                'component'   => new external_value(PARAM_COMPONENT, ''),
-                'crud'        => new external_value(PARAM_ALPHA, ''),
-                'edulevel'    => new external_value(PARAM_INT, ''),
-                'eventname'   => new external_value(PARAM_RAW, ''),
-                'objecttable' => new external_value(PARAM_RAW, ''),
-                'target'      => new external_value(PARAM_RAW, ''),
-            ], ''), ''
+                'action'      => new external_value(PARAM_ALPHANUMEXT, 'The action name.'),
+                'component'   => new external_value(PARAM_COMPONENT, 'The component name.'),
+                'crud'        => new external_value(PARAM_ALPHA, 'The transaction type.'),
+                'edulevel'    => new external_value(PARAM_INT, 'The level of educational value.'),
+                'eventname'   => new external_value(PARAM_RAW, 'The event name.'),
+                'objecttable' => new external_value(PARAM_RAW, 'The database table name.'),
+                'target'      => new external_value(PARAM_RAW, 'The target on which the action.'),
+            ], 'The event\'s data.'), 'The event\'s list.'
         );
     }
 
@@ -203,7 +203,7 @@ final class local_webhooks_external extends external_api {
     public static function get_service_parameters(): external_function_parameters {
         return new external_function_parameters([
             'serviceid' => new external_value(PARAM_INT, 'The service\'s ID.'),
-        ], '');
+        ]);
     }
 
     /**
@@ -222,7 +222,7 @@ final class local_webhooks_external extends external_api {
             'point'  => new external_value(PARAM_URL, 'The service\'s endpoint.'),
             'status' => new external_value(PARAM_BOOL, 'The service\'s status.'),
             'token'  => new external_value(PARAM_RAW, 'The service\'s secret key.'),
-        ], '');
+        ], 'The service\'s data.');
     }
 
     /**
@@ -271,11 +271,11 @@ final class local_webhooks_external extends external_api {
                 'point'  => new external_value(PARAM_URL, 'The service\'s endpoint.', false),
                 'status' => new external_value(PARAM_BOOL, 'The service\'s status.', false),
                 'token'  => new external_value(PARAM_RAW, 'The service\'s secret key.', false),
-            ], '', false),
-            'sort'       => new external_value(PARAM_RAW, '', false),
-            'from'       => new external_value(PARAM_INT, '', false),
-            'limit'      => new external_value(PARAM_INT, '', false),
-        ], '');
+            ], 'SQL conditions.', false),
+            'sort'       => new external_value(PARAM_RAW, 'SQL sort parameters.', false),
+            'from'       => new external_value(PARAM_INT, 'The start index.', false),
+            'limit'      => new external_value(PARAM_INT, 'The count elements.', false),
+        ]);
     }
 
     /**
@@ -295,7 +295,7 @@ final class local_webhooks_external extends external_api {
                 'point'  => new external_value(PARAM_URL, 'The service\'s endpoint.'),
                 'status' => new external_value(PARAM_BOOL, 'The service\'s status.'),
                 'token'  => new external_value(PARAM_RAW, 'The service\'s secret key.'),
-            ], ''), ''
+            ], 'The service\'s data.'), 'The service\'s list.'
         );
     }
 
@@ -351,8 +351,8 @@ final class local_webhooks_external extends external_api {
                 'point'  => new external_value(PARAM_URL, 'The service\'s endpoint.', false),
                 'status' => new external_value(PARAM_BOOL, 'The service\'s status.', false),
                 'token'  => new external_value(PARAM_RAW, 'The service\'s secret key.', false),
-            ], ''),
-        ], '');
+            ], 'The new service\'s data.'),
+        ]);
     }
 
     /**
@@ -361,6 +361,6 @@ final class local_webhooks_external extends external_api {
      * @return \external_value
      */
     public static function set_service_returns(): external_value {
-        return new external_value(PARAM_BOOL, '');
+        return new external_value(PARAM_BOOL, 'The result operation.');
     }
 }
