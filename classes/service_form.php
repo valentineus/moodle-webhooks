@@ -67,7 +67,7 @@ class service_edit_form extends moodleform {
      */
     protected function definition() {
         $mform =& $this->_form;
-        $size = [ 'size' => 60 ];
+        $size = ['size' => 60];
 
         /* Form heading */
         $mform->addElement('header', 'editserviceheader', new lang_string('service', 'webservice'));
@@ -98,7 +98,11 @@ class service_edit_form extends moodleform {
         $mform->setAdvanced('other');
 
         /* Content type */
-        $contenttype = [ 'json' => 'application/json', 'x-www-form-urlencoded' => 'application/x-www-form-urlencoded' ];
+        $contenttype = [
+            'json'                  => 'application/json',
+            'x-www-form-urlencoded' => 'application/x-www-form-urlencoded',
+        ];
+
         $mform->addElement('select', 'type', 'Content type', $contenttype);
         $mform->setAdvanced('type');
 
@@ -112,8 +116,8 @@ class service_edit_form extends moodleform {
         /* Formation of the list of elements */
         foreach ($eventlist as $event) {
             /* Escaping event names */
-            $eventname = base64_encode($event[ 'eventname' ]);
-            $events[ $event[ 'component' ] ][] =& $mform->createElement('checkbox', $eventname, $event[ 'eventname' ], $event[ 'eventname' ]);
+            $eventname = base64_encode($event['eventname']);
+            $events[$event['component']][] =& $mform->createElement('checkbox', $eventname, $event['eventname']);
         }
 
         /* Displays groups of items */
