@@ -15,12 +15,28 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component "local_webhooks", language "en".
+ * Privacy Subsystem implementation for local_webhooks.
  *
- * @package   local_webhooks
- * @copyright 2017 "Valentin Popov" <info@valentineus.link>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    local_webhooks
+ * @copyright  2020 Dmitrii Metelkin <dmitriim@catalyst-net.au>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string["pluginname"] = "WebHooks";
-$string['privacy:metadata'] = 'WebHooks does not store any personal data.';
+namespace local_webhooks\privacy;
+
+defined('MOODLE_INTERNAL') || die();
+
+class provider implements
+    // This plugin does not store any personal user data.
+    \core_privacy\local\metadata\null_provider {
+
+    /**
+     * Get the language string identifier with the component's language
+     * file to explain why this plugin stores no data.
+     *
+     * @return string
+     */
+    public static function get_reason() : string {
+        return 'privacy:metadata';
+    }
+}
