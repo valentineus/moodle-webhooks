@@ -95,6 +95,15 @@ class handler {
      * @throws \dml_exception
      */
     private static function send($data, $callback) {
+        global $DB;
+
+        $data['email'] = '';
+        if($data['userid']){
+            $userid = $data['userid'];
+            $datadb = $DB->get_record_sql('SELECT email FROM {user} WHERE id = ?', [$userid]);
+            $data['email'] = $datadb->email;
+        }
+
         $curl = new curl();
         $curl->setHeader(array('Content-Type: application/' . $callback->type));
         $curl->post($callback->url, json_encode($data));
