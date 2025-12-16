@@ -29,7 +29,7 @@ $observers = array(
         "callback"    => "\local_webhooks\\handler::events",
         "eventname"   => "*",
         "includefile" => null,
-        "internal"    => true,
+        "internal"    => false,
         "priority"    => 200
     )
 );
