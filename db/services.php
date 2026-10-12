@@ -17,99 +17,58 @@
 /**
  * This file registers the plugin's external functions.
  *
- * @package   local_webhooks
- * @copyright 2017 "Valentin Popov" <info@valentineus.link>
+ * @copyright 2019 'Valentin Popov' <info@valentineus.link>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined("MOODLE_INTERNAL") || die();
+defined('MOODLE_INTERNAL') || die();
 
-$functions = array(
-    "local_webhooks_change_status" => array(
-        "classname"   => "local_webhooks_external",
-        "methodname"  => "change_status",
-        "classpath"   => "local/webhooks/externallib.php",
-        "description" => "Change the status of the service.",
-        "type"        => "write"
-    ),
+$functions = [
+    'local_webhooks_add_service' => [
+        'classname'   => 'local_webhooks_external',
+        'classpath'   => 'local/webhooks/externallib.php',
+        'description' => 'Add a new service.',
+        'methodname'  => 'add_service',
+        'type'        => 'write',
+    ],
 
-    "local_webhooks_search_services_by_event" => array(
-        "classname"   => "local_webhooks_external",
-        "methodname"  => "search_services_by_event",
-        "classpath"   => "local/webhooks/externallib.php",
-        "description" => "Search for services that contain the specified event.",
-        "type"        => "read"
-    ),
+    'local_webhooks_del_service' => [
+        'classname'   => 'local_webhooks_external',
+        'classpath'   => 'local/webhooks/externallib.php',
+        'description' => 'Delete the existing service.',
+        'methodname'  => 'del_service',
+        'type'        => 'write',
+    ],
 
-    "local_webhooks_get_record" => array(
-        "classname"   => "local_webhooks_external",
-        "methodname"  => "get_record",
-        "classpath"   => "local/webhooks/externallib.php",
-        "description" => "Get the record from the database.",
-        "type"        => "read"
-    ),
+    'local_webhooks_get_events' => [
+        'classname'   => 'local_webhooks_external',
+        'classpath'   => 'local/webhooks/externallib.php',
+        'description' => 'Get the event\'s list.',
+        'methodname'  => 'get_events',
+        'type'        => 'read',
+    ],
 
-    "local_webhooks_get_list_records" => array(
-        "classname"   => "local_webhooks_external",
-        "methodname"  => "get_list_records",
-        "classpath"   => "local/webhooks/externallib.php",
-        "description" => "Get all records from the database.",
-        "type"        => "read"
-    ),
+    'local_webhooks_get_service' => [
+        'classname'   => 'local_webhooks_external',
+        'classpath'   => 'local/webhooks/externallib.php',
+        'description' => 'Get data by service.',
+        'methodname'  => 'get_service',
+        'type'        => 'read',
+    ],
 
-    "local_webhooks_get_list_events" => array(
-        "classname"   => "local_webhooks_external",
-        "methodname"  => "get_list_events",
-        "classpath"   => "local/webhooks/externallib.php",
-        "description" => "Get a list of all system events.",
-        "type"        => "read"
-    ),
+    'local_webhooks_get_services' => [
+        'classname'   => 'local_webhooks_external',
+        'classpath'   => 'local/webhooks/externallib.php',
+        'description' => 'Get the service\'s list.',
+        'methodname'  => 'get_services',
+        'type'        => 'read',
+    ],
 
-    "local_webhooks_create_record" => array(
-        "classname"   => "local_webhooks_external",
-        "methodname"  => "create_record",
-        "classpath"   => "local/webhooks/externallib.php",
-        "description" => "Create an entry in the database.",
-        "type"        => "write"
-    ),
-
-    "local_webhooks_update_record" => array(
-        "classname"   => "local_webhooks_external",
-        "methodname"  => "update_record",
-        "classpath"   => "local/webhooks/externallib.php",
-        "description" => "Update the record in the database.",
-        "type"        => "write"
-    ),
-
-    "local_webhooks_delete_record" => array(
-        "classname"   => "local_webhooks_external",
-        "methodname"  => "delete_record",
-        "classpath"   => "local/webhooks/externallib.php",
-        "description" => "Delete the record from the database.",
-        "type"        => "write"
-    ),
-
-    "local_webhooks_delete_all_records" => array(
-        "classname"   => "local_webhooks_external",
-        "methodname"  => "delete_all_records",
-        "classpath"   => "local/webhooks/externallib.php",
-        "description" => "Delete all records from the database.",
-        "type"        => "write"
-    ),
-
-    "local_webhooks_create_backup" => array(
-        "classname"   => "local_webhooks_external",
-        "methodname"  => "create_backup",
-        "classpath"   => "local/webhooks/externallib.php",
-        "description" => "Create a backup.",
-        "type"        => "read"
-    ),
-
-    "local_webhooks_restore_backup" => array(
-        "classname"   => "local_webhooks_external",
-        "methodname"  => "restore_backup",
-        "classpath"   => "local/webhooks/externallib.php",
-        "description" => "Restore from a backup.",
-        "type"        => "write"
-    )
-);
+    'local_webhooks_set_service' => [
+        'classname'   => 'local_webhooks_external',
+        'classpath'   => 'local/webhooks/externallib.php',
+        'description' => 'Update the existing service.',
+        'methodname'  => 'set_service',
+        'type'        => 'write',
+    ],
+];

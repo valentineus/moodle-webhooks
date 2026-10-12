@@ -14,19 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Information about the version of the plugin.
- *
- * @package   local_webhooks
- * @copyright 2017 "Valentin Popov" <info@valentineus.link>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+defined('MOODLE_INTERNAL') || die();
 
-defined("MOODLE_INTERNAL") || die();
-
-$plugin->release      = "4.0.0-rc.2 (Build: 2018022500)";
-$plugin->version      = 2018022500;
-$plugin->requires     = 2016112900;
-$plugin->component    = "local_webhooks";
-$plugin->maturity     = MATURITY_RC;
-$plugin->dependencies = array("report_eventlist" => 2016120500);
+$plugin->component = 'local_webhooks';
+$plugin->maturity = MATURITY_ALPHA;
+$plugin->release = '5.0.0-rc.1 (Build: 2019040100)';
+$plugin->requires = 2016052300;
+$plugin->version = 2019040100;

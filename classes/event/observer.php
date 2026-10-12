@@ -14,18 +14,31 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Definition of the plug-in cache.
- *
- * @package   local_webhooks
- * @copyright 2017 "Valentin Popov" <info@valentineus.link>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace local_webhooks\event;
 
-$definitions = array(
-    "webhooks_services" => array(
-        "mode" => cache_store::MODE_APPLICATION,
-        "requiredataguarantee" => true,
-        "staticacceleration"   => true
-    )
-);
+defined('MOODLE_INTERNAL') || die();
+
+use core\event\base as event;
+use core\task\manager;
+use local_webhooks\task\notify;
+use function defined;
+
+/**
+ * Class observer.
+ *
+ * @copyright 2019 'Valentin Popov' <info@valentineus.link>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   local_webhooks\event
+ */
+final class observer {
+    /**
+     * Main handler for events.
+     *
+     * @param \core\event\base $event
+     */
+    public static function handler(event $event) {
+        $task = new notify();
+        $task->set_custom_data($event->get_data());
+        manager::queue_adhoc_task($task);
+    }
+}
