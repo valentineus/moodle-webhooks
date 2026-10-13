@@ -30,6 +30,7 @@ final class handler_test extends \advanced_testcase {
         $this->resetAfterTest();
         require_once($CFG->libdir . '/filelib.php');
         require_once(__DIR__ . '/../lib.php');
+        $user = $this->getDataGenerator()->create_user();
 
         $eventname = '\\core\\event\\user_created';
         $base = (object) array(
@@ -54,7 +55,8 @@ final class handler_test extends \advanced_testcase {
         $sink = $this->redirectEvents();
         $event = \core\event\user_created::create(array(
             'context' => \context_system::instance(),
-            'objectid' => 123,
+            'objectid' => $user->id,
+            'relateduserid' => $user->id,
         ));
         handler::events($event);
         $responses = $sink->get_events();

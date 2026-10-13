@@ -45,7 +45,7 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd=pg_isready
+          --health-cmd="pg_isready -U postgres"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=10
@@ -59,7 +59,7 @@ jobs:
 
     steps:
       - name: Check out plugin
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: plugin
           persist-credentials: false
@@ -74,7 +74,7 @@ jobs:
           tools: composer:v2
 
       - name: Set up Node.js for Moodle tooling
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '22'
 
@@ -106,7 +106,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Check out tested plugin
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
 
@@ -129,7 +129,7 @@ jobs:
           PY
 
       - name: Upload installation package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: local_webhooks-${{ github.sha }}
           path: build/local_webhooks.zip
