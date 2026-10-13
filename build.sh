@@ -1,32 +1,15 @@
 #!/bin/sh
-# Author:       Valentin Popov
-# Email:        info@valentineus.link
-# Date:         2018-06-19
-# Usage:        /bin/sh ./build.sh
-# Description:  Build the final package for installation in Moodle.
+# Build an installable local_webhooks package from any working directory.
+set -eu
 
-# Updating the Environment
-PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-export PATH="$PATH:/usr/local/scripts"
+DIRECTORY=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+STAGING=$(mktemp -d)
+trap 'rm -rf "$STAGING"' EXIT HUP INT TERM
 
-# Current project
-PROJECT="local_webhooks"
-
-# Defining directories
-DIRECTORY="$(pwd)"
-NAMEDIR="$(basename $DIRECTORY)"
-TMPDIR="$(mktemp --directory)"
-
-# Creating a Temporary Directory
-cp --recursive --verbose "../$NAMEDIR" "$TMPDIR/$PROJECT"
-mkdir --parents --verbose "$DIRECTORY/build"
-cd "$TMPDIR"
-
-# Creating an archive
-zip -9 -r "$DIRECTORY/build/$PROJECT.zip" "$PROJECT" \
-    -x "$PROJECT/.git*" \
-    -x "$PROJECT/.travis.yml" \
-    -x "$PROJECT/build*"
-
-# End of work
-exit 0
+mkdir -p "$STAGING/webhooks" "$DIRECTORY/build"
+# Only runtime files belong in the Moodle installation package.
+cp -R "$DIRECTORY/classes" "$DIRECTORY/db" "$DIRECTORY/lang" "$STAGING/webhooks/"
+cp "$DIRECTORY"/*.php "$DIRECTORY/LICENSE.txt" "$STAGING/webhooks/"
+rm -f "$DIRECTORY/build/local_webhooks.zip"
+cd "$STAGING"
+zip -q -9 -r "$DIRECTORY/build/local_webhooks.zip" webhooks

@@ -1,0 +1,137 @@
+name: Tests and installation package
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Moodle 4.5 / PHP ${{ matrix.php }} / ${{ matrix.database }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.1', '8.3']
+        database: [mysqli, pgsql]
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: moodle
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -pmoodle"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: moodle
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      MOODLE_BRANCH: MOODLE_405_STABLE
+      DB: ${{ matrix.database }}
+      DB_HOST: 127.0.0.1
+      DB_USER: ${{ matrix.database == 'mysqli' && 'root' || 'postgres' }}
+      DB_PASS: moodle
+
+    steps:
+      - name: Check out plugin
+        uses: actions/checkout@v6
+        with:
+          path: plugin
+          persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: curl, dom, gd, intl, mbstring, mysqli, pgsql, soap, xml, zip
+          ini-values: max_input_vars=5000, memory_limit=512M
+          coverage: none
+          tools: composer:v2
+
+      - name: Set up Node.js for Moodle tooling
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Set up Moodle Plugin CI
+        run: |
+          composer create-project --no-dev --prefer-dist --no-interaction moodlehq/moodle-plugin-ci ci '^4.5'
+          echo "$GITHUB_WORKSPACE/ci/bin" >> "$GITHUB_PATH"
+          echo "$GITHUB_WORKSPACE/ci/vendor/bin" >> "$GITHUB_PATH"
+          sudo locale-gen en_AU.UTF-8
+
+      - name: Install Moodle and plugin
+        run: moodle-plugin-ci install --plugin "$GITHUB_WORKSPACE/plugin" --db-port "${{ matrix.database == 'mysqli' && '3306' || '5432' }}"
+
+      - name: Check PHP syntax
+        run: moodle-plugin-ci phplint
+
+      - name: Validate plugin metadata and database schema
+        run: |
+          moodle-plugin-ci validate
+          moodle-plugin-ci savepoints
+
+      - name: Run plugin tests
+        run: moodle-plugin-ci phpunit --fail-on-warning --fail-on-risky --fail-on-incomplete --fail-on-skipped
+
+  package:
+    name: Build installable ZIP
+    needs: test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out tested plugin
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Build package
+        run: sh build.sh
+
+      - name: Verify package contents
+        run: |
+          unzip -t build/local_webhooks.zip
+          python3 - <<'PY'
+          from zipfile import ZipFile
+          with ZipFile('build/local_webhooks.zip') as archive:
+              files = set(archive.namelist())
+          required = {'webhooks/version.php', 'webhooks/db/install.xml',
+                      'webhooks/lang/en/local_webhooks.php', 'webhooks/LICENSE.txt'}
+          assert required <= files, 'Missing required plugin files'
+          assert all(name.startswith('webhooks/') for name in files), 'Invalid plugin root'
+          assert not any(part.startswith('.') or part in {'build', 'tests', 'vendor'}
+                         for name in files for part in name.split('/')), 'Unexpected development files'
+          PY
+
+      - name: Upload installation package
+        uses: actions/upload-artifact@v7
+        with:
+          name: local_webhooks-${{ github.sha }}
+          path: build/local_webhooks.zip
+          if-no-files-found: error
+          retention-days: 30
